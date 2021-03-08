@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+=head1 Description
+
+	This script is used to split fasta file, which is too large with thosands of sequence
+
+=head1 Usage
+
+	$0 -i <input> -o <output_dir> [-n <seq_num_per_file>] [-m <output_file_num>]
+
+=head1 Parameters
+
+	-i	[str]	Input raw fasta file
+	-o	[str]	Output file to which directory
+	-n	[int]	Sequence number per file, alternate chose paramerter "-n" or "-m", if set "-n" and "-m" at the same time, only take "-n" parameter
+	-m	[int]	Output file number (default:100)
+=cut

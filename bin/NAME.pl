@@ -6,48 +6,76 @@
 
 use strict;
 use warnings;
-use feature qw(say);
 
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
-use Carp; #cluck(warn) confess(die)
 use Getopt::Std;
+use Mnet::Tee (); # This module has not modified 'say', use 'print'
+use Config::IniFiles;
+use NAME::GetPar;
 #use NAME::Check;
 #use NAME::QualityControl;
 
-our $VERSION = '0.0.1';
+my $VERSION = 'v0.0.1';
+my $VERSION_TIME = 'Mar 9 2021';
+my $file_par_path; #Define in advance to ensure END block can be executed
 
-our ($opt_h, $opt_v, $opt_d); #indicator for DEBUG mode
-getopts('hvd') ;#or abort();
+if (@ARGV == 0) {
+    print "NAME $VERSION ($VERSION_TIME).\n";
+    print "Use option \'-h/--help\' for usage information.\n";
+    exit 0;
+}
+
+# h:help; v:version; d:debug mode
+our ($opt_h, $opt_v, $opt_d);
+Getopt::Std::getopts('hvd'); # !! or abort();
+
+if ($opt_h) {
+    HELP_MESSAGE();
+    exit 0;
+}
+
+if ($opt_v) {
+    print "Version $VERSION\n"; # !! maybe need other thing
+    exit 0;
+}
+
+print "Start running...\n";
+print "Run in DEBUG mode.\n" if $opt_d;
+print "\n====================\n\n";
+
+if (@ARGV == 1) {
+    ($file_par_path) = @ARGV;
+}elsif (@ARGV == 0) {
+    print "Please imput name of parameter file:\n";
+    chomp($file_par_path = <STDIN>);
+}elsif (@ARGV > 1) {
+    warn("WARNING: More than two parameter files, $ARGV[1] (and any subsequent parameter files) was ignored.\n");
+    ($file_par_path) = @ARGV;
+}
+
+die("ERROR: There is no such parameter file: $file_par_path.\n") unless (-e $file_par_path);
+print "Read parameters from \'$file_par_path\'.\n" if $opt_d;
+print  "\n====================\n\n";
+
+my $par;
+$par = NAME::GetPar::getpar($file_par_path);
+
+print ref($par);
+print "END OF PROGRAMME.\n";
+exit 0;
 
 
 
-# Called by Getopt::Std when supplying --help option
+# HELP_MESSAGE can called by Getopt::Std when supplying '--help' option
 sub HELP_MESSAGE {
     system "pod2text $FindBin::Bin/../doc/help.pod";
     exit 0;
 }
 
-__END__
-
-# Called by Getopt::Std when supplying --version
-sub VERSION_MESSAGE {
-    say "Version $VERSION"; # !! maybe need other thing
-    exit 0;
-}
-
-__END__
-
-# Abort script due to error
-sub abort {
-  say get_help_message();
-  exit 1;
-}
-
-# Central help message
-sub get_message {
-    my $file_path = shift;
-    my $file = `pod2text $file_path`;
-    return "Hi, I'm the help message :)";
+END {
+    my $file_log_path = $file_par_path // 'NAME';
+    $file_log_path =~ s/\.[^.]+$//;
+    Mnet::Tee::file("$file_log_path.log");
 }

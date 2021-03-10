@@ -11,7 +11,7 @@ use FindBin;
 use lib "$FindBin::Bin/../lib";
 
 use Getopt::Std;
-use Mnet::Tee (); # This module has not modified 'say', use 'print'
+use Mnet::Tee (); # This module has not modified 'say', must use 'print'
 use Config::IniFiles;
 use NAME::GetPar;
 #use NAME::Check;
@@ -29,7 +29,7 @@ if (@ARGV == 0) {
 
 # h:help; v:version; d:debug mode
 our ($opt_h, $opt_v, $opt_d);
-Getopt::Std::getopts('hvd'); # !! or abort();
+Getopt::Std::getopts('hvd') or die "Use option \'-h/--help\' for usage information.\n";
 
 if ($opt_h) {
     HELP_MESSAGE();
@@ -37,7 +37,7 @@ if ($opt_h) {
 }
 
 if ($opt_v) {
-    print "Version $VERSION\n"; # !! maybe need other thing
+    print "Version $VERSION\n";
     exit 0;
 }
 
@@ -45,24 +45,25 @@ print "Start running...\n";
 print "Run in DEBUG mode.\n" if $opt_d;
 print "\n====================\n\n";
 
+# Import path of parameter file
 if (@ARGV == 1) {
     ($file_par_path) = @ARGV;
 }elsif (@ARGV == 0) {
     print "Please imput name of parameter file:\n";
     chomp($file_par_path = <STDIN>);
 }elsif (@ARGV > 1) {
-    warn("WARNING: More than two parameter files, $ARGV[1] (and any subsequent parameter files) was ignored.\n");
+    warn "WARNING: More than two parameter files, $ARGV[1] (and any subsequent parameter files) was ignored.\n";
     ($file_par_path) = @ARGV;
 }
 
-die("ERROR: There is no such parameter file: $file_par_path.\n") unless (-e $file_par_path);
+die "ERROR: There is no such parameter file: $file_par_path.\n" unless (-e $file_par_path);
 print "Read parameters from \'$file_par_path\'.\n" if $opt_d;
 print  "\n====================\n\n";
 
 my $par;
 $par = NAME::GetPar::getpar($file_par_path);
 
-print ref($par);
+
 print "END OF PROGRAMME.\n";
 exit 0;
 

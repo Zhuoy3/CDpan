@@ -5,7 +5,7 @@
 
 =head1 Usage
 
-	NAME [-option] <parameter_file>
+	CDpan [-option] <parameter_file>
 
 =head1 Parameters
 

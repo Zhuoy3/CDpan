@@ -13,16 +13,16 @@ use lib "$FindBin::Bin/../lib";
 use Getopt::Std;
 use Mnet::Tee (); # This module has not modified 'say', must use 'print'
 use Config::IniFiles;
-use NAME::GetPar;
-use NAME::Check;
-#use NAME::QualityControl;
+use CDpan::GetPar;
+use CDpan::Check;
+#use CDpan::QualityControl;
 
 my $VERSION = 'v0.0.1';
 my $VERSION_TIME = 'Mar 9 2021';
 my $file_par_path; #Define in advance to ensure END block can be executed
 
 unless (@ARGV) {
-    print "NAME $VERSION ($VERSION_TIME).\n";
+    print "CDpan $VERSION ($VERSION_TIME).\n";
     print "Use option \'-h/--help\' for usage information.\n";
     exit 0;
 }
@@ -60,7 +60,7 @@ die "ERROR: There is no such parameter file: $file_par_path.\n" unless (-e $file
 print "Read parameters from \'$file_par_path\'.\n" if $opt_d;
 print  "\n====================\n\n";
 
-my $par = NAME::GetPar::getpar($file_par_path);
+my $par = CDpan::GetPar::getpar($file_par_path);
 
 
 print "END OF PROGRAMME.\n";
@@ -75,7 +75,7 @@ sub HELP_MESSAGE {
 }
 
 END {
-    my $file_log_path = $file_par_path // 'NAME';
+    my $file_log_path = $file_par_path // 'CDpan';
     $file_log_path =~ s/\.[^\.]+$//;
     Mnet::Tee::file("$file_log_path.log");
 }

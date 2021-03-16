@@ -5,12 +5,12 @@
 # Date: 2021-03-02
 
 
-package NAME::Check;
+package CDpan::Check;
 
 use strict;
 use warnings;
 use Config::IniFiles;
-use NAME::GetPar;
+use CDpan::GetPar;
 
 sub checkpar {
     # &checkpar($opt)
@@ -20,8 +20,8 @@ sub checkpar {
     # Check for parameters which is redundant (may be misspelled) and missing (no default value)
     my $par = shift;
 
-    NAME::Check::checkparredun($par);
-    NAME::Check::checkparmissing($par);
+    CDpan::Check::checkparredun($par);
+    CDpan::Check::checkparmissing($par);
 
     return 0;
 }
@@ -36,11 +36,11 @@ sub checkparredun {
     my @par_sections = $par->Sections;
 
     foreach my $section (@par_sections) {
-        if (grep { $_ eq $section } ( keys %NAME::GetPar::par_accept )) {
+        if (grep { $_ eq $section } ( keys %CDpan::GetPar::par_accept )) {
             my @par_parameters = $par->Parameters($section);
 
             foreach my $param (@par_parameters) {
-                unless (grep { $_ eq $param } @{ $NAME::GetPar::par_accept{$section} }){
+                unless (grep { $_ eq $param } @{ $CDpan::GetPar::par_accept{$section} }){
                     warn "WARNING: Unknown parameter found: '[$section] => $param', will be removed.\n";
                     $par->delval($section, $param);
                     die "ERROR: More unknown parameter, please check the parameter file.\n" if (++$redundant > 3);
@@ -63,8 +63,8 @@ sub checkparmissing {
     my $par = shift;
     my $findmiss = 0;
 
-    foreach my $key ( keys %NAME::GetPar::par_require ) {
-        foreach my $value ( @{ $NAME::GetPar::par_require{$key} } ) {
+    foreach my $key ( keys %CDpan::GetPar::par_require ) {
+        foreach my $value ( @{ $CDpan::GetPar::par_require{$key} } ) {
             unless ( defined $par->val($key, $value)) {
                 print STDERR "ERROR: Following parameters should have values:\n" unless $findmiss;
                 $findmiss = 1;

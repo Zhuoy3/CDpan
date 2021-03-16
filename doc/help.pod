@@ -5,12 +5,12 @@
 
 =head1 Usage
 
-	$0 -i <input> -o <output_dir> [-n <seq_num_per_file>] [-m <output_file_num>]
+	NAME [-option] <parameter_file>
 
 =head1 Parameters
 
-	-i	[str]	Input raw fasta file
-	-o	[str]	Output file to which directory
-	-n	[int]	Sequence number per file, alternate chose paramerter "-n" or "-m", if set "-n" and "-m" at the same time, only take "-n" parameter
-	-m	[int]	Output file number (default:100)
+	-h/--help	Help information
+	-v			Version information
+	-d			Start in debug mode
+
 =cut

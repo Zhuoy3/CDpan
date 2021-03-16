@@ -9,8 +9,10 @@ use warnings;
 
 use FindBin;
 use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../tools/Prel/lib/";
 
 use Getopt::Std;
+use File::Spec::Functions;
 use Mnet::Tee (); # This module has not modified 'say', must use 'print'
 use Config::IniFiles;
 use CDpan::GetPar;
@@ -57,11 +59,31 @@ if (@ARGV == 1) {
 }
 
 die "ERROR: There is no such parameter file: $file_par_path.\n" unless (-e $file_par_path);
-print "Read parameters from \'$file_par_path\'.\n" if $opt_d;
 print  "\n====================\n\n";
+print "Read parameters from \'$file_par_path\'.\n";
 
 my $par = CDpan::GetPar::getpar($file_par_path);
 
+# Check if the output folder exists
+if ( -e $par->val('DATA', 'output') ) {
+    my $folder_output = $par->val('DATA', 'output');
+    my $folder_output_old = ( $folder_output =~ s/\/$//r ). '.old/';
+    $folder_output_old =~ s/\.old\/?$/\.$$\.old\// if (-e $folder_output_old);
+    rename $folder_output => $folder_output_old or die "ERROR: Cannot change the name of folder '$folder_output': $!\n";
+    warn "WARNING: Folder '$folder_output' exists and has been renamed to '$old_output'";
+}
+mkdir $par->val('DATA', 'output') or die "ERROR: Cannot create output directory: $!\n";
+
+# Create the folder for process file
+our $folder_process = "tmp_$$/";
+mkdir $folder_process or die "ERROR: Cannot create process folder '$folder_process': $!\n";
+
+my $cwd = curdir();
+chdir $folder_process or die "ERROR: Cannot chdir to '$folder_process: $!\n";
+
+print  "\n====================\n\n";
+print "Start quality control...\n";
+#CDpan::QualityControl::();
 
 print "END OF PROGRAMME.\n";
 exit 0;

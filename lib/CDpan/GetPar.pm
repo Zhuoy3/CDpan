@@ -3,13 +3,14 @@
 # Description:
 # Author: Zhuo Yue
 # Date: 2021-03-07
+# called by: CDpan.pl
 
 package CDpan::GetPar;
 
 use strict;
 use warnings;
 use Config::IniFiles;
-use CDpan::Check;
+use CDpan::CheckPar;
 
 sub getpar {
     # &getpar($opt)
@@ -27,7 +28,7 @@ sub getpar {
                                    -allowedcommentchars => '#')
         or die "ERROR: Could not import parameter from $file_par_path: @Config::IniFiles::errors";
 
-    CDpan::Check::checkpar($par);
+    CDpan::CheckPar::checkpar($par);
 
     $par->WriteConfig("$file_par_path.import") if $main::opt_d;
 

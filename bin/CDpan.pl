@@ -9,14 +9,14 @@ use warnings;
 
 use FindBin;
 use lib "$FindBin::Bin/../lib";
-use lib "$FindBin::Bin/../tools/Prel/lib/";
+use lib "$FindBin::Bin/../tools/Perl/lib/";
 
 use Getopt::Std;
 use File::Spec::Functions;
 use Mnet::Tee (); # This module has not modified 'say', must use 'print'
 use Config::IniFiles;
 use CDpan::GetPar;
-use CDpan::Check;
+use CDpan::CheckPar;
 #use CDpan::QualityControl;
 
 my $VERSION = 'v0.0.1';
@@ -31,7 +31,7 @@ unless (@ARGV) {
 
 # h:help; v:version; d:debug mode
 our ($opt_h, $opt_v, $opt_d);
-Getopt::Std::getopts('hvd') or die "Use option \'-h/--help\' for usage information.\n";
+Getopt::Std::getopts('hvd') or die "Error parameters \'@ARGV\', please use option \'-h/--help\' for usage information.\n";
 
 if ($opt_h) {
     HELP_MESSAGE();
@@ -70,7 +70,7 @@ if ( -e $par->val('DATA', 'output') ) {
     my $folder_output_old = ( $folder_output =~ s/\/$//r ). '.old/';
     $folder_output_old =~ s/\.old\/?$/\.$$\.old\// if (-e $folder_output_old);
     rename $folder_output => $folder_output_old or die "ERROR: Cannot change the name of folder '$folder_output': $!\n";
-    warn "WARNING: Folder '$folder_output' exists and has been renamed to '$old_output'";
+    warn "WARNING: Folder '$folder_output' exists and has been renamed to '$folder_output_old'";
 }
 mkdir $par->val('DATA', 'output') or die "ERROR: Cannot create output directory: $!\n";
 
@@ -83,12 +83,18 @@ chdir $folder_process or die "ERROR: Cannot chdir to '$folder_process: $!\n";
 
 print  "\n====================\n\n";
 print "Start quality control...\n";
-#CDpan::QualityControl::();
+#TODO CDpan::QualityControl::();
+
+#TODO trimgalore
+
+#TODO 比对用bwa
+
+#TODO 提取序列用samtools
+
+#TODO 组装使用Masurca
 
 print "END OF PROGRAMME.\n";
 exit 0;
-
-
 
 # HELP_MESSAGE can called by Getopt::Std when supplying '--help' option
 sub HELP_MESSAGE {

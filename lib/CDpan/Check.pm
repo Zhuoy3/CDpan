@@ -3,9 +3,10 @@
 # Description:
 # Author: Zhuo Yue
 # Date: 2021-03-02
+# called by: CDpan.pl, GetPar.pm
 
 
-package CDpan::Check;
+package CDpan::CheckPar;
 
 use strict;
 use warnings;
@@ -21,7 +22,7 @@ sub checkpar {
     # Check for parameters which is redundant (may be misspelled) and missing (no default value)
     my $par = shift;
 
-    # !!!No parameter check for easy debugging
+    #TODO No parameter check for easy debugging
     CDpan::Check::checkpar_redun($par) unless $main::opt_d;
     CDpan::Check::checkpar_missing($par) unless $main::opt_d;
     CDpan::Check::checkpar_tool($par);

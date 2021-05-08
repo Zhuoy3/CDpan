@@ -3,12 +3,14 @@
 # Description:
 # Author: Zhuo Yue
 # Date: 2021-03-02
+# called by: CDpan.pl, GetPar.pm
 
 
 package CDpan::Check;
 
 use strict;
 use warnings;
+use File::Spec::Functions;
 use Config::IniFiles;
 use CDpan::GetPar;
 
@@ -20,14 +22,16 @@ sub checkpar {
     # Check for parameters which is redundant (may be misspelled) and missing (no default value)
     my $par = shift;
 
-    CDpan::Check::checkparredun($par);
-    CDpan::Check::checkparmissing($par);
+    #TODO No parameter check for easy debugging
+    CDpan::Check::checkpar_redun($par) unless $main::opt_d;
+    CDpan::Check::checkpar_missing($par) unless $main::opt_d;
+    CDpan::Check::checkpar_tool($par);
 
     return 0;
 }
 
-sub checkparredun {
-    # &checkpar($opt)
+sub checkpar_redun {
+    # &checkpar_redun($opt)
     # $opt is a quotation in 'Config::IniFiles' format
     # Check for parameters which is redundant (may be misspelled)
     my $par = shift;
@@ -56,8 +60,8 @@ sub checkparredun {
     return $redundant;
 }
 
-sub checkparmissing {
-    # &checkpar($opt)
+sub checkpar_missing {
+    # &checkpar_missing($opt)
     # $opt is a quotation in 'Config::IniFiles' format
     # Check for parameters which is missing (no default value)
     my $par = shift;
@@ -76,6 +80,35 @@ sub checkparmissing {
     die "ERROR: Please modify the parameter file and add the expected value" if $findmiss;
 
     return $findmiss;
+}
+
+sub checkpar_tool {
+    # &checkpar_tool($opt)
+    # $opt is a quotation in 'Config::IniFiles' format
+    # Check whether the tools specified in par is available, and search tools in PATH if not specified
+    my $par = shift;
+
+    #TODO Need to add more software
+    my @tools_needed = qw \ trim_galore
+                            cutadapt
+                            fastqc \;
+    my @tools_missing;
+
+    FINDTOOL: foreach my $tools (@tools_needed) {
+        if ( defined $par->val('TOOLS', $tools) ) {
+            ( -e -x $par->val('TOOLS', $tools) ) ? next : $par->delval('TOOLS', $tools);
+        }
+
+        foreach my $path ( path() )  {
+            next FINDTOOL if (-e -x catfile($path, $tools));
+        }
+
+        push @tools_missing, $tools;
+    }
+
+    die "ERROR: can't locate '@tools_missing', please add these to PATH or use 'TOOLS' section of parameters file.\n If the above is indeed executed, please confirm whether you have execution authority.\n" if (@tools_missing);
+
+    return @tools_missing;
 }
 
 1;

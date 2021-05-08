@@ -3,6 +3,7 @@
 # Description:
 # Author: Zhuo Yue
 # Date: 2021-03-07
+# called by: CDpan.pl
 
 package CDpan::GetPar;
 
@@ -42,8 +43,8 @@ sub getstdpar {
 
     open PARFILE, "<", $file_path or die "ERROR: Cannot open file \'$file_path\': $!";
     while (<PARFILE>) {
-        next unless s/^(.*?):\s*//;
-        $output{$1} =[ split ];
+        next unless s/^(.*?):\s*//; # Capturing the first parameter of the line: Section
+        $output{$1} =[ split ]; # A hash that points to the list
     }
     close PARFILE;
 

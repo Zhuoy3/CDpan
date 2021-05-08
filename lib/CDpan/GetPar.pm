@@ -10,7 +10,7 @@ package CDpan::GetPar;
 use strict;
 use warnings;
 use Config::IniFiles;
-use CDpan::CheckPar;
+use CDpan::Check;
 
 sub getpar {
     # &getpar($opt)
@@ -28,7 +28,7 @@ sub getpar {
                                    -allowedcommentchars => '#')
         or die "ERROR: Could not import parameter from $file_par_path: @Config::IniFiles::errors";
 
-    CDpan::CheckPar::checkpar($par);
+    CDpan::Check::checkpar($par);
 
     $par->WriteConfig("$file_par_path.import") if $main::opt_d;
 
@@ -43,8 +43,8 @@ sub getstdpar {
 
     open PARFILE, "<", $file_path or die "ERROR: Cannot open file \'$file_path\': $!";
     while (<PARFILE>) {
-        next unless s/^(.*?):\s*//;
-        $output{$1} =[ split ];
+        next unless s/^(.*?):\s*//; # Capturing the first parameter of the line: Section
+        $output{$1} =[ split ]; # A hash that points to the list
     }
     close PARFILE;
 

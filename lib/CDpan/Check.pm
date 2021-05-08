@@ -6,7 +6,7 @@
 # called by: CDpan.pl, GetPar.pm
 
 
-package CDpan::CheckPar;
+package CDpan::Check;
 
 use strict;
 use warnings;
@@ -87,7 +87,9 @@ sub checkpar_tool {
     # $opt is a quotation in 'Config::IniFiles' format
     # Check whether the tools specified in par is available, and search tools in PATH if not specified
     my $par = shift;
-    my @tools_needed = qw \ trim_galores
+
+    #TODO Need to add more software
+    my @tools_needed = qw \ trim_galore
                             cutadapt
                             fastqc \;
     my @tools_missing;

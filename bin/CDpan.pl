@@ -11,12 +11,14 @@ use FindBin;
 use lib "$FindBin::Bin/../lib";
 use lib "$FindBin::Bin/../tools/Perl/lib/";
 
+use Cwd;
 use Getopt::Std;
 use File::Spec::Functions;
 use Mnet::Tee (); # This module has not modified 'say', must use 'print'
 use Config::IniFiles;
 use CDpan::GetPar;
-use CDpan::CheckPar;
+use CDpan::Check;
+use CDpan::GetSample;
 #use CDpan::QualityControl;
 
 my $VERSION = 'v0.0.1';
@@ -43,6 +45,7 @@ if ($opt_v) {
     exit 0;
 }
 
+my $cwd = Cwd::getcwd;
 print "Start running...\n";
 print "Run in DEBUG mode.\n" if $opt_d;
 print "\n====================\n\n";
@@ -58,6 +61,7 @@ if (@ARGV == 1) {
     ($file_par_path) = @ARGV;
 }
 
+$file_par_path = Cwd::abs_path($file_par_path) unless file_name_is_absolute($file_par_path);
 die "ERROR: There is no such parameter file: $file_par_path.\n" unless (-e $file_par_path);
 print  "\n====================\n\n";
 print "Read parameters from \'$file_par_path\'.\n";
@@ -77,12 +81,24 @@ mkdir $par->val('DATA', 'output') or die "ERROR: Cannot create output directory:
 # Create the folder for process file
 our $folder_process = "tmp_$$/";
 mkdir $folder_process or die "ERROR: Cannot create process folder '$folder_process': $!\n";
-
-my $cwd = curdir();
 chdir $folder_process or die "ERROR: Cannot chdir to '$folder_process: $!\n";
+
+chdir $cwd;
+system "rm -rf $folder_process";
 
 print  "\n====================\n\n";
 print "Start quality control...\n";
+
+#TODO 这一块可以使用子进程实现多线程？ pro.pl
+
+my @idv_folder = CDpan::GetSample::GetSampleFolder($par);
+my @idv_file;
+foreach my $idv (@idv_folder) {
+    @idv_file = CDpan::GetSample::GetSampleFile($idv); # TODO 测试用，正式版放入指控模块
+    print "@idv_file\n\n\n";
+}
+
+
 #TODO CDpan::QualityControl::();
 
 #TODO trimgalore
@@ -105,5 +121,6 @@ sub HELP_MESSAGE {
 END {
     my $file_log_path = $file_par_path // 'CDpan';
     $file_log_path =~ s/\.[^\.]+$//;
+    print "Output log in file \'$file_log_path.log\'.\n";
     Mnet::Tee::file("$file_log_path.log");
 }

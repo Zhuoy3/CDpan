@@ -13,7 +13,7 @@ use lib "$FindBin::Bin/../tools/Perl/lib/";
 
 use Cwd;
 use Getopt::Std;
-use File::Spec::Functions;
+use File::Spec::Functions  qw /:ALL/;
 use Mnet::Tee (); # This module has not modified 'say', must use 'print'
 use Config::IniFiles;
 use CDpan::GetPar;
@@ -21,7 +21,7 @@ use CDpan::Check;
 use CDpan::GetSample;
 #use CDpan::QualityControl;
 
-my $VERSION = 'v0.0.1';
+my $VERSION      = 'v0.0.1';
 my $VERSION_TIME = 'Mar 9 2021';
 my $file_par_path; #Define in advance to ensure END block can be executed
 
@@ -61,7 +61,7 @@ if (@ARGV == 1) {
     ($file_par_path) = @ARGV;
 }
 
-$file_par_path = Cwd::abs_path($file_par_path) unless file_name_is_absolute($file_par_path);
+$file_par_path = rel2abs($file_par_path);
 die "ERROR: There is no such parameter file: $file_par_path.\n" unless (-e $file_par_path);
 print  "\n====================\n\n";
 print "Read parameters from \'$file_par_path\'.\n";
@@ -79,12 +79,12 @@ if ( -e $par->val('DATA', 'output') ) {
 mkdir $par->val('DATA', 'output') or die "ERROR: Cannot create output directory: $!\n";
 
 # Create the folder for process file
-our $folder_process = "tmp_$$/";
+our $folder_process = catdir($cwd, "tmp_$$");
 mkdir $folder_process or die "ERROR: Cannot create process folder '$folder_process': $!\n";
 chdir $folder_process or die "ERROR: Cannot chdir to '$folder_process: $!\n";
 
 chdir $cwd;
-system "rm -rf $folder_process";
+#system "rm -rf $folder_process";
 
 print  "\n====================\n\n";
 print "Start quality control...\n";

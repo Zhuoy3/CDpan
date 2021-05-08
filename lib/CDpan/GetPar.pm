@@ -19,8 +19,8 @@ sub getpar {
 
     # Since "FindBin" uses a "BEGIN" block, it'll be executed only once, and only the first caller will get it right
     # $FindBin::Bin is path to bin directory from where 'CDpan.pl' was invoked
-    my $par_default = new Config::IniFiles(-file => "$FindBin::Bin/../config/par_default.ini");
-    our %par_accept = CDpan::GetPar::getstdpar("$FindBin::Bin/../config/par_accept.txt");
+    my  $par_default = new Config::IniFiles(-file => "$FindBin::Bin/../config/par_default.ini");
+    our %par_accept  = CDpan::GetPar::getstdpar("$FindBin::Bin/../config/par_accept.txt");
     our %par_require = CDpan::GetPar::getstdpar("$FindBin::Bin/../config/par_require.txt");
 
     my $par = new Config::IniFiles(-file                => $file_par_path,
@@ -29,6 +29,8 @@ sub getpar {
         or die "ERROR: Could not import parameter from $file_par_path: @Config::IniFiles::errors";
 
     CDpan::Check::checkpar($par);
+
+    #TODO 需要一个检查转换为全局路径的函数
 
     $par->WriteConfig("$file_par_path.import") if $main::opt_d;
 

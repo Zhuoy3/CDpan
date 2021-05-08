@@ -100,7 +100,10 @@ sub checkpar_tool {
         }
 
         foreach my $path ( path() )  {
-            next FINDTOOL if (-e -x catfile($path, $tools));
+            if (-e -x catfile($path, $tools)) {
+                
+                next FINDTOOL;
+            };
         }
 
         push @tools_missing, $tools;

@@ -20,7 +20,7 @@ sub GetSampleFolder {
     # $opt -> [DATA]:input should be used which is a directory path containing genomic data
     # directory contains multiple subfolders, each folder contains an individual information
     my $opt = shift;
-    my $directory =  $opt->val('DATA', 'input');
+    my $directory = $opt->val('DATA', 'input');
 
     die "ERROR: Data folder \'$directory\' does not exist." unless ( -e $directory );
 

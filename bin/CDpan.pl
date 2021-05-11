@@ -100,8 +100,34 @@ foreach my $idv (@idv_folder) {
 
 
 #TODO CDpan::QualityControl::();
+=head1 test.pl of CDpan::QualityControl
 
-#TODO trimgalore
+#!/usr/bin/perl
+
+# Description:
+# Author: Zhuo Yue
+# Date: 2021-03-03
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/lib";
+
+use File::Spec::Functions  qw /:ALL/;
+use CDpan::QualityControl;
+use File::Slurp;
+use Config::IniFiles;
+
+my $par = new Config::IniFiles(-file => "/storage1/active/zhuoy/test/example.ini");
+
+our $folder_process = "/storage1/active/zhuoy/test/output";
+my $idv_folder = "/storage1/active/zhuoy/test/sampleA";
+my @idv_file = sort ( File::Slurp::read_dir( $idv_folder, prefix => 1) );
+
+CDpan::QualityControl::QualityControl($par, $idv_folder, \@idv_file);
+
+=cut
 
 #TODO 比对用bwa
 

@@ -10,6 +10,7 @@ use strict;
 use warnings;
 use File::Spec::Functions qw /:ALL/;
 use Config::IniFiles;
+use File::Slurp;
 
 sub QualityControl {
     # &qualitycontrol($opt, $idv_folder, $idv_file)
@@ -18,6 +19,7 @@ sub QualityControl {
     # $idv_file is a quotation of a list of some files which is genomic data
     (my $par, my $idv_folder, my $idv_file) = @_;
     my @idv_file = @$idv_file;
+    my $idv_file_amount = @idv_file;
 
     # The default value is set when the parameter is imported, and there is no need to handle it here
     my $quality    = $par->val('QUALITYCONTROL', 'quality'); # Trim low-quality ends from reads in addition to adapter removal.
@@ -52,10 +54,36 @@ sub QualityControl {
                            "--output_dir $output " .
                            "-j $cores";
 
-        print "Start use cmd: \'$cmd_trim_galore\'.";
+        print "Start use cmd: \'$cmd_trim_galore\'\n.";
         system 'echo $PATH';
         system $cmd_trim_galore;
     }
+
+    # merge data
+    my @result_files_all = sort ( File::Slurp::read_dir($output, prefix => 1) );
+    my @result_files_1;
+    my @result_files_2;
+    foreach my $file (@result_files_all) {
+        if ( $file =~ m/\Q_1_val_1.fq.gz\E$/ ) {
+            push @result_files_1, $file;
+        }elsif ( $file =~ m/\Q_2_val_2.fq.gz\E$/ ) {
+            push @result_files_2, $file;
+        }
+    }
+    unless ( (@result_files_1 == @result_files_2) && ( @result_files_1 == ($idv_file_amount >> 1) ) ) {
+        die "ERROR: The number of result files of trim_galore is abnormal, trim_galore may not be running normally.";
+    }
+
+    @result_files_1 = sort @result_files_1;
+    @result_files_2 = sort @result_files_2;
+
+    # cat $output/$rawid\-$line1\_1\_val\_1.fq.gz $output/$rawid\-$line2\_1\_val\_1.fq.gz > $output/$id\_clean\_1.fq.gz
+    my $cmd_merge_data_1 = "cat @result_files_1 > $output/${idv_folder_name}_clean_1.fq.gz";
+    print "Start use cmd: \'$cmd_merge_data_1\'\n.";
+    system $cmd_merge_data_1;
+    my $cmd_merge_data_2 = "cat @result_files_2 > $output/${idv_folder_name}_clean_2.fq.gz";
+    print "Start use cmd: \'$cmd_merge_data_2\'\n.";
+    system $cmd_merge_data_2;
 
     return 1;
 }

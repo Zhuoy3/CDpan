@@ -13,11 +13,11 @@ use Config::IniFiles;
 use File::Slurp;
 
 sub QualityControl {
-    # &qualitycontrol($opt, $idv_folder, $idv_file)
+    # &qualitycontrol($opt, $idv_folder_name, $output, $idv_file)
     # $opt is a quotation in 'Config::IniFiles' format
     # $idv_folder is a directory of individual containing genomic data
     # $idv_file is a quotation of a list of some files which is genomic data
-    (my $par, my $idv_folder, my $idv_file) = @_;
+    (my $par, my $idv_folder_name, my $output, my $idv_file) = @_;
     my @idv_file = @$idv_file;
     my $idv_file_amount = @idv_file;
 
@@ -27,17 +27,14 @@ sub QualityControl {
     my $error_rate = $par->val('QUALITYCONTROL', 'error_rate'); # Maximum allowed error rate (no. of errors divided by the length of the matching region)
     my $cores      = $par->val('QUALITYCONTROL', 'cores'); # Number of cores to be used for trimming
 
-    my @idv_folder_split = splitdir($idv_folder);
-    my $idv_folder_name = pop @idv_folder_split;
-    my $output = catdir($main::folder_process, $idv_folder_name);
-
+    #TODO 考虑将所有软件集中至统一模块进行调整
     # Read the software path and set it to the default value
     (my $trim_galore = $par->val('TOOLS', 'trim_galore', './trim_galore') ) =~ s/\/trim_galore$//;
     (my $cutadapt    = $par->val('TOOLS', 'cutadapt',    './cutadapt')    ) =~ s/\/cutadapt$//;
     (my $fastqc      = $par->val('TOOLS', 'fastqc',      './fastqc')      ) =~ s/\/fastqc$//;
 
     # Add environment variables
-    $ENV{PATH} = "$ENV{PATH}:$trim_galore:$cutadapt:$fastqc:";
+    $ENV{PATH} = "$trim_galore:$cutadapt:$fastqc:$ENV{PATH}:";
 
     while (@idv_file) {
         my $paired1 = shift @idv_file;
@@ -53,9 +50,9 @@ sub QualityControl {
                            "--gzip " .
                            "--output_dir $output " .
                            "-j $cores";
-
+        #TODO 关闭trim_galore输出
         print "Start use cmd: \'$cmd_trim_galore\'\n.";
-        system 'echo $PATH';
+        system 'echo $PATH' if $main::opt_d;
         system $cmd_trim_galore;
     }
 
@@ -77,15 +74,15 @@ sub QualityControl {
     @result_files_1 = sort @result_files_1;
     @result_files_2 = sort @result_files_2;
 
-    # cat $output/$rawid\-$line1\_1\_val\_1.fq.gz $output/$rawid\-$line2\_1\_val\_1.fq.gz > $output/$id\_clean\_1.fq.gz
     my $cmd_merge_data_1 = "cat @result_files_1 > $output/${idv_folder_name}_clean_1.fq.gz";
-    print "Start use cmd: \'$cmd_merge_data_1\'\n.";
+    print "Start use cmd: \'$cmd_merge_data_1\'.\n";
     system $cmd_merge_data_1;
     my $cmd_merge_data_2 = "cat @result_files_2 > $output/${idv_folder_name}_clean_2.fq.gz";
-    print "Start use cmd: \'$cmd_merge_data_2\'\n.";
+    print "Start use cmd: \'$cmd_merge_data_2\'.\n";
     system $cmd_merge_data_2;
 
-    return 1;
+    my @result = ("$output/${idv_folder_name}_clean_1.fq.gz", "$output/${idv_folder_name}_clean_2.fq.gz");
+    return @result;
 }
 
 

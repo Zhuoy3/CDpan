@@ -5,7 +5,6 @@
 # Date: 2021-05-08
 # called by: CDpan.pl
 
-
 package CDpan::GetSample;
 
 use strict;

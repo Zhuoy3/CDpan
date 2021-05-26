@@ -19,7 +19,8 @@ use Config::IniFiles;
 use CDpan::GetPar;
 use CDpan::Check;
 use CDpan::GetSample;
-#use CDpan::QualityControl;
+use CDpan::QualityControl;
+use CDpan::Comparison;
 
 my $VERSION      = 'v0.0.1';
 my $VERSION_TIME = 'Mar 9 2021';
@@ -93,43 +94,18 @@ print "Start quality control...\n";
 
 my @idv_folder = CDpan::GetSample::GetSampleFolder($par);
 my @idv_file;
-foreach my $idv (@idv_folder) {
-    @idv_file = CDpan::GetSample::GetSampleFile($idv); # TODO 测试用，正式版放入指控模块
-    print "@idv_file\n\n\n";
+our $bwa_ref_index = 0; # Use global variables to mark the existence of the reference genome index to prevent repeated construction
+foreach my $idv_fold (@idv_folder) {
+    my $idv_name = pop [ splitdir($idv_folder) ];
+    my $idv_output_folder = catdir($folder_process, $idv_name);
+
+    @idv_file = undef;
+    @idv_file = CDpan::GetSample::GetSampleFile($idv); # TODO 未测试
+
+    my @qc_file = CDpan::QualityControl::QualityControl($par, $idv_name, $idv_output_folder, \@idv_file);
+    CDpan::Comparison::comparison($par, $idv_name, $idv_output_folder, \@qc_file);
+
 }
-
-
-#TODO CDpan::QualityControl::();
-=head1 test.pl of CDpan::QualityControl
-
-#!/usr/bin/perl
-
-# Description:
-# Author: Zhuo Yue
-# Date: 2021-03-03
-
-use strict;
-use warnings;
-
-use FindBin;
-use lib "$FindBin::Bin/lib";
-
-use File::Spec::Functions  qw /:ALL/;
-use CDpan::QualityControl;
-use File::Slurp;
-use Config::IniFiles;
-
-my $par = new Config::IniFiles(-file => "/storage1/active/zhuoy/test/example.ini");
-
-our $folder_process = "/storage1/active/zhuoy/test/output";
-my $idv_folder = "/storage1/active/zhuoy/test/sampleA";
-my @idv_file = sort ( File::Slurp::read_dir( $idv_folder, prefix => 1) );
-
-CDpan::QualityControl::QualityControl($par, $idv_folder, \@idv_file);
-
-=cut
-
-#TODO 比对用bwa
 
 #TODO 提取序列用samtools
 

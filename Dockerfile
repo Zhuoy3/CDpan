@@ -59,3 +59,8 @@ RUN tar xvzf TrimGalore-0.6.6.tar.gz
 RUN ln -s /opt/TrimGalore-0.6.6/trim_galore /usr/bin/trim_galore
 RUN rm -rf TrimGalore-0.6.6.tar.gz
 RUN export LC_ALL=C
+
+#  1237  2021-05-25 22:53:19 unzip bwa-master.zip
+#  1239  2021-05-25 22:53:42 mv bwa-master bwa
+#  1241  2021-05-25 22:53:46 cd ./bwa
+#  1242  2021-05-25 22:53:47 make

@@ -27,6 +27,11 @@ sub checkpar {
     CDpan::Check::checkpar_missing($par) unless $main::opt_d;
     CDpan::Check::checkpar_tool($par);
 
+    unless ( -e $par->val('COMPARISON', 'ref') ) {
+        my $reference = $par->val('COMPARISON', 'ref');
+        die "ERROR: Reference genome file \'$reference\' does not exist.\n";
+    }
+
     return 0;
 }
 
@@ -101,7 +106,7 @@ sub checkpar_tool {
 
         foreach my $path ( path() )  {
             if (-e -x catfile($path, $tools)) {
-                
+
                 next FINDTOOL;
             };
         }
@@ -112,6 +117,16 @@ sub checkpar_tool {
     die "ERROR: can't locate '@tools_missing', please add these to PATH or use 'TOOLS' section of parameters file.\n If the above is indeed executed, please confirm whether you have execution authority.\n" if (@tools_missing);
 
     return @tools_missing;
+}
+
+sub checkpar_file {
+    # &checkpar_tool($opt, $file)
+    # $opt is a quotation in 'Config::IniFiles' format
+    # Check if the required file exists
+    my $par = shift;
+    my $file = shift;
+
+
 }
 
 1;

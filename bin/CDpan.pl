@@ -24,8 +24,8 @@ use CDpan::QualityControl;
 use CDpan::Comparison;
 use CDpan::Extract;
 
-my $VERSION      = 'v0.0.1';
-my $VERSION_TIME = 'Mar 9 2021';
+my $VERSION      = 'v0.1.8';
+my $VERSION_TIME = 'May 27 2021';
 my $file_par_path; #Define in advance to ensure END block can be executed
 
 unless (@ARGV) {
@@ -93,8 +93,6 @@ print  "\n====================\n\n";
 print "Start quality control...\n";
 
 #TODO 这一块可以使用子进程实现多线程？ pro.pl
-
-# TODO 未测试
 
 my $input_directory = $par->val('DATA', 'input');
 die "ERROR: Data folder \'$input_directory\' does not exist." unless ( -e $input_directory );

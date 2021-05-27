@@ -64,3 +64,7 @@ RUN export LC_ALL=C
 #  1239  2021-05-25 22:53:42 mv bwa-master bwa
 #  1241  2021-05-25 22:53:46 cd ./bwa
 #  1242  2021-05-25 22:53:47 make
+# unzip gatk-4.0.12.0.zip
+#  1038  cd ./gatk-4.0.12.0
+#  1040  sc ./gatk
+#  1042  gatk

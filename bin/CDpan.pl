@@ -13,14 +13,16 @@ use lib "$FindBin::Bin/../tools/Perl/lib/";
 
 use Cwd;
 use Getopt::Std;
+use File::Slurp;
 use File::Spec::Functions  qw /:ALL/;
 use Mnet::Tee (); # This module has not modified 'say', must use 'print'
 use Config::IniFiles;
 use CDpan::GetPar;
 use CDpan::Check;
-use CDpan::GetSample;
+#use CDpan::GetSample;
 use CDpan::QualityControl;
 use CDpan::Comparison;
+use CDpan::Extract;
 
 my $VERSION      = 'v0.0.1';
 my $VERSION_TIME = 'Mar 9 2021';
@@ -92,22 +94,26 @@ print "Start quality control...\n";
 
 #TODO 这一块可以使用子进程实现多线程？ pro.pl
 
-my @idv_folder = CDpan::GetSample::GetSampleFolder($par);
-my @idv_file;
-our $bwa_ref_index = 0; # Use global variables to mark the existence of the reference genome index to prevent repeated construction
-foreach my $idv_fold (@idv_folder) {
+# TODO 未测试
+
+my $input_directory = $par->val('DATA', 'input');
+die "ERROR: Data folder \'$input_directory\' does not exist." unless ( -e $input_directory );
+my @input_folder = sort ( File::Slurp::read_dir($input_directory, prefix => 1) );
+
+our $ref_index = 0; # mark the existence of the reference genome index used by bwa
+our $ref_dict = 0; # mark the existence of the reference genome dict used by gatkmy
+
+foreach my $idv_folder (@input_folder) {
     my $idv_name = pop [ splitdir($idv_folder) ];
     my $idv_output_folder = catdir($folder_process, $idv_name);
 
-    @idv_file = undef;
-    @idv_file = CDpan::GetSample::GetSampleFile($idv); # TODO 未测试
-
-    my @qc_file = CDpan::QualityControl::QualityControl($par, $idv_name, $idv_output_folder, \@idv_file);
-    CDpan::Comparison::comparison($par, $idv_name, $idv_output_folder, \@qc_file);
-
+    CDpan::QualityControl::QualityControl($par, $idv_folder, $idv_name, $idv_output_folder)
+        or die "ERROR: Operation QualityControl is abnormal.\n";
+    CDpan::Comparison::comparison($par, $idv_name, $idv_output_folder)
+        or die "ERROR: Operation Comparison is abnormal.\n";
+    CDpan::Extract::extract($par, $idv_name, $idv_output_folder)
+        or die "ERROR: Operation Extract is abnormal.\n";
 }
-
-#TODO 提取序列用samtools
 
 #TODO 组装使用Masurca
 

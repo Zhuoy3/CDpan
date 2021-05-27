@@ -12,29 +12,25 @@ use Config::IniFiles;
 use File::Spec::Functions qw /:ALL/;
 
 sub comparison {
-    # &qualitycontrol($opt, $idv_folder_name, $output_dir, $idv_merge_file)
+    # &comparison($opt, $idv_folder_name, $output_dir)
     # $opt is a quotation in 'Config::IniFiles' format
-    # $idv_folder is a directory of individual containing genomic data
-    # $idv_merge_file is a quotation of a list of two files which is merge data of genomic data
-    # $idv_merge_file is returned by CDpan::QualityControl::QualityControl
+    # $idv_folder_name is the name of the individual
+    # $output_dir is a directory path which is used to output
 
-    (my $par, my $idv_folder_name, my $output_dir, my $idv_merge_file) = @_;
-    (my $idv_merge_file1, my $idv_merge_file2) = @$idv_merge_file;
-
-    my $output = catfile($output_dir, "${idv_folder_name}.sam" );
-    print "bwa output file: $output.\n" if $main::opt_d;
+    (my $par, my $idv_folder_name, my $output_dir) = @_;
 
     # Reference genome file is checked in CDpan::Check
 
     my $thread = $par->val('COMPARISON', 'thread');
-    my $ref    = $par->val('COMPARISON', 'ref');
+    my $ref    = $par->val('DATA', 'ref');
 
     # Generate reference genome index
-    unless ($main::bwa_ref_index) {
+    unless ($main::ref_index) {
         my $cmd_bwa_index = "bwa index $ref";
         print "Start use cmd: \'$cmd_bwa_index\'\n.";
-        system $cmd_bwa_index;
-        $main::bwa_ref_index = 1;
+        system $cmd_bwa_index
+            and die "Error: Command \'$cmd_bwa_index\' failed to run normally: $?.\n";
+        $main::ref_index = 1;
     }
 
     #TODO 考虑将所有软件集中至统一模块进行调整
@@ -45,12 +41,16 @@ sub comparison {
 
     my $cmd_bwa = "bwa mem -t $thread -M " .
                   "-R \"\@RG\\tID:${idv_folder_name}\\tLB:${idv_folder_name}\\tPL:ILLUMINA\\tSM:${idv_folder_name}\" " .
-                  "$ref $idv_merge_file1 $idv_merge_file2 > $output";
+                  "$ref " .
+                  "$output_dir/${idv_folder_name}_clean_1.fq.gz " .
+                  "$output_dir/${idv_folder_name}_clean_2.fq.gz " .
+                  "> $output_dir/${idv_folder_name}.sam";
 
     print "Start use cmd: \'$cmd_bwa\'\n.";
-    system $cmd_bwa;
+    system $cmd_bwa
+        and die "Error: Command \'$cmd_bwa\' failed to run normally: $?.\n";
 
-    return $output;
+    return 1;
 }
 
 

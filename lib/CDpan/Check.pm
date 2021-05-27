@@ -94,6 +94,7 @@ sub checkpar_tool {
     my $par = shift;
 
     #TODO Need to add more software
+    #TODO 逻辑调整，将全部软件转为全局路径，在PATH中搜索到时，直接将软件加入参数中，软件调用直接使用全局路径，这一快转移至一个单一模块
     my @tools_needed = qw \ trim_galore
                             cutadapt
                             fastqc \;

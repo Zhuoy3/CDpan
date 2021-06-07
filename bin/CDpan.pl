@@ -113,7 +113,7 @@ foreach my $idv_folder (@input_folder) {
         or die "ERROR: Operation Extract is abnormal.\n";
 }
 
-#TODO 组装使用Masurca
+#TODO 组装
 
 print "END OF PROGRAMME.\n";
 exit 0;

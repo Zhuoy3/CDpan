@@ -33,7 +33,7 @@ sub assembly {
     "NUM_THREADS = 24\n" .
     "JF_SIZE=200000000\n" .
     "DO_HOMOPOLYMER_TRIM=0\n" .
-    "END\n" .
+    "END\n";
 
     open CONFIG, '>', "$output_dir/$idv_folder_name.config.txt";
     print CONFIG $config;
@@ -43,7 +43,7 @@ sub assembly {
     $ENV{PATH} = "$masurca:$ENV{PATH}:";
 
     system "masurca $output_dir/$idv_folder_name.config.txt";
-    system ""
+    system "";
 
     chdir $main::folder_process;
 

@@ -1,4 +1,5 @@
 .history/*
+.vscode/*
 bin/1.sh
 bin/2.sh
 bin/masurca_config.txt

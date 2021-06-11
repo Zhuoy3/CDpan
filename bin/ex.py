@@ -4,7 +4,7 @@ Description:
 Author: Zhuo Yue
 Date: 2021-06-09 15:02:54
 LastEditors: Zhuo Yue
-LastEditTime: 2021-06-10 21:45:20
+LastEditTime: 2021-06-11 21:41:43
 Calls:
 Called By:
 FilePath: \CDpan\bin\ex.py
@@ -12,6 +12,8 @@ FilePath: \CDpan\bin\ex.py
 
 import time
 import copy
+import re
+import os
 
 
 # Screening threshold control function
@@ -21,7 +23,6 @@ def Rate(pairwise_list) :
         if float(pairwise_list[9]) / float(pairwise_list[1]) >= threshold:
             return True
     return False
-
 
 # When there are multiple matches, try to merge
 def Splicing(pairwise_list_list):
@@ -50,7 +51,7 @@ def Splicing(pairwise_list_list):
         if int(pairwise_list_list[i][7]) - int(pairwise_new[8]) < 100:
             if int(pairwise_list_list[i][7]) - int(pairwise_new[8]) > 0:
                 pairwise_new[8] = pairwise_list_list[i][8]
-                pairwise_new[9] = str( sum( int(pairwise_new[9]), int(pairwise_list_list[i][9]) ) )
+                pairwise_new[9] = str( int(pairwise_new[9]) + int(pairwise_list_list[i][9]) )
                 have_merged = True
             else:
                 pass
@@ -61,7 +62,6 @@ def Splicing(pairwise_list_list):
         return Rate(pairwise_new)
     else:
         return False
-
 
 # Match
 def Comparison(target_string, query_dict):
@@ -83,40 +83,56 @@ def Comparison(target_string, query_dict):
     return '0'
 
 
+def ComparisonIO(paf_file, seq_list):
+    pad = {}
+    with open(paf_file) as f:
+        for line in f:
+            line = line.rstrip('\n').split('\t')[:12]
+            if line[5] not in pad:
+                pad[ line[5] ] = {line[0] : [ line ]}
+                continue
+
+            if line[0] not in pad.get(line[5]):
+                pad[ line[5] ][ line[0] ] = [ line ]
+            else:
+                pad[ line[5] ][ line[0] ].append(line)
+
+    for i in range(len(seq_list)):
+        seq_list[i].append(Comparison(seq_list[i][0], pad))
+
+    return seq_list
+
+
 # Start of the main program
 start_time = time.time()
 
-#TODO 文件导入方式
-
-seq = []
-with open('dispensable_genome.fasta.length') as f:
+seq = {}
+with open('/home/liujf/WORKSPACE/zhuoy/test/dispensable_genome.fasta.length') as f:
     for line in f:
-        seq.append( [ line.rstrip('\n').split('\t')[0] ])
+        contig = line.rstrip('\n').split('\t')[0]
+        seq[contig] = [contig]
+# TODO convert to hash
+count = 0
+header = ['Contig']
+os.chdir('/home/liujf/WORKSPACE/zhuoy/test/arrange/')
+f = open('/home/liujf/WORKSPACE/zhuoy/tmp.txt', 'w+')
+file_list = os.popen('find')
+for file_string in file_list:
+    file = re.search('[^/]+\.paf',file_string)
+    if file:
+        file = file.group()
+        seq = ComparisonIO(file_string.rstrip('\n'), seq)
+        header.append(file.rstrip('.paf'))
+        count += 1
+        f.writelines(' '.join( [ file_string , file] ) )
+f.close()
 
-#TODO 多文件处理
-# for file in
-
-pad = {}
-with open('aln.paf') as f:
-    for line in f:
-        line = line.rstrip('\n').split('\t')[:12]
-        if line[5] not in pad:
-            pad[ line[5] ] = {line[0] : [ line ]}
-            continue
-
-        if line[0] not in pad.get(line[5]):
-            pad[ line[5] ][ line[0] ] = [ line ]
-        else:
-            pad[ line[5] ][ line[0] ].append(line)
-
-for i in range(len(seq)):
-    seq[i].append(Comparison(seq[i][0], pad))
-#TODO 多文件结束
-
-f = open('result', 'w+')
+f = open('/home/liujf/WORKSPACE/zhuoy/test/compare.txt', 'w+')
+f.write(' '.join(header) + '\n')
 for line in seq:
     f.write(' '.join(line) + '\n')
 f.close()
 
+print('It have sum {0} idv.\n'.format(count))
 end_time = time.time()
 print(f"It took {end_time-start_time:.2f} seconds to compute")

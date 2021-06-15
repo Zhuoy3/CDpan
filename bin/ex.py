@@ -4,7 +4,7 @@ Description:
 Author: Zhuo Yue
 Date: 2021-06-09 15:02:54
 LastEditors: Zhuo Yue
-LastEditTime: 2021-06-11 21:41:43
+LastEditTime: 2021-06-15 18:01:19
 Calls:
 Called By:
 FilePath: \CDpan\bin\ex.py
@@ -14,6 +14,7 @@ import time
 import copy
 import re
 import os
+import sys
 
 
 # Screening threshold control function
@@ -83,7 +84,7 @@ def Comparison(target_string, query_dict):
     return '0'
 
 
-def ComparisonIO(paf_file, seq_list):
+def Arrange(paf_file, seq_list, location_dict):
     pad = {}
     with open(paf_file) as f:
         for line in f:
@@ -98,41 +99,125 @@ def ComparisonIO(paf_file, seq_list):
                 pad[ line[5] ][ line[0] ].append(line)
 
     for i in range(len(seq_list)):
-        seq_list[i].append(Comparison(seq_list[i][0], pad))
+        com = Comparison(seq_list[i][0], pad)
+        status = location_dict.get(seq_list[i][0], '')
+        seq_list[i].append(f'{com}{status}')
 
     return seq_list
+
+
+def Location(file_path_paf_string, file_path_location_string):
+    breed_individual = re.search('[^/]+\/[^/]+\.paf',file_path_paf_string).group().rstrip('.paf')
+    file_location = f'{file_path_location_string}{breed_individual}'
+    #TODO 1/0 check?
+    location = {}
+
+    with open( f'{file_location}/2a.name' ) as f:
+        for line in f:
+            seq = line.rstrip('\n').split(' ')
+
+            status = 'A'
+            contig = seq[0]
+            chr    = seq[2]
+            left   = ( int(seq[4]) + int(seq[3]) ) // 2
+            right  = ( int(seq[6]) + int(seq[5]) ) // 2
+
+            if ( right - left ) > 500:
+                status = 'N'
+                chr    = ''
+                left   = ''
+                right  = ''
+
+            location[contig] = f':{status}:{chr}:{left}:{right}'
+
+    with open( f'{file_location}/2bleft.name' ) as f:
+        for line in f:
+            seq = line.rstrip('\n').split(' ')
+
+            status = 'L'
+            contig = seq[0]
+            chr    = seq[2]
+            left   = ( int(seq[4]) + int(seq[3]) ) // 2
+            right  = ''
+
+            location[contig] = f':{status}:{chr}:{left}:{right}'
+
+
+    with open( f'{file_location}/2bright.name' ) as f:
+        for line in f:
+            seq = line.rstrip('\n').split(' ')
+
+            status = 'R'
+            contig = seq[0]
+            chr    = seq[2]
+            left   = ''
+            right  = ( int(seq[4]) + int(seq[3]) ) // 2
+
+            location[contig] = f':{status}:{chr}:{left}:{right}'
+
+    with open( f'{file_location}/3.name' ) as f:
+        for line in f:
+            seq = line.rstrip('\n').split(' ')
+
+            status = 'N'
+            contig = seq[0]
+            chr    = ''
+            left   = ''
+            right  = ''
+
+            location[contig] = f':{status}:{chr}:{left}:{right}'
+
+    with open( f'{file_location}/4.name' ) as f:
+        for line in f:
+            seq = line.rstrip('\n').split(' ')
+
+            status = 'U'
+            contig = seq[0]
+            chr    = ''
+            left   = ''
+            right  = ''
+
+            location[contig] = f':{status}:{chr}:{left}:{right}'
+
+    return location
 
 
 # Start of the main program
 start_time = time.time()
 
-seq = {}
-with open('/home/liujf/WORKSPACE/zhuoy/test/dispensable_genome.fasta.length') as f:
+''''
+if len(sys.argv) != 5:
+    print('Error: Number of wrong parameters.')
+    sys.exit(1)
+fasta, arrange, location, output = sys.argv[1:5]
+'''
+fasta = '/home/liujf/WORKSPACE/zhuoy/test/dispensable_genome.fasta.length'
+arrange = '/home/liujf/WORKSPACE/zhuoy/test/arrange/'
+#arrange = '/home/liujf/WORKSPACE/zhuoy/test/test/'
+location = '/home/liujf/WORKSPACE/zhuoy/test/location/'
+output = '/home/liujf/WORKSPACE/zhuoy/test/compare.txt'
+
+seq = []
+with open(fasta) as f:
     for line in f:
-        contig = line.rstrip('\n').split('\t')[0]
-        seq[contig] = [contig]
-# TODO convert to hash
-count = 0
+        seq.append( [ line.rstrip('\n').split('\t')[0] ])
+
 header = ['Contig']
-os.chdir('/home/liujf/WORKSPACE/zhuoy/test/arrange/')
-f = open('/home/liujf/WORKSPACE/zhuoy/tmp.txt', 'w+')
+os.chdir(arrange)
 file_list = os.popen('find')
 for file_string in file_list:
     file = re.search('[^/]+\.paf',file_string)
     if file:
         file = file.group()
-        seq = ComparisonIO(file_string.rstrip('\n'), seq)
+        loc = Location(file_string.rstrip('\n'), location)
+        seq = Arrange(file_string.rstrip('\n'), seq, loc)
         header.append(file.rstrip('.paf'))
-        count += 1
-        f.writelines(' '.join( [ file_string , file] ) )
-f.close()
 
-f = open('/home/liujf/WORKSPACE/zhuoy/test/compare.txt', 'w+')
+f = open(output, 'w+')
 f.write(' '.join(header) + '\n')
 for line in seq:
     f.write(' '.join(line) + '\n')
 f.close()
 
-print('It have sum {0} idv.\n'.format(count))
 end_time = time.time()
 print(f"It took {end_time-start_time:.2f} seconds to compute")

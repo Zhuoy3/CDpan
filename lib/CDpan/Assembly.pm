@@ -9,6 +9,7 @@ package CDpan::Assembly;
 use strict;
 use warnings;
 use Config::IniFiles;
+use File::Copy;
 
 sub assembly {
     # &extract($opt, $idv_folder_name, $output_dir)
@@ -35,15 +36,31 @@ sub assembly {
     "DO_HOMOPOLYMER_TRIM=0\n" .
     "END\n";
 
-    open CONFIG, '>', "$output_dir/$idv_folder_name.config.txt";
+    open CONFIG, '>', "$output_dir/$idv_folder_name.config.txt"
+        or die "Couldn't create $output_dir/$idv_folder_name.config.txt: $!.\n";
     print CONFIG $config;
     close CONFIG;
 
     (my $masurca = $par->val('TOOLS', 'masurca', './masurca') ) =~ s/\/masurca$//;
     $ENV{PATH} = "$masurca:$ENV{PATH}:";
 
-    system "masurca $output_dir/$idv_folder_name.config.txt";
-    system "";
+    my $cmd_masurca = "masurca $output_dir/$idv_folder_name.config.txt";
+    print "Start use cmd: \'$cmd_masurca\'.\n";
+    system $cmd_masurca
+        and die "Error: Command \'$cmd_masurca\' failed to run normally: $?.\n";
+
+    mkdir "$output_dir/assemble"
+        or die "Couldn't create $output_dir/assemble: $!.\n";
+    chdir "$output_dir/assemble";
+    system "../assemble.sh"
+        and die "Error: Command ../assemble.sh: $?.\n";
+    if ( -e "./CA/final.genome.scf.fasta"){
+        move("./CA/final.genome.scf.fasta", "$output_dir/$idv_folder_name.final.genome.scf.fasta")
+            or die "ERROR: Couldn't move file: /CA/final.genome.scf.fasta.\n";
+    }
+
+    chdir $output_dir;
+    system "rm -rf $output_dir/assemble";
 
     chdir $main::folder_process;
 

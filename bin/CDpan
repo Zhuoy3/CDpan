@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+
+# Description:
+# Author: Zhuo Yue
+# Date: 2021-06-16
+
+use strict;
+use warnings;
+
+use Cwd qw\\;
+
+my $path_bin = Cwd::abs_path($0);
+
+$path_bin =~ s/\/bin\/CDpan/\/bin\/CDpan.pl/;
+
+system "$path_bin @ARGV";

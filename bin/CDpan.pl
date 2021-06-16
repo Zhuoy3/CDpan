@@ -23,6 +23,7 @@ use CDpan::Check;
 use CDpan::QualityControl;
 use CDpan::Comparison;
 use CDpan::Extract;
+use CDpan::Assembly;
 
 my $VERSION      = 'v0.1.8';
 my $VERSION_TIME = 'May 27 2021';
@@ -33,7 +34,7 @@ unless (@ARGV) {
     print "Use option \'-h/--help\' for usage information.\n";
     exit 0;
 }
-
+#TODO 参数解析不行换用python或是C++
 # h:help; v:version; d:debug mode
 our ($opt_h, $opt_v, $opt_d);
 Getopt::Std::getopts('hvd') or die "Error parameters \'@ARGV\', please use option \'-h/--help\' for usage information.\n";
@@ -111,10 +112,11 @@ foreach my $idv_folder (@input_folder) {
         or die "ERROR: Operation Comparison is abnormal.\n";
     CDpan::Extract::extract($par, $idv_name, $idv_output_folder)
         or die "ERROR: Operation Extract is abnormal.\n";
+    CDpan::Assembly::assembly($par, $idv_name, $idv_output_folder)
+        or die "ERROR: Operation Assembly is abnormal.\n";
 }
 
-#TODO 组装
-
+#TODO
 print "END OF PROGRAMME.\n";
 exit 0;
 
@@ -125,8 +127,10 @@ sub HELP_MESSAGE {
 }
 
 END {
-    my $file_log_path = $file_par_path // 'CDpan';
-    $file_log_path =~ s/\.[^\.]+$//;
-    print "Output log in file \'$file_log_path.log\'.\n";
-    Mnet::Tee::file("$file_log_path.log");
+    unless ($opt_h or $opt_v) {
+        my $file_log_path = $file_par_path // 'CDpan';
+        $file_log_path =~ s/\.[^\.]+$//;
+        print "Output log in file \'$file_log_path.log\'.\n";
+        Mnet::Tee::file("$file_log_path.log");
+    }
 }

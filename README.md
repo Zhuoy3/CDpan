@@ -1,3 +1,3 @@
 # CDpan
 
-Author: Zhuo Yue
+CDpan

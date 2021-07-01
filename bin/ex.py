@@ -4,7 +4,7 @@ Description:
 Author: Zhuo Yue
 Date: 2021-06-09 15:02:54
 LastEditors: Zhuo Yue
-LastEditTime: 2021-06-15 18:01:19
+LastEditTime: 2021-06-30 13:56:48
 Calls:
 Called By:
 FilePath: \CDpan\bin\ex.py
@@ -122,7 +122,7 @@ def Location(file_path_paf_string, file_path_location_string):
             left   = ( int(seq[4]) + int(seq[3]) ) // 2
             right  = ( int(seq[6]) + int(seq[5]) ) // 2
 
-            if ( right - left ) > 500:
+            if ( abs( right - left ) > 500 ):
                 status = 'N'
                 chr    = ''
                 left   = ''
@@ -159,9 +159,9 @@ def Location(file_path_paf_string, file_path_location_string):
         for line in f:
             seq = line.rstrip('\n').split(' ')
 
-            status = 'N'
+            status = 'U'
             contig = seq[0]
-            chr    = ''
+            chr    = seq[1]
             left   = ''
             right  = ''
 
@@ -171,7 +171,19 @@ def Location(file_path_paf_string, file_path_location_string):
         for line in f:
             seq = line.rstrip('\n').split(' ')
 
-            status = 'U'
+            status = 'N'
+            contig = seq[0]
+            chr    = ''
+            left   = ''
+            right  = ''
+
+            location[contig] = f':{status}:{chr}:{left}:{right}'
+
+    with open( f'{file_location}/5.name' ) as f:
+        for line in f:
+            seq = line.rstrip('\n').split(' ')
+
+            status = 'N'
             contig = seq[0]
             chr    = ''
             left   = ''
@@ -196,6 +208,7 @@ arrange = '/home/liujf/WORKSPACE/zhuoy/test/arrange/'
 #arrange = '/home/liujf/WORKSPACE/zhuoy/test/test/'
 location = '/home/liujf/WORKSPACE/zhuoy/test/location/'
 output = '/home/liujf/WORKSPACE/zhuoy/test/compare.txt'
+#output = '/home/liujf/WORKSPACE/zhuoy/test/test.txt'
 
 seq = []
 with open(fasta) as f:

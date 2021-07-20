@@ -4,7 +4,7 @@ Description:
 Author: Zhuo Yue
 Date: 2021-06-09 15:02:54
 LastEditors: Zhuo Yue
-LastEditTime: 2021-06-30 13:56:48
+LastEditTime: 2021-07-09 17:16:14
 Calls:
 Called By:
 FilePath: \CDpan\bin\ex.py
@@ -19,7 +19,7 @@ import sys
 
 # Screening threshold control function
 def Rate(pairwise_list) :
-    threshold = 0.85
+    threshold = 0.7
     if float(pairwise_list[9]) / float(pairwise_list[6]) >= threshold:
         if float(pairwise_list[9]) / float(pairwise_list[1]) >= threshold:
             return True
@@ -122,6 +122,9 @@ def Location(file_path_paf_string, file_path_location_string):
             left   = ( int(seq[4]) + int(seq[3]) ) // 2
             right  = ( int(seq[6]) + int(seq[5]) ) // 2
 
+            if (left > right):
+                left, right = right, left
+
             if ( abs( right - left ) > 500 ):
                 status = 'N'
                 chr    = ''
@@ -193,10 +196,8 @@ def Location(file_path_paf_string, file_path_location_string):
 
     return location
 
-
 # Start of the main program
 start_time = time.time()
-
 ''''
 if len(sys.argv) != 5:
     print('Error: Number of wrong parameters.')
@@ -207,7 +208,7 @@ fasta = '/home/liujf/WORKSPACE/zhuoy/test/dispensable_genome.fasta.length'
 arrange = '/home/liujf/WORKSPACE/zhuoy/test/arrange/'
 #arrange = '/home/liujf/WORKSPACE/zhuoy/test/test/'
 location = '/home/liujf/WORKSPACE/zhuoy/test/location/'
-output = '/home/liujf/WORKSPACE/zhuoy/test/compare.txt'
+output = "/home/liujf/WORKSPACE/zhuoy/test/compare.txt"
 #output = '/home/liujf/WORKSPACE/zhuoy/test/test.txt'
 
 seq = []
@@ -233,4 +234,4 @@ for line in seq:
 f.close()
 
 end_time = time.time()
-print(f"It took {end_time-start_time:.2f} seconds to compute")
+print(f"It took {end_time-start_time:.2f} seconds to compute.\n")

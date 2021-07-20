@@ -1,2 +1,7 @@
-DATA:
-QC:
+CDpan:
+TOOLS:trim_galore cutadapt fastqc bwa gatk samtools masurca
+DATA:input output ref
+QUALITYCONTROL:quality length error_rate cores other
+COMPARISON:thread
+EXTRACT:thread
+ASSEMBLY:thread

@@ -10,6 +10,7 @@ package CDpan::Parameter;
 use strict;
 use warnings;
 use Config::IniFiles;
+use File::Spec::Functions qw /:ALL/;
 
 sub InputPar {
     # &InputPar($opt)
@@ -17,28 +18,19 @@ sub InputPar {
     my $file_par_path = shift;
 
     # Since "FindBin" uses a "BEGIN" block, it'll be executed only once, and only the first caller will get it right
-    # $FindBin::Bin is path to bin directory from where 'CDpan.pl' was invoked
+    # $FindBin::Bin is path to bin folder from where 'CDpan.pl' was invoked
     my  $par_default = new Config::IniFiles(-file => "$FindBin::Bin/../config/par_default.ini");
     my $par = new Config::IniFiles(-file                => $file_par_path,
                                    -import              => $par_default,
                                    -allowedcommentchars => '#')
-        or die "ERROR: Could not import parameter from \'$file_par_path\': @Config::IniFiles::errors.\n";
+        or die "Error: Could not import parameter from \'$file_par_path\': @Config::IniFiles::errors.\n";
 
 
 
     _CheckRedundant($par);
     _CheckMissing($par);
-
-    #CDpan::Check::checkpar_tool($par);
-
-    # unless ( -e $par->val('COMPARISON', 'ref') ) {
-    #     my $reference = $par->val('COMPARISON', 'ref');
-    #     die "ERROR: Reference genome file \'$reference\' does not exist.\n";
-    # }
-
-
-
-    #TODO 需要一个检查转换为全局路径的函数
+    _CheckTools($par);
+    _CheckFile($par);
 
     $par->WriteConfig("$file_par_path.import") if $main::debug;
 
@@ -51,7 +43,7 @@ sub _GetStdPar {
     my $file_path = shift;
     my %output;
 
-    open PARFILE, "<", $file_path or die "ERROR: Cannot open file \'$file_path\': $!";
+    open PARFILE, "<", $file_path or die "Error: Cannot open file \'$file_path\': $!";
     while (<PARFILE>) {
         next unless s/^(.*?):\s*//; # Capturing the first parameter of the line: Section
         $output{$1} =[ split ]; # A hash that points to the list
@@ -77,19 +69,20 @@ sub _CheckRedundant {
 
             foreach my $param (@par_parameters) {
                 unless (grep { $_ eq $param } @{ $par_accept{$section} }){
-                    warn "WARNING: Unknown parameter found: '[$section] => $param', will be removed.\n";
+                    warn "Warning: Unknown parameter found: '[$section] => $param', will be removed.\n";
                     $par->delval($section, $param);
                     $redundant = 1;
                 }
             }
         }else{
-            warn "WARNING: Unknown parameter found: '[$section] => ...', will be removed.\n";
+            warn "Warning: Unknown parameter found: '[$section] => ...', will be removed.\n";
             $par->DeleteSection($section);
             $redundant = 1;
         }
     }
 
-    die "ERROR: More unknown parameter, please check the parameter file.\n" if $redundant;
+    die "Error: More unknown parameter, please check the parameter file.\n" if $redundant;
+    print "Debug: Redundant check has been performed.\n" if $main::debug;
 
     return $redundant;
 }
@@ -105,14 +98,15 @@ sub _CheckMissing {
     foreach my $key ( keys %par_require ) {
         foreach my $value ( @{ $par_require{$key} } ) {
             unless ( defined $par->val($key, $value)) {
-                print STDERR "ERROR: Following parameters should have values:\n" unless $findmiss;
+                print STDERR "Error: Following parameters should have values:\n" unless $findmiss;
                 $findmiss = 1;
-                print STDERR "ERROR:     $key => $value\n";
+                print STDERR "Error:     $key => $value\n";
             }
         }
 
     }
-    die "ERROR: Please modify the parameter file and add the expected value" if $findmiss;
+    die "Error: Please modify the parameter file and add the expected value" if $findmiss;
+    print "Debug: Missing check has been performed.\n" if $main::debug;
 
     return $findmiss;
 }
@@ -126,34 +120,129 @@ sub _CheckTools {
     my @tools_needed = qw \ trim_galore cutadapt fastqc bwa gatk samtools masurca \;
     my @tools_missing;
 
-    FINDTOOL: foreach my $tools (@tools_needed) {
+    foreach my $tools (@tools_needed) {
+        print "Check for $tools.\n";
         if ( defined $par->val('TOOLS', $tools) ) {
-            ( -e -x $par->val('TOOLS', $tools) ) ? next : $par->delval('TOOLS', $tools);
+            if ( -e -x $par->val('TOOLS', $tools) ) {
+                print "The $tools assign by script file seems to work fine.\n";
+                _CheckVersion($tools, $par->val('TOOLS', $tools));
+                next;
+            }else {
+                print "The $tools does not exist or lacks execute permission, delete it.\n";
+                $par->delval('TOOLS', $tools);
+            }
+        } else {
+            print "The $tools not specified.\n";
         }
 
-        foreach my $path ( path() )  {
-            if (-e -x catfile($path, $tools)) {
+        my $cmd_findtool = "command -v ${tools}";
+        my $new_tools_path =  `$cmd_findtool`;
 
-                next FINDTOOL;
-            };
+        unless ($new_tools_path =~ m/not found/) {
+            chomp($new_tools_path);
+            print "The $tools was found at $new_tools_path.\n";
+            $par->newval('TOOLS', $tools, $new_tools_path);
+            _CheckVersion($tools, $new_tools_path);
+            next;
         }
 
         push @tools_missing, $tools;
     }
 
-    die "ERROR: can't locate '@tools_missing', please add these to PATH or use 'TOOLS' section of parameters file.\n If the above is indeed executed, please confirm whether you have execution authority.\n" if (@tools_missing);
-
+    die "Error: can't locate '@tools_missing', please add these to PATH or use 'TOOLS' section of parameters file.\n" .
+        "If the above is indeed executed, please confirm whether you have execution authority.\n"
+            if (@tools_missing);
+    print "Debug: Tools check has been performed.\n" if $main::debug;
     return @tools_missing;
 }
 
-sub checkpar_file {
-    # &checkpar_tool($opt, $file)
+sub _CheckVersion {
+    # &_CheckVersion($tools, $tool_path)
+    # Output calling software information
+
+    my $tools = shift;
+    my $tool_path = shift;
+
+    my $res;
+    if ( $tools eq "trim_galore") {
+        ( $res ) = `trim_galore --version` =~ m/version (\d+\.\d+.\d+)\s+/;
+        print "trim_galore version: $res\n";
+    }
+    elsif ( $tools eq "cutadapt") {
+        ( $res ) = `cutadapt --version` =~ m/(\d+\.\d+)\s+/;
+        print "cutadapt version: $res\n";
+    }
+    elsif ( $tools eq "fastqc") {
+        ( $res ) = `fastqc --version` =~ m/FastQC v(\d+\.\d+.\d+)\s+/;
+        print "fastqc version: $res\n";
+    }
+    elsif ( $tools eq "bwa") {
+    #     ( $res ) = `bwa` =~ m/Version: (\d+\.\d+.\d+)-/;
+    #    print "bwa version: $res\n";
+    # this check for bwa seem couldn't work normal
+    }
+    elsif ( $tools eq "gatk") {
+        # open STDERR, ">", "/dev/null" or die "Error: cannot redirect standard Error: $!";
+        # ( $res ) = `gatk --version` =~ m/\(GATK\) v(\d+\.\d+.\d+.\d+)\s+/;
+        # print "gatk version: $res\n";
+        # open STDERR, ">&$main::cp_stderr" or die "Error: Can't restore stderr: $!";
+    }
+    elsif ( $tools eq "samtools") {
+        ( $res ) = `samtools --version` =~ m/samtools (\d+\.\d+)\s+/;
+        print "samtools version: $res\n";
+    }
+    elsif ( $tools eq "masurca") {
+        # ( $res ) = `masurca --version` =~ m/version (\d+\.\d+.\d+)\s+/;
+        # print "masurca version: $res\n";
+        # this check for masurca seem couldn't work normal
+    }
+    else {
+        die "Error: Unknown software: $tools\n";
+    }
+
+    print "Debug: $tools is $tool_path\n" if $main::debug;
+
+    return 1;
+}
+
+sub _CheckFile {
+    # &checkpar_tool($opt)
     # $opt is a quotation in 'Config::IniFiles' format
     # Check if the required file exists
     my $par = shift;
-    my $file = shift;
+
+    unless ( -e -r -d $par->val('DATA', 'input') ){
+        die "Error: Could not open input folder: " . $par->val('DATA', 'input') . "\n";
+    }
+
+    unless ( -e -r $par->val('DATA', 'ref') ){
+        die "Error: Could not open ref file: " . $par->val('DATA', 'ref') . "\n";
+    }
+
+    # Check if the output folder exists
+    if ( -e $par->val('DATA', 'output') ) {
+        my @dir_files = File::Slurp::read_dir($par->val('DATA', 'output'), prefix => 1);
+        if ( @dir_files ) {
+            print "Output folder " . $par->val('DATA', 'output') . " exists and has file.\n";
+            my $folder_output = $par->val('DATA', 'output');
+            my $folder_output_old = ( $folder_output =~ s/\/$//r ). '.old/';
+            $folder_output_old =~ s/\.old\/?$/\.$$\.old\// if (-e $folder_output_old);
+            rename $folder_output => $folder_output_old or die "Error: Cannot change the name of folder '$folder_output': $!\n";
+            warn "Warning: Folder '$folder_output' exists and has been renamed to '$folder_output_old'";
+            mkdir $par->val('DATA', 'output') or die "Error: Cannot create output folder: $!\n";
+            print "Output folder " . $par->val('DATA', 'output') . " exists was created.\n";
+        } else {
+            print "Output folder " . $par->val('DATA', 'output') . " exists but is empty.\n";
+        }
+    } else {
+        mkdir $par->val('DATA', 'output') or die "Error: Cannot create output folder: $!\n";
+        print "Output folder " . $par->val('DATA', 'output') . " was created.\n";
+    }
 
 
+    print "Debug: Files check has been performed.\n" if $main::debug;
+
+    return 1;
 }
 
 

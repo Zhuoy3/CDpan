@@ -4,10 +4,10 @@
  # @Author: Zhuo Yue
  # @Date: 2021-07-03 23:57:18
  # @LastEditors: Zhuo Yue
- # @LastEditTime: 2021-07-20 16:52:20
+ # @LastEditTime: 2021-07-22 01:00:59
  # @Calls:
  # @Called By:
- # @FilePath: \CDpan\bin\CDpan
+ # @FilePath: \CDpan\bin\CDpan.sh
 ###
 
 if [ -h $0 ]
@@ -17,4 +17,5 @@ else
     bin=`cd $(dirname $0); pwd`'/'`basename  $0`
 fi
 
-${bin}.pl "$@"
+export CDPAN_PATH=${bin}.pl
+${bin}.bin "$@"

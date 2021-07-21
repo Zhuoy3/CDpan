@@ -15,7 +15,7 @@ sub assembly {
     # &extract($opt, $idv_folder_name, $output_dir)
     # $opt is a quotation in 'Config::IniFiles' format
     # $idv_folder_name is the name of the individual
-    # $output_dir is a directory path which is used to output
+    # $output_dir is a folder path which is used to output
     #TODO 未调试
     (my $par, my $idv_folder_name, my $output_dir) = @_;
     chdir $output_dir;
@@ -56,7 +56,7 @@ sub assembly {
         and die "Error: Command ../assemble.sh: $?.\n";
     if ( -e "./CA/final.genome.scf.fasta"){
         move("./CA/final.genome.scf.fasta", "$output_dir/$idv_folder_name.final.genome.scf.fasta")
-            or die "ERROR: Couldn't move file: /CA/final.genome.scf.fasta.\n";
+            or die "Error: Couldn't move file: /CA/final.genome.scf.fasta.\n";
     }
 
     chdir $output_dir;

@@ -14,7 +14,7 @@ sub extract {
     # &extract($opt, $idv_folder_name, $output_dir)
     # $opt is a quotation in 'Config::IniFiles' format
     # $idv_folder_name is the name of the individual
-    # $output_dir is a directory path which is used to output
+    # $output_dir is a folder path which is used to output
 
     (my $par, my $idv_folder_name, my $output_dir) = @_;
 

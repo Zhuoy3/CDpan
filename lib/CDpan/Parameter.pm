@@ -26,8 +26,8 @@ sub InputPar {
         or die "Error: Could not import parameter from \'$file_par_path\': @Config::IniFiles::errors.\n";
 
 
-
-    _CheckRedundant($par);
+    #TODO 暂时关闭
+    #_CheckRedundant($par);
     _CheckMissing($par);
     _CheckTools($par);
     _CheckFile($par);
@@ -149,9 +149,10 @@ sub _CheckTools {
         push @tools_missing, $tools;
     }
 
-    die "Error: can't locate '@tools_missing', please add these to PATH or use 'TOOLS' section of parameters file.\n" .
-        "If the above is indeed executed, please confirm whether you have execution authority.\n"
-            if (@tools_missing);
+    #TODO 暂时关闭
+    # die "Error: can't locate '@tools_missing', please add these to PATH or use 'TOOLS' section of parameters file.\n" .
+    #     "If the above is indeed executed, please confirm whether you have execution authority.\n"
+    #         if (@tools_missing);
     print "Debug: Tools check has been performed.\n" if $main::debug;
     return @tools_missing;
 }

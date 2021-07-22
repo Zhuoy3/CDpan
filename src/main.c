@@ -3,7 +3,7 @@
  * @Author: Zhuo Yue
  * @Date: 2021-06-02 15:57:40
  * @LastEditors: Zhuo Yue
- * @LastEditTime: 2021-07-22 01:12:43
+ * @LastEditTime: 2021-07-22 22:31:14
  * @Calls:
  * @Called By:
  * @FilePath: \CDpan\src\main.c
@@ -55,7 +55,10 @@ int main(int argc, char *argv[]) {
     char *pl_path = getenv("CDPAN_PATH");
     char *cmd = (char *)malloc(sizeof(char) * PATH_MAX);
     strncpy(cmd, pl_path, PATH_MAX);
-    if (GetCmdBool(par, "debug")) strcat(cmd, " > /dev/null 2> /dev/null");
+    if (GetCmdBool(par, "quite")) strcat(cmd, " > /dev/null 2> /dev/null");
+
+    system(cmd);
+    free(cmd);
 
     return 0;
 }

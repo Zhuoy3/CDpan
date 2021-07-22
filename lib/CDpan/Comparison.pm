@@ -49,7 +49,7 @@ sub comparison {
         and die "Error: Command \'$cmd_bwa\' failed to run normally: $?.\n";
 
     # Read the software path and set it to the default value
-    my $gatk = $par->val('TOOLS', 'gatk', './gatk');
+    my $gatk = $par->val('TOOLS', 'gatk');
 
     unless ($main::ref_dict) {
         if ( -e "$ref.dict" ) {
@@ -77,29 +77,29 @@ sub comparison {
     system $cmd_reorder
         and die "Error: Command \'$cmd_reorder\' failed to run normally: $?.\n";
 
-    # # Read the software path and set it to the default value
-    # (my $samtools = $par->val('TOOLS', 'samtools', './samtools') ) =~ s/\/samtools$//;
-    # $ENV{PATH} = "$samtools:$ENV{PATH}:";
+    # Read the software path and set it to the default value
+    my $samtools = $par->val('TOOLS', 'samtools');
 
-    # my $bwa_thread = $par->val('EXTRACT', 'thread');
-    # #sam to bam
-    # my $cmd_sam2bam = "samtools view -@ $bwa_thread -b  " .
-    #                   "-S $output_dir/$idv_folder_name.reorder.sam " .
-    #                   "-o $output_dir/$idv_folder_name.reorder.bam";
-    # print "Start use cmd: \'$cmd_sam2bam\'.\n";
-    # system $cmd_sam2bam
-    #     and die "Error: Command \'$cmd_sam2bam\' failed to run normally: $?.\n";
-    # unlink "$output_dir/$idv_folder_name.reorder.sam";
+    my $bwa_thread = $par->val('EXTRACT', 'thread');
+    #sam to bam
+    my $cmd_sam2bam = "$samtools view -@ $bwa_thread -b  " .
+                      "-S $output_dir/$idv_folder_name.reorder.sam " .
+                      "-o $output_dir/$idv_folder_name.reorder.bam";
+    print "Start use cmd: \'$cmd_sam2bam\'.\n";
+    system $cmd_sam2bam
+        and die "Error: Command \'$cmd_sam2bam\' failed to run normally: $?.\n";
+    unlink "$output_dir/$idv_folder_name.reorder.sam";
 
-    # #sort bam
-    # my $cmd_sort = "gatk --java-options \"-Xmx32G\" SortSam " .
-    #                "-I $output_dir/$idv_folder_name.reorder.bam " .
-    #                "-O $output_dir/$idv_folder_name.sort.bam " .
-    #                "--SORT_ORDER coordinate";
-    # print "Start use cmd: \'$cmd_sort\'.\n";
-    # system $cmd_sort
-    #     and die "Error: Command \'$cmd_sort\' failed to run normally: $?.\n";
-    # unlink "$output_dir/$idv_folder_name.reorder.bam";
+    #sort bam
+    my $cmd_sort = "$gatk --java-options \"-Xmx32G\" SortSam " .
+                   "-I $output_dir/$idv_folder_name.reorder.bam " .
+                   "-O $output_dir/$idv_folder_name.sort.bam " .
+                   "--SORT_ORDER coordinate " .
+                   ">/dev/null 2> $output_dir/$idv_folder_name.sort.bam.log";
+    print "Start use cmd: \'$cmd_sort\'.\n";
+    system $cmd_sort
+        and die "Error: Command \'$cmd_sort\' failed to run normally: $?.\n";
+    unlink "$output_dir/$idv_folder_name.reorder.bam";
 
     return 1;
 }

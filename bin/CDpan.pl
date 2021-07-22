@@ -54,10 +54,10 @@ my $par = CDpan::Parameter::InputPar($file_par_path);
 # our $folder_process = catdir($cwd, "tmp_$$");
 # TODO 便于调试简化临时文件夹
 our $folder_process = catdir($cwd, "tmp");
-if (-e $folder_process){
-    system "rm -rf $folder_process";
-}
-mkdir $folder_process or die "Error: Cannot create process folder '$folder_process': $!\n";
+# if (-e $folder_process){
+#     system "rm -rf $folder_process";
+# }
+# mkdir $folder_process or die "Error: Cannot create process folder '$folder_process': $!\n";
 chdir $folder_process or die "Error: Cannot chdir to '$folder_process: $!\n";
 
 print "\n================================================================================\n\n";
@@ -76,10 +76,10 @@ foreach my $idv_folder (@input_folder) {
         or die "Error: Operation QualityControl is abnormal.\n";
     CDpan::Comparison::comparison($par, $idv_name, $idv_output_folder)
         or die "Error: Operation Comparison is abnormal.\n";
-    # CDpan::Extract::extract($par, $idv_name, $idv_output_folder)
-    #     or die "Error: Operation Extract is abnormal.\n";
-#     CDpan::Assembly::assembly($par, $idv_name, $idv_output_folder)
-#         or die "Error: Operation Assembly is abnormal.\n";
+    CDpan::Extract::extract($par, $idv_name, $idv_output_folder)
+        or die "Error: Operation Extract is abnormal.\n";
+    CDpan::Assembly::assembly($par, $idv_name, $idv_output_folder)
+        or die "Error: Operation Assembly is abnormal.\n";
 }
 
 # chdir $cwd;

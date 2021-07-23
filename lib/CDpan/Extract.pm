@@ -30,7 +30,7 @@ sub extract {
                      "2> /dev/null";
     print "Start use cmd: \'$cmd_fastq1\'.\n";
     system $cmd_fastq1
-        and die "Error: Command \'$cmd_fastq1\' failed to run normally: $?.\n";
+        and die "Error: Command \'$cmd_fastq1\' failed to run normally: $?\n";
 
     my $cmd_fastq2 = "$samtools fastq -\@ $thread " .
                      "-f 68 -F 8 $output_dir/$idv_folder_name.sort.bam " .
@@ -38,7 +38,7 @@ sub extract {
                      "2> /dev/null";
     print "Start use cmd: \'$cmd_fastq2\'.\n";
     system $cmd_fastq2
-        and die "Error: Command \'$cmd_fastq2\' failed to run normally: $?.\n";
+        and die "Error: Command \'$cmd_fastq2\' failed to run normally: $?\n";
 
     my $cmd_fastq3 = "$samtools fastq -\@ $thread " .
                      "-f 132 -F 8 $output_dir/$idv_folder_name.sort.bam " .
@@ -46,14 +46,14 @@ sub extract {
                      "2> /dev/null";
     print "Start use cmd: \'$cmd_fastq3\'.\n";
     system $cmd_fastq3
-        and die "Error: Command \'$cmd_fastq3\' failed to run normally: $?.\n";
+        and die "Error: Command \'$cmd_fastq3\' failed to run normally: $?\n";
 
     my $cmd_view = "$samtools view -\@ $thread " .
                    "-f 8 -F 4 -b -h $output_dir/$idv_folder_name.sort.bam " .
                    "> $output_dir/$idv_folder_name.Sus_11_1_Links.bam ";
     print "Start use cmd: \'$cmd_view\'.\n";
     system $cmd_view
-        and die "Error: Command \'$cmd_view\' failed to run normally: $?.\n";
+        and die "Error: Command \'$cmd_view\' failed to run normally: $?\n";
 
     my $cmd_fastq4 = "$samtools fastq -\@ $thread " .
                      "-f 4 $output_dir/$idv_folder_name.sort.bam " .
@@ -62,7 +62,7 @@ sub extract {
                      "2> /dev/null";
     print "Start use cmd: \'$cmd_fastq4\'.\n";
     system $cmd_fastq4
-        and die "Error: Command \'$cmd_fastq4\' failed to run normally: $?.\n";
+        and die "Error: Command \'$cmd_fastq4\' failed to run normally: $?\n";
 
     return 1;
 }

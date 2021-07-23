@@ -37,7 +37,7 @@ sub assembly {
     #TODO NUM_THREADS是否运行用户指定
 
     open CONFIG, '>', "$output_dir/$idv_folder_name.masurca_config.txt"
-        or die "Couldn't create $output_dir/$idv_folder_name.masurca_config.txt: $!.\n";
+        or die "Error: Couldn't create $output_dir/$idv_folder_name.masurca_config.txt: $!\n";
     print CONFIG $config;
     close CONFIG;
 
@@ -46,16 +46,16 @@ sub assembly {
     my $cmd_masurca = "$masurca $output_dir/$idv_folder_name.masurca_config.txt > $output_dir/$idv_folder_name.masurca_config.log";
     print "Start use cmd: \'$cmd_masurca\'.\n";
     system $cmd_masurca
-        and die "Error: Command \'$cmd_masurca\' failed to run normally: $?.\n";
+        and die "Error: Command \'$cmd_masurca\' failed to run normally: $?\n";
 
     mkdir "$output_dir/assemble"
-        or die "Couldn't create $output_dir/assemble: $!.\n";
+        or die "Couldn't create $output_dir/assemble: $!\n";
     chdir "$output_dir/assemble";
     system "../assemble.sh > ../assemble.log"
-        and die "Error: Command ../assemble.sh: $!.\n";
+        and die "Error: Command ../assemble.sh: $?\n";
     if ( -e "./CA/final.genome.scf.fasta"){
         move("./CA/final.genome.scf.fasta", "$output_dir/$idv_folder_name.final.genome.scf.fasta")
-            or die "Error: Couldn't move file: /CA/final.genome.scf.fasta.\n";
+            or die "Error: Couldn't move file: /CA/final.genome.scf.fasta: $!\n";
     }
 
     chdir $output_dir;

@@ -29,7 +29,7 @@ sub comparison {
         my $cmd_bwa_index = "bwa index $ref 2> /dev/null";
         print "Start use cmd: \'$cmd_bwa_index\'.\n";
         system $cmd_bwa_index
-            and die "Error: Command \'$cmd_bwa_index\' failed to run normally: $?.\n";
+            and die "Error: Command \'$cmd_bwa_index\' failed to run normally: $?\n";
         $main::ref_index = 1;
     }
 
@@ -46,7 +46,7 @@ sub comparison {
 
     print "Start use cmd: \'$cmd_bwa\'.\n";
     system $cmd_bwa
-        and die "Error: Command \'$cmd_bwa\' failed to run normally: $?.\n";
+        and die "Error: Command \'$cmd_bwa\' failed to run normally: $?\n";
 
     # Read the software path and set it to the default value
     my $gatk = $par->val('TOOLS', 'gatk');
@@ -62,7 +62,7 @@ sub comparison {
                             ">/dev/null 2> /dev/null";
         print "Start use cmd: \'$cmd_gatk_dict\'.\n";
         system $cmd_gatk_dict
-            and die "Error: Command \'$cmd_gatk_dict\' failed to run normally: $?.\n";
+            and die "Error: Command \'$cmd_gatk_dict\' failed to run normally: $?\n";
         $main::ref_dict = 1;
     }
 
@@ -75,7 +75,7 @@ sub comparison {
                       ">/dev/null 2> $output_dir/$idv_folder_name.reorder.sam.log";
     print "Start use cmd: \'$cmd_reorder\'.\n";
     system $cmd_reorder
-        and die "Error: Command \'$cmd_reorder\' failed to run normally: $?.\n";
+        and die "Error: Command \'$cmd_reorder\' failed to run normally: $?\n";
 
     # Read the software path and set it to the default value
     my $samtools = $par->val('TOOLS', 'samtools');
@@ -87,7 +87,7 @@ sub comparison {
                       "-o $output_dir/$idv_folder_name.reorder.bam";
     print "Start use cmd: \'$cmd_sam2bam\'.\n";
     system $cmd_sam2bam
-        and die "Error: Command \'$cmd_sam2bam\' failed to run normally: $?.\n";
+        and die "Error: Command \'$cmd_sam2bam\' failed to run normally: $?\n";
     unlink "$output_dir/$idv_folder_name.reorder.sam";
 
     #sort bam
@@ -98,7 +98,7 @@ sub comparison {
                    ">/dev/null 2> $output_dir/$idv_folder_name.sort.bam.log";
     print "Start use cmd: \'$cmd_sort\'.\n";
     system $cmd_sort
-        and die "Error: Command \'$cmd_sort\' failed to run normally: $?.\n";
+        and die "Error: Command \'$cmd_sort\' failed to run normally: $?\n";
     unlink "$output_dir/$idv_folder_name.reorder.bam";
 
     return 1;

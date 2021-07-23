@@ -117,7 +117,7 @@ sub _CheckTools {
     # Check whether the tools specified in par is available, and search tools in PATH if not specified
     my $par = shift;
 
-    my @tools_needed = qw \ trim_galore cutadapt fastqc bwa gatk samtools masurca \;
+    my @tools_needed = $par->Parameters('TOOLS');
     my @tools_missing;
 
     foreach my $tools (@tools_needed) {
@@ -198,7 +198,7 @@ sub _CheckVersion {
         # this check for masurca seem couldn't work normal
     }
     else {
-        die "Error: Unknown software: $tools\n";
+        warn "Warning: Unknown software: $tools\n";
     }
 
     print "Debug: $tools is $tool_path\n" if $main::debug;

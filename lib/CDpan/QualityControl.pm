@@ -72,7 +72,7 @@ sub QualityControl {
                            "2> /dev/null";
         print "Start use cmd: \'$cmd_trim_galore\'.\n";
         system $cmd_trim_galore
-            and die "Error: Command \'$cmd_trim_galore\' failed to run normally: $?.\n";
+            and die "Error: Command \'$cmd_trim_galore\' failed to run normally: $?\n";
     }
 
     # merge data
@@ -96,13 +96,13 @@ sub QualityControl {
     my $cmd_merge_data_1 = "cat @result_files_1 > $output_dir/${idv_folder_name}_clean_1.fq.gz";
     print "Start use cmd: \'$cmd_merge_data_1\'.\n";
     system $cmd_merge_data_1
-        and die "Error: Command \'$cmd_merge_data_1\' failed to run normally: $?.\n";
+        and die "Error: Command \'$cmd_merge_data_1\' failed to run normally: $?\n";
     unlink @result_files_1;
 
     my $cmd_merge_data_2 = "cat @result_files_2 > $output_dir/${idv_folder_name}_clean_2.fq.gz";
     print "Start use cmd: \'$cmd_merge_data_2\'.\n";
     system $cmd_merge_data_2
-        and die "Error: Command \'$cmd_merge_data_2\' failed to run normally: $?.\n";
+        and die "Error: Command \'$cmd_merge_data_2\' failed to run normally: $?\n";
     unlink @result_files_2;
 
     return 1;

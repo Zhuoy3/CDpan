@@ -56,20 +56,22 @@ sub test {
 	                     "-k 1 " .
 	                     "--host-taxids 9823 " .
 	                     "-f $output_dir/$idv_folder_name.final.genome.scf.large_1000.fasta " .
-	                     "> $output_dir/$idv_folder_name.centrifuge.output";
+	                     "> $output_dir/$idv_folder_name.centrifuge.output " .
+                         "2> $output_dir/$idv_folder_name.centrifuge.output.log";
     print "Start use cmd: \'$cmd_centrifuge\'.\n";
     system $cmd_centrifuge
         and die "Error: Command \'$cmd_centrifuge\' failed to run normally: $?\n";
 
-    my $centrifuge_kreport = "$centrifuge_kreport " .
+    my $cmd_centrifuge_kreport = "$centrifuge_kreport " .
 	                     "-x $index " .
 	                     "$output_dir/$idv_folder_name.centrifuge.output " .
 	                     "--min-score 0 " .
 	                     "--min-length 0 " .
-	                     "> $output_dir/$idv_folder_name.centrifuge.krakenOut";
-    print "Start use cmd: \'$centrifuge_kreport\'.\n";
-    system $centrifuge_kreport
-        and die "Error: Command \'$centrifuge_kreport\' failed to run normally: $?\n";
+	                     "> $output_dir/$idv_folder_name.centrifuge.krakenOut " .
+                         "2> $output_dir/$idv_folder_name.centrifuge.krakenOut.log";
+    print "Start use cmd: \'$cmd_centrifuge_kreport\'.\n";
+    system $cmd_centrifuge_kreport
+        and die "Error: Command \'$cmd_centrifuge_kreport\' failed to run normally: $?\n";
 
     return 1;
 }

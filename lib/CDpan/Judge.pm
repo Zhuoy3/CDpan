@@ -10,14 +10,14 @@ use strict;
 use warnings;
 use Config::IniFiles;
 
-sub test {
+sub judge {
     # &extract($opt, $idv_folder_name, $output_dir)
     # $opt is a quotation in 'Config::IniFiles' format
     # $idv_folder_name is the name of the individual
     # $output_dir is a folder path which is used to output
     (my $par, my $idv_folder_name, my $output_dir) = @_;
 
-    $taxid = $par->val('CENTRIFUGE', 'taxid');
+    my $taxid = $par->val('CENTRIFUGE', 'taxid');
 
     open TAXID, '<', $taxid
         or die "Error: Couldn't open file $taxid: $!\n";
@@ -50,8 +50,9 @@ sub test {
     my $controller_output = 0;
     while(<INPUT>) {
         if( m/^[>;]/ ) {
-            if( exists($id_centrifuge{ $_ }) ) {
-                print OUT;
+            ( my $large_1000_fasta_id ) = $_ =~ m/^[>;](.*)\n$/;
+            if( exists($id_centrifuge{ $large_1000_fasta_id }) ) {
+                print OUTPUT;
                 $controller_output = 1;
             } else {
                 $controller_output = 0;
@@ -59,7 +60,7 @@ sub test {
         }
         else {
             if($controller_output == 1) {
-                print OUT;
+                print OUTPUT;
             }
         }
     }

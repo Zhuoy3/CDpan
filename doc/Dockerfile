@@ -45,6 +45,7 @@ RUN echo $PATH
 RUN yum -y install java
 
 # Install FastQC
+# https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.9.zip
 COPY fastqc_v0.11.9.zip ./
 RUN yum -y install zip
 RUN unzip fastqc_v0.11.9.zip

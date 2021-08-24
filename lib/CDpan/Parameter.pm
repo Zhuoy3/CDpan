@@ -197,6 +197,10 @@ sub _CheckVersion {
         # print "masurca version: $res\n";
         # this check for masurca seem couldn't work normal
     }
+    elsif ( $tools eq "mmseqs") {
+        ;
+        # this check for masurca seem couldn't work normal
+    }
     else {
         warn "Warning: Unknown software: $tools\n";
     }

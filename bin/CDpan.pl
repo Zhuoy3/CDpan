@@ -24,6 +24,7 @@ use CDpan::Extract;
 use CDpan::Assembly;
 use CDpan::Test;
 use CDpan::Judge;
+use CDpan::MMSeqs;
 
 my $file_par_path = $ENV{'CDPAN_SCRIPT'} or die "Error: Cannot find parameter of script file.\n";
 our $debug = $ENV{'CDPAN_DEBUG'} ? 1 : 0;
@@ -88,12 +89,14 @@ foreach my $idv_folder (@input_folder) {
             or die "Error: Operation Assembly is abnormal.\n";
         CDpan::Test::test($par, $idv_name, $idv_output_folder)
             or die "Error: Operation Test is abnormal.\n";
+        CDpan::Judge::judge($par, $idv_name, $idv_output_folder)
+            or die "Error: Operation Judge is abnormal.\n";
 
         system "rm -f /storage-02/liujianfeng/WORKSPACE/zhuoy/CDpan/restart";
     }
 
-    CDpan::Judge::judge($par, $idv_name, $idv_output_folder)
-        or die "Error: Operation Judge is abnormal.\n";
+    CDpan::MMSeqs::mmseqs($par, $idv_name, $idv_output_folder)
+        or die "Error: Operation MMSeqs is abnormal.\n";
 }
 
 # chdir $cwd;

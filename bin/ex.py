@@ -4,7 +4,7 @@ Description:
 Author: Zhuo Yue
 Date: 2021-06-09 15:02:54
 LastEditors: Zhuo Yue
-LastEditTime: 2021-08-23 22:00:13
+LastEditTime: 2021-08-24 16:23:40
 Calls:
 Called By:
 FilePath: \CDpan\bin\ex.py
@@ -21,8 +21,8 @@ import sys
 def Rate(pairwise_list, threshold):
     # threshold = 0.95
     if float(pairwise_list[9]) / float(pairwise_list[6]) >= threshold:
-        if float(pairwise_list[9]) / float(pairwise_list[1]) >= threshold:
-            return True
+        # if float(pairwise_list[9]) / float(pairwise_list[1]) >= threshold:
+        return True
     return False
 
 
@@ -220,7 +220,12 @@ def Location(file_path_paf_string, file_path_location_string):
     return location
 
 
+debug = False
+
 for threshold in [x / 100 for x in range(70, 100, 5)]:
+    # if debug:
+    #     if (threshold > 0.71):
+    #         continue
     # Start of the main program
     start_time = time.time()
     ''''
@@ -237,13 +242,15 @@ for threshold in [x / 100 for x in range(70, 100, 5)]:
     location = '/home/liujf/WORKSPACE/zhuoy/test/location/'
 
     output = "/home/liujf/WORKSPACE/zhuoy/test/compare"
-    # output = '/home/liujf/WORKSPACE/zhuoy/test/test'
+    if debug:
+        output = '/home/liujf/WORKSPACE/zhuoy/test/test'
 
     # aexist = '/home/liujf/WORKSPACE/zhuoy/test/aexist/'
     # aexist = '/home/liujf/WORKSPACE/zhuoy/test/test/'
 
     minimap = '/home/liujf/WORKSPACE/zhuoy/test/minimap/'
-    # minimap = '/home/liujf/WORKSPACE/zhuoy/test/test/'
+    if debug:
+        minimap = '/home/liujf/WORKSPACE/zhuoy/test/test/'
 
     seq = []
     with open(fasta) as f:

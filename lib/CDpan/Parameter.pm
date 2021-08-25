@@ -223,6 +223,10 @@ sub _CheckFile {
     unless ( -e -r $par->val('DATA', 'ref') ){
         die "Error: Could not open ref file: " . $par->val('DATA', 'ref') . "\n";
     }
+    #TODO 如果太多可以写成循环
+    unless ( -e -r $par->val('DATA', 'qry') ){
+        die "Error: Could not open ref file: " . $par->val('DATA', 'qry') . "\n";
+    }
 
     # Check if the output folder exists
     if ( -e $par->val('DATA', 'output') ) {

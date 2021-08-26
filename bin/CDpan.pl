@@ -26,6 +26,7 @@ use CDpan::Test;
 use CDpan::Judge;
 use CDpan::MMSeqs;
 use CDpan::Nucmer;
+use CDpan::DeRepeat;
 
 my $file_par_path = $ENV{'CDPAN_SCRIPT'} or die "Error: Cannot find parameter of script file.\n";
 our $debug = $ENV{'CDPAN_DEBUG'} ? 1 : 0;
@@ -90,8 +91,10 @@ foreach my $idv_folder (@input_folder) {
     #     or die "Error: Operation Judge is abnormal.\n";
     # CDpan::MMSeqs::mmseqs($par, $idv_name, $idv_output_folder)
     #     or die "Error: Operation MMSeqs is abnormal.\n";
-    CDpan::Nucmer::nucmer($par, $idv_name, $idv_output_folder)
-        or die "Error: Operation Nucmer is abnormal.\n";
+    # CDpan::Nucmer::nucmer($par, $idv_name, $idv_output_folder)
+    #     or die "Error: Operation Nucmer is abnormal.\n";
+    CDpan::DeRepeat::de_repeat($par, $idv_name, $idv_output_folder)
+        or die "Error: Operation DeRepeat is abnormal.\n";
 }
 
 # chdir $cwd;

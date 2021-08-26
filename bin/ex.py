@@ -4,7 +4,7 @@ Description:
 Author: Zhuo Yue
 Date: 2021-06-09 15:02:54
 LastEditors: Zhuo Yue
-LastEditTime: 2021-08-24 16:23:40
+LastEditTime: 2021-08-26 15:42:40
 Calls:
 Called By:
 FilePath: \CDpan\bin\ex.py
@@ -20,7 +20,7 @@ import sys
 # Screening threshold control function
 def Rate(pairwise_list, threshold):
     # threshold = 0.95
-    if float(pairwise_list[9]) / float(pairwise_list[6]) >= threshold:
+    if float(pairwise_list[10]) / float(pairwise_list[6]) >= threshold:
         # if float(pairwise_list[9]) / float(pairwise_list[1]) >= threshold:
         return True
     return False
@@ -30,9 +30,9 @@ def Splicing(pairwise_list_list, threshold):
     # When there are multiple matches, try to merge
     # The sum of matched bases is less than the threshold, no need to merge
     pairwise_new = copy.deepcopy(pairwise_list_list[0])
-    pairwise_new[9] = 0
+    pairwise_new[10] = 0
     for line in pairwise_list_list:
-        pairwise_new[9] += int(line[9])
+        pairwise_new[10] += int(line[10])
     if not Rate(pairwise_new, threshold):
         return False
 
@@ -54,8 +54,6 @@ def Splicing(pairwise_list_list, threshold):
         if int(pairwise_list_list[i][7]) - int(pairwise_new[8]) < 100:
             if int(pairwise_list_list[i][7]) - int(pairwise_new[8]) > 0:
                 pairwise_new[8] = pairwise_list_list[i][8]
-                pairwise_new[9] = str(
-                    int(pairwise_new[9]) + int(pairwise_list_list[i][9]))
                 have_merged = True
             else:
                 pass
@@ -63,6 +61,13 @@ def Splicing(pairwise_list_list, threshold):
             pairwise_new = copy.deepcopy(pairwise_list_list[i])
     # No need to compare thresholds for unmerged
     if have_merged:
+        pairwise_new[10] = str(int(pairwise_new[8]) - int(pairwise_new[7]))
+        if float(pairwise_new[10]) / float(pairwise_new[6]) >= 1:
+            sys.stderr.write(
+                "warning: there are some errors when merge those pairwises: \n")
+            sys.stderr.write("\n".join([" ".join(x)
+                             for x in pairwise_list_list]))
+            sys.stderr.write("\n\n")
         return Rate(pairwise_new, threshold)
     else:
         return False

@@ -27,15 +27,24 @@ sub de_repeat {
         system $cmd_repeat
             and die "Error: Command \'$cmd_repeat\' failed to run normally: $?\n";
 
-        #TODO 要不要手写一个
-        my $fasta_tool = $par->val('TOOLS', 'fasta_tool');
-        my $cmd_fasta_tool = "$fasta_tool " .
-                             "--remove $output_dir/$idv_folder_name.repeat.names " .
-                             "$output_dir/$idv_folder_name.filtered.mmseqs_rep_seq.fasta " .
-                             "> $output_dir/$idv_folder_name.filtered.mmseqs.final.fa";
-        print "Start use cmd: \'$cmd_fasta_tool\'.\n";
-        system $cmd_fasta_tool
-            and die "Error: Command \'$cmd_fasta_tool\' failed to run normally: $?\n";
+        open my $REPEAT, "<", "$output_dir/$idv_folder_name.repeat.names"
+            or die "Error: Couldn't open file $output_dir/$idv_folder_name.repeat.names: $!\n";
+        my %id_repeat = map {chomp; $_, 1} (<$REPEAT>);
+
+        open my $INPUT, "<", "$output_dir/$idv_folder_name.filtered.mmseqs_rep_seq.fasta"
+            or die "Error: Couldn't open file $output_dir/$idv_folder_name.filtered.mmseqs_rep_seq.fasta: $!\n";
+        open my $OUTPUT, ">", "$output_dir/$idv_folder_name.filtered.mmseqs.final.fa"
+            or die "Error: Couldn't create file $output_dir/$idv_folder_name.filtered.mmseqs.final.fa: $!\n";
+
+        my $seq_input = Bio::SeqIO->new(-fh     => $INPUT,
+                                        -format => 'Fasta');
+
+        while (my $seq = $seq_input->next_seq) {
+            my $seq_id = $seq->id;
+            unless ( $id_repeat{ $seq_id } ) {
+                print $OUTPUT ">$seq_id \n" . $seq->seq . "\n";
+            }
+        }
     }
     else{
         copy("$output_dir/$idv_folder_name.filtered.mmseqs_rep_seq.fasta", "$output_dir/$idv_folder_name.filtered.mmseqs.final.fa")

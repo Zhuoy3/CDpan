@@ -9,6 +9,7 @@ package CDpan::Judge;
 use strict;
 use warnings;
 use Config::IniFiles;
+use Bio::SeqIO;
 
 sub judge {
     # &extract($opt, $idv_folder_name, $output_dir)
@@ -21,51 +22,40 @@ sub judge {
 
     open TAXID, '<', $taxid
         or die "Error: Couldn't open file $taxid: $!\n";
-    my %id_taxid;
-    while(<TAXID>) {
-        chomp;
-        $id_taxid{$_} = "";
-    }
-    close TAXID;
+    my %id_taxid = map {chomp; $_, 1} (<TAXID>);
 
     open INPUT, "<", "$output_dir/$idv_folder_name.centrifuge.output"
         or die "Error: Couldn't open file $output_dir/$idv_folder_name.centrifuge.output: $!\n";
     my %id_centrifuge;
     while(<INPUT>) {
-        unless (m/^readID/) {
-            chomp;
-            my @a = split m/\s+/;
-            if( exists( $id_taxid{ $a[2] } ) ) {
-                $id_centrifuge{$a[0]} = "";
-            }
+        next if m/^readID/;
+        chomp;
+        my @a = split m/\s+/;
+        if( $id_taxid{ $a[2] } ) {
+            $id_centrifuge{$a[0]} = 1;
         }
     }
     close INPUT;
 
-    open INPUT, "<", "$output_dir/$idv_folder_name.final.genome.scf.large_1000.fasta"
+    open my $INPUT, "<", "$output_dir/$idv_folder_name.final.genome.scf.large_1000.fasta"
         or die "Error: Couldn't open file $output_dir/$idv_folder_name.final.genome.scf.large_1000.fasta: $!\n";
-    open OUTPUT, ">", "$output_dir/$idv_folder_name.filtered.fa"
+    open my $OUTPUT, ">", "$output_dir/$idv_folder_name.filtered.fa"
         or die "Error: Couldn't create file $output_dir/$idv_folder_name.filtered.fa: $!\n";
 
-    my $controller_output = 0;
-    while(<INPUT>) {
-        if( m/^[>;]/ ) {
-            ( my $large_1000_fasta_id ) = $_ =~ m/^[>;](.*)\n$/;
-            if( exists($id_centrifuge{ $large_1000_fasta_id }) ) {
-                print OUTPUT;
-                $controller_output = 1;
-            } else {
-                $controller_output = 0;
-            }
-        }
-        else {
-            if($controller_output == 1) {
-                print OUTPUT;
-            }
+    my $seq_input = Bio::SeqIO->new(-fh     => $INPUT,
+                                    -format => 'Fasta');
+    my $seq_output = Bio::SeqIO->new(-fh     => $OUTPUT,
+                                     -format => 'Fasta');
+
+    while ( my $seq = $seq_input->next_seq ) {
+        my $seq_id = $seq->id;
+        if ( $id_centrifuge{ $seq_id } ) {
+            $seq_output->write_seq($seq);
         }
     }
-    close INPUT;
-    close OUTPUT;
+
+    close $INPUT;
+    close $OUTPUT;
 
     return 1;
 }

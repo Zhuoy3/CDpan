@@ -202,6 +202,10 @@ sub _CheckVersion {
         ;
         # this check for masurca seem couldn't work normal
     }
+    elsif ( $tools eq "RepeatMasker") {
+        ;
+        # this check for masurca seem couldn't work normal
+    }
     else {
         warn "Warning: Unknown software: $tools\n";
     }

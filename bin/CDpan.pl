@@ -27,6 +27,7 @@ use CDpan::Judge;
 use CDpan::MMSeqs;
 use CDpan::Nucmer;
 use CDpan::DeRepeat;
+use CDpan::RepeatMasker;
 
 my $file_par_path = $ENV{'CDPAN_SCRIPT'} or die "Error: Cannot find parameter of script file.\n";
 our $debug = $ENV{'CDPAN_DEBUG'} ? 1 : 0;
@@ -93,8 +94,10 @@ foreach my $idv_folder (@input_folder) {
     #     or die "Error: Operation MMSeqs is abnormal.\n";
     # CDpan::Nucmer::nucmer($par, $idv_name, $idv_output_folder)
     #     or die "Error: Operation Nucmer is abnormal.\n";
-    CDpan::DeRepeat::de_repeat($par, $idv_name, $idv_output_folder)
-        or die "Error: Operation DeRepeat is abnormal.\n";
+    # CDpan::DeRepeat::de_repeat($par, $idv_name, $idv_output_folder)
+    #     or die "Error: Operation DeRepeat is abnormal.\n";
+    CDpan::RepeatMasker::repeat_masker($par, $idv_name, $idv_output_folder)
+        or die "Error: Operation RepeatMasker is abnormal.\n";
 }
 
 # chdir $cwd;
@@ -110,5 +113,3 @@ END {
     print "Output log in file \'$file_log_path.log\'.\n";
     Mnet::Tee::file("$file_log_path.log");
 }
-
-asfasf

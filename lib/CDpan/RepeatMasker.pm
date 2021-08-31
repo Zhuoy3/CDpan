@@ -28,10 +28,6 @@ sub repeat_masker {
     system $cmd_repeat_masker
         and die "Error: Command \'$cmd_repeat_masker\' failed to run normally: $?\n";
 
-
-  	samtools faidx /storage3/duh/pan_genome/Anqing/$i/centrifuge/filtered.mmseqs.final.fa
-
-
     # Read the software path and set it to the default value
     my $samtools = $par->val('TOOLS', 'samtools');
 

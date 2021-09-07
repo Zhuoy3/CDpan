@@ -13,6 +13,8 @@ use lib "$FindBin::Bin/../lib";
 use lib "$FindBin::Bin/../tools/Perl/lib/";
 
 use Cwd;
+use File::Copy qw / copy move /;
+use File::Path qw / rmtree /;
 use File::Slurp;
 use File::Spec::Functions  qw /:ALL/;
 use Mnet::Tee (); # This module has not modified 'say', must use 'print' for log
@@ -28,6 +30,7 @@ use CDpan::MMSeqs;
 use CDpan::Nucmer;
 use CDpan::DeRepeat;
 use CDpan::RepeatMasker;
+use CDpan::Recode;
 
 my $file_par_path = $ENV{'CDPAN_SCRIPT'} or die "Error: Cannot find parameter of script file.\n";
 our $debug = $ENV{'CDPAN_DEBUG'} ? 1 : 0;
@@ -74,8 +77,10 @@ my @input_folder = sort ( File::Slurp::read_dir($par->val('DATA', 'input'), pref
 our $ref_index = 0; # mark the existence of the reference genome index used by bwa
 our $ref_dict = 0; # mark the existence of the reference genome dict used by gatkmy
 
+my @idv_names;
 foreach my $idv_folder (@input_folder) {
     my $idv_name = pop [ splitdir($idv_folder) ];
+    push @idv_names, $idv_name;
     my $idv_output_folder = catdir($folder_process, $idv_name);
 
     # CDpan::QualityControl::QualityControl($par, $idv_folder, $idv_name, $idv_output_folder)
@@ -96,9 +101,18 @@ foreach my $idv_folder (@input_folder) {
     #     or die "Error: Operation Nucmer is abnormal.\n";
     # CDpan::DeRepeat::de_repeat($par, $idv_name, $idv_output_folder)
     #     or die "Error: Operation DeRepeat is abnormal.\n";
-    CDpan::RepeatMasker::repeat_masker($par, $idv_name, $idv_output_folder)
-        or die "Error: Operation RepeatMasker is abnormal.\n";
+
+    # move "$idv_output_folder/$idv_name.filtered.mmseqs.final.fa", "$folder_process/$idv_name.fasta"
+    #     or die "Error:Couln't move $idv_output_folder/$idv_name.filtered.mmseqs.final.fa to $folder_process/$idv_name.fasta: $!.\n";
+    # rmtree $idv_output_folder;
 }
+
+CDpan::Recode::recode($folder_process, \@idv_names);
+
+
+    # CDpan::RepeatMasker::repeat_masker($par, $idv_name, $idv_output_folder)
+    #     or die "Error: Operation RepeatMasker is abnormal.\n";
+
 
 # chdir $cwd;
 # system "rm -rf $folder_process";

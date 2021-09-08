@@ -15,7 +15,7 @@ sub repeat_masker {
     # $opt is a quotation in 'Config::IniFiles' format
     # $idv_folder_name is the name of the individual
     # $output_dir is a folder path which is used to output
-    (my $par, my $idv_folder_name, my $output_dir) = @_;
+    (my $par, my $work_dir) = @_;
 
     # Read the software path and set it to the default value
     my $repeat_masker = $par->val('TOOLS', 'RepeatMasker');
@@ -23,7 +23,8 @@ sub repeat_masker {
     my $cmd_repeat_masker = "$repeat_masker " .
                             "-nolow " .
                             "-species pig " .
-                            "$output_dir/$idv_folder_name.filtered.mmseqs.final.fa";
+                            "$work_dir/all.fasta " .
+                            "> $work_dir/repeat_masker.log";
     print "Start use cmd: \'$cmd_repeat_masker\'.\n";
     system $cmd_repeat_masker
         and die "Error: Command \'$cmd_repeat_masker\' failed to run normally: $?\n";
@@ -33,10 +34,21 @@ sub repeat_masker {
 
     my $cmd_samtools = "$samtools " .
                        "faidx " .
-                       "$output_dir/$idv_folder_name.filtered.mmseqs.final.fa";
+                       "$work_dir/all.fasta";
     print "Start use cmd: \'$cmd_samtools\'.\n";
     system $cmd_samtools
         and die "Error: Command \'$cmd_samtools\' failed to run normally: $?\n";
+
+    # Read the software path and set it to the default value
+    my $bowtie2_build = $par->val('TOOLS', 'bowtie2-build');
+    my $cmd_bowtie2_build = "$bowtie2_build " .
+                            "$work_dir/all.fasta.masked " .
+                            "$work_dir/index " .
+                            "> $work_dir/bowtie2_build.log " .
+                            "2> $work_dir/bowtie2_build.log";
+    print "Start use cmd: \'$cmd_bowtie2_build\'.\n";
+    system $cmd_bowtie2_build
+        and die "Error: Command \'$cmd_bowtie2_build\' failed to run normally: $?\n";
 
     return 1;
 }

@@ -29,8 +29,8 @@ use CDpan::Judge;
 use CDpan::MMSeqs;
 use CDpan::Nucmer;
 use CDpan::DeRepeat;
-use CDpan::RepeatMasker;
 use CDpan::Recode;
+use CDpan::RepeatMasker;
 
 my $file_par_path = $ENV{'CDPAN_SCRIPT'} or die "Error: Cannot find parameter of script file.\n";
 our $debug = $ENV{'CDPAN_DEBUG'} ? 1 : 0;
@@ -104,15 +104,18 @@ foreach my $idv_folder (@input_folder) {
 
     # move "$idv_output_folder/$idv_name.filtered.mmseqs.final.fa", "$folder_process/$idv_name.fasta"
     #     or die "Error:Couln't move $idv_output_folder/$idv_name.filtered.mmseqs.final.fa to $folder_process/$idv_name.fasta: $!.\n";
-    # rmtree $idv_output_folder;
+
 }
 
-CDpan::Recode::recode($folder_process, \@idv_names);
+# CDpan::Recode::recode($folder_process, \@idv_names)
+#     or die "Error: Operation Recode is abnormal.\n";
+# CDpan::RepeatMasker::repeat_masker($par, $folder_process)
+#     or die "Error: Operation RepeatMasker is abnormal.\n";
 
+foreach my $idv_name (@idv_names) {
+    my $idv_output_folder = catdir($folder_process, $idv_name);
 
-    # CDpan::RepeatMasker::repeat_masker($par, $idv_name, $idv_output_folder)
-    #     or die "Error: Operation RepeatMasker is abnormal.\n";
-
+}
 
 # chdir $cwd;
 # system "rm -rf $folder_process";

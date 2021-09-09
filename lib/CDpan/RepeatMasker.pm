@@ -13,8 +13,6 @@ use Config::IniFiles;
 sub repeat_masker {
     # &extract($opt, $idv_folder_name, $output_dir)
     # $opt is a quotation in 'Config::IniFiles' format
-    # $idv_folder_name is the name of the individual
-    # $output_dir is a folder path which is used to output
     (my $par, my $work_dir) = @_;
 
     # Read the software path and set it to the default value

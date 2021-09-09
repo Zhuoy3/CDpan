@@ -31,6 +31,8 @@ use CDpan::Nucmer;
 use CDpan::DeRepeat;
 use CDpan::Recode;
 use CDpan::RepeatMasker;
+use CDpan::Align;
+use CDpan::Change;
 
 my $file_par_path = $ENV{'CDPAN_SCRIPT'} or die "Error: Cannot find parameter of script file.\n";
 our $debug = $ENV{'CDPAN_DEBUG'} ? 1 : 0;
@@ -113,8 +115,13 @@ foreach my $idv_folder (@input_folder) {
 #     or die "Error: Operation RepeatMasker is abnormal.\n";
 
 foreach my $idv_name (@idv_names) {
+    print "\n================================================================================\n\n";
     my $idv_output_folder = catdir($folder_process, $idv_name);
 
+    # CDpan::Align::align($par, $idv_name, $idv_output_folder, $folder_process)
+    #     or die "Error: Operation Align is abnormal.\n";
+    CDpan::Change::change($par, $idv_name, $idv_output_folder)
+        or die "Error: Operation Change is abnormal.\n";
 }
 
 # chdir $cwd;

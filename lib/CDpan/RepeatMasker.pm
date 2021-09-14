@@ -42,8 +42,8 @@ sub repeat_masker {
     my $cmd_bowtie2_build = "$bowtie2_build " .
                             "$work_dir/all.fasta.masked " .
                             "$work_dir/index " .
-                            "> $work_dir/bowtie2_build.log " .
-                            "2> $work_dir/bowtie2_build.log";
+                            "> $work_dir/bowtie2_build1.log " .
+                            "2> $work_dir/bowtie2_build2.log";
     print "Start use cmd: \'$cmd_bowtie2_build\'.\n";
     system $cmd_bowtie2_build
         and die "Error: Command \'$cmd_bowtie2_build\' failed to run normally: $?\n";

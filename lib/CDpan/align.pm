@@ -11,7 +11,7 @@ use warnings;
 use Config::IniFiles;
 
 sub align {
-    # &extract($opt, $idv_folder_name, $output_dir)
+    # &extract($opt, $idv_folder_name, $output_dir, $work_dir)
     # $opt is a quotation in 'Config::IniFiles' format
     # $idv_folder_name is the name of the individual
     # $output_dir is a folder path which is used to output

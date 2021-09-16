@@ -9,7 +9,9 @@ package CDpan::Integration;
 use strict;
 use warnings;
 use Config::IniFiles;
-use File::Copy qw / copy /;
+use File::Copy qw / copy move /;
+use List::Util qw / max min /;
+use File::Path qw / mkpath /;
 
 sub integration {
     # &extract($opt, $idv_folder_name, $output_dir, $work_dir)
@@ -61,6 +63,7 @@ sub integration {
     open my $OUTPUT2, ">", "./1/2to4.name"
         or die "Error: Cannot create file '$output_dir/$link_new/1/2to4.name': $!\n";
 
+    my @contig_2to4;
     while(<$INPUT>) {
         chomp;
         my @lines_links = split /\s+/, $_;
@@ -79,6 +82,7 @@ sub integration {
 
         if($have_contigs) {
             print $OUTPUT2 "$_\n";
+            push @contig_2to4, $lines_links[0];
         }else{
             print $OUTPUT1 "$_\n";
         }
@@ -86,8 +90,162 @@ sub integration {
 
     close $INPUT;
 
+    my @contig_3;
+    foreach my $contig_2to4_em (@contig_2to4) {
+        system "awk '{print \$6}' ./4/$contig_2to4_em.link | sort - | uniq -c - | sed 's/^[ ]*//' >./4/$contig_2to4_em.chr"
+            and die "Error: Command failed to run normally: $?\n";
+
+        open my $CHR_FILE, '<', "./4/$contig_2to4_em.chr"
+            or die "Error: Cannot create file '$output_dir/$link_new/4/$contig_2to4_em.chr': $!\n";
+        my $chr_sum = 0;
+        my @chr;
+        my @chr_num;
+        while(<$CHR_FILE>) {
+            chomp;
+            my @lines_chr = split /\s+/, $_;
+            push @chr_num, $lines_chr[0];
+            push @chr, $lines_chr[1];
+            $chr_sum += $lines_chr[0];
+        }
+        close $CHR_FILE;
+
+        while (@chr_num) {
+            my $chr_num = shift @chr_num;
+            my $chr = shift @chr;
+
+            my $pr = $chr_num / $chr_sum;
+            if ( $pr >= 0.95 ) {
+                open my $CHR_OUT, '>>', "./3.contig.name"
+                    or die "Error: Cannot create file '$output_dir/$link_new/3.contig.name': $!\n";
+                print $CHR_OUT "$contig_2to4_em $chr\n";
+                push @contig_3, $contig_2to4_em;
+                close $CHR_OUT;
+
+                move "./4/$contig_2to4_em.link", "./3/$contig_2to4_em.link"
+                    or die "Error: Cannot move file '$output_dir/$link_new/4/$contig_2to4_em.link': $!\n";
+                unlink "./4/$contig_2to4_em.chr";
+                last;
+            }
+        }
+        unlink "./4/$contig_2to4_em.chr" if ( -e "./4/$contig_2to4_em.chr" );
+    }
+
+    mkdir "./2/2a";
+    mkpath "./2/2b/left";
+    mkpath "./2/2b/right";
+
+    foreach my $contig_3_em ( @contig_3 ) {
+        system "sort -u ./3/$contig_3_em.link >./3/$contig_3_em.link.new"
+            and die "Error: Command failed to run normally: $?\n";
+    }
+
+    system "awk 'NR==FNR{a[\$1]=\$2;next}{print \$1,a[\$1],\$2}' ./contig.name ./3.contig.name >./3.contig.name.length"
+            and die "Error: Command failed to run normally: $?\n";
+
+
+    open my $CONTIG_LENGTH, '<', "./3.contig.name.length"
+        or die "Error: Cannot open file '$output_dir/$link_new/3.contig.name.length': $!\n";
+
+    while (<$CONTIG_LENGTH>) {
+        ( my $contig3_contig, my $contig3_length, my $contig3_chr ) = split /\s+/, $_;
+        do3($contig3_contig, "./3/$contig3_contig.link.new", $contig3_length, $contig3_chr);
+    }
+
     return 1;
 }
+
+sub do3 {
+    ( my $opt_n, my $opt_i, my $opt_l, my $opt_c) = @_;
+
+    open IN,"<$opt_i";
+    open OUT1,">$opt_i.left";
+    open OUT2,">$opt_i.right";
+    while(<IN>) {
+        chomp $_;
+        my @a = split /\s+/, $_;
+        my $ed = $opt_l - 500;
+        if( ($a[4] <= 500) && ($a[3] <= 500) && $a[5] eq $opt_c) {
+            print OUT1 "$_\n"; ##output the left end results
+        } elsif(($a[4] >= $ed) && ($a[3] >= $ed) && $a[5] eq $opt_c) {
+            print OUT2 "$_\n"; ##output the right end results
+        }
+    }
+    close IN;
+    close OUT1;
+    close OUT2;
+
+    my $left = 0;
+    my $right = 0;
+    my %hash;  # chromosome alignment results
+
+    # left end place
+    foreach my $file_suffix ( qw \ left right\ ){
+        if ( -s "$opt_i.$file_suffix" ) {
+            open IN,"<$opt_i.$file_suffix";
+            my @st;
+            my @ed;
+            while(<IN>) {
+                my @cc=split/\s+/,$_;
+                ($cc[7] , $cc[8]) = ($cc[8] , $cc[7]) if ( $cc[7] > $cc[8] );
+                push @st, $cc[7];
+                push @ed, $cc[8];
+            }
+            close IN;
+
+            if( max( @ed ) - min( @st ) <= 2000 ) {
+                $left  = 1 if $file_suffix eq "left";   # left  ensure
+                $right = 1 if $file_suffix eq "right";  # right ensure
+                my $stmid = int(mid(@st));
+                my $edmid = int(mid(@ed));
+                $hash{$opt_n}{$file_suffix}="$opt_n $stmid $edmid";  ##left end on chromosome
+            }
+        }
+    }
+
+    open OUT1,">>./1/2bleft.name";
+    open OUT2,">>./1/2bright.name";
+    open OUT3,">>./1/2a.name";
+
+    if($left==0 && $right==0) {
+        unlink "$opt_i","$opt_i.right","$opt_i.left";
+    }
+    elsif($left != 0 && $right==0) {
+        my @a=split/\s+/,$hash{$opt_n}{"left"};
+        print OUT1 "$opt_n $opt_l $opt_c $a[1] $a[2]\n";
+        system "mv ./3/$opt_n.link ./2/2b/left";
+        unlink "$opt_i","$opt_i.right","$opt_i.left";
+    }
+    elsif($left == 0 && $right != 0) {
+        my @a=split/\s+/,$hash{$opt_n}{"right"};
+        print OUT2 "$opt_n $opt_l $opt_c $a[1] $a[2]\n";
+        system"mv ./3/$opt_n.link ./2/2b/right";
+        unlink "$opt_i","$opt_i.right","$opt_i.left";
+    }
+    elsif($left != 0 && $right != 0) {
+        my @a=split/\s+/,$hash{$opt_n}{"left"};
+        my @b=split/\s+/,$hash{$opt_n}{"right"};
+        print OUT3 "$opt_n $opt_l $opt_c $a[1] $a[2] $b[1] $b[2]\n";
+        system"mv ./3/$opt_n.link ./2/2a";
+        unlink "$opt_i","$opt_i.right","$opt_i.left";
+    }
+
+    sub mid{
+        my @list = sort{$a<=>$b} @_;
+        my $count = @list;
+        return undef if( $count == 0 );
+
+        if( ($count%2) == 1 ){
+            return $list[int(($count-1)/2)];
+        } elsif ( ($count%2)==0 ) {
+            return ($list[int(($count-1)/2)]+$list[int(($count)/2)])/2;
+        }
+    }
+
+    return 1;
+}
+
+
+
 
 1;
 

@@ -4,7 +4,7 @@ Description:
 Author: Zhuo Yue
 Date: 2021-06-09 15:02:54
 LastEditors: Zhuo Yue
-LastEditTime: 2021-08-29 19:41:21
+LastEditTime: 2021-09-18 10:53:06
 Calls:
 Called By:
 FilePath: \CDpan\bin\ex.py
@@ -227,7 +227,8 @@ def Location(file_path_paf_string, file_path_location_string):
 
 debug = False
 # TODO 0.8
-for threshold in [x / 100 for x in range(70, 100, 5)]:
+# for threshold in [x / 100 for x in range(70, 100, 5)]:
+for threshold in [0.8]:
     # if debug:
     #     if (threshold > 0.71):
     #         continue

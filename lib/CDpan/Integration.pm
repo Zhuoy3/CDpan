@@ -43,7 +43,7 @@ sub integration {
 
     # 1do
     open my $CONTIG, '<', "./mateLinks.txt"
-        or die "Error: Cannot open file '$output_dir/$link_new/contig.name': $!\n";
+        or die "Error: Cannot open file '$output_dir/$link_new/mateLinks.txt': $!\n";
 
     my %contig;
     my $line = 0;
@@ -57,7 +57,7 @@ sub integration {
 
 
     open my $INPUT, "<", "./contig.name"
-        or die "Error: Cannot open file '$output_dir/$link_new/mateLinks.txt': $!\n";
+        or die "Error: Cannot open file '$output_dir/$link_new/contig.name': $!\n";
     open my $OUTPUT1, ">", "./1/1.name"
         or die "Error: Cannot create file '$output_dir/$link_new/1/1.name': $!\n";
     open my $OUTPUT2, ">", "./1/2to4.name"

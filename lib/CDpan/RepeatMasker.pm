@@ -16,16 +16,17 @@ sub repeat_masker {
     (my $par, my $work_dir) = @_;
 
     # Read the software path and set it to the default value
-    my $repeat_masker = $par->val('TOOLS', 'RepeatMasker');
+    # my $repeat_masker = $par->val('TOOLS', 'RepeatMasker');
 
-    my $cmd_repeat_masker = "$repeat_masker " .
-                            "-nolow " .
-                            "-species pig " .
-                            "$work_dir/all.fasta " .
-                            "> $work_dir/repeat_masker.log";
-    print "Start use cmd: \'$cmd_repeat_masker\'.\n";
-    system $cmd_repeat_masker
-        and die "Error: Command \'$cmd_repeat_masker\' failed to run normally: $?\n";
+    # my $cmd_repeat_masker = "$repeat_masker " .
+    #                         "-parallel 12 " .
+    #                         "-nolow " .
+    #                         "-species pig " .
+    #                         "$work_dir/all.fasta " .
+    #                         "> $work_dir/repeat_masker.log";
+    # print "Start use cmd: \'$cmd_repeat_masker\'.\n";
+    # system $cmd_repeat_masker
+    #     and die "Error: Command \'$cmd_repeat_masker\' failed to run normally: $?\n";
 
     # Read the software path and set it to the default value
     my $samtools = $par->val('TOOLS', 'samtools');

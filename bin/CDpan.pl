@@ -93,24 +93,24 @@ foreach my $idv_folder (@input_folder) {
     #     or die "Error: Operation Extract is abnormal.\n";
     # CDpan::Assembly::assembly($par, $idv_name, $idv_output_folder)
     #     or die "Error: Operation Assembly is abnormal.\n";
-    CDpan::Test::test($par, $idv_name, $idv_output_folder)
-        or die "Error: Operation Test is abnormal.\n";
-    CDpan::Judge::judge($par, $idv_name, $idv_output_folder)
-        or die "Error: Operation Judge is abnormal.\n";
-    CDpan::MMSeqs::mmseqs($par, $idv_name, $idv_output_folder)
-        or die "Error: Operation MMSeqs is abnormal.\n";
-    CDpan::Nucmer::nucmer($par, $idv_name, $idv_output_folder)
-        or die "Error: Operation Nucmer is abnormal.\n";
-    CDpan::DeRepeat::de_repeat($par, $idv_name, $idv_output_folder)
-        or die "Error: Operation DeRepeat is abnormal.\n";
+    # CDpan::Test::test($par, $idv_name, $idv_output_folder)
+    #     or die "Error: Operation Test is abnormal.\n";
+    # CDpan::Judge::judge($par, $idv_name, $idv_output_folder)
+    #     or die "Error: Operation Judge is abnormal.\n";
+    # CDpan::MMSeqs::mmseqs($par, $idv_name, $idv_output_folder)
+    #     or die "Error: Operation MMSeqs is abnormal.\n";
+    # CDpan::Nucmer::nucmer($par, $idv_name, $idv_output_folder)
+    #     or die "Error: Operation Nucmer is abnormal.\n";
+    # CDpan::DeRepeat::de_repeat($par, $idv_name, $idv_output_folder)
+    #     or die "Error: Operation DeRepeat is abnormal.\n";
 
-    move "$idv_output_folder/$idv_name.filtered.mmseqs.final.fa", "$folder_process/$idv_name.fasta"
-        or die "Error:Couln't move $idv_output_folder/$idv_name.filtered.mmseqs.final.fa to $folder_process/$idv_name.fasta: $!.\n";
+    # move "$idv_output_folder/$idv_name.filtered.mmseqs.final.fa", "$folder_process/$idv_name.fasta"
+    #     or die "Error:Couln't move $idv_output_folder/$idv_name.filtered.mmseqs.final.fa to $folder_process/$idv_name.fasta: $!.\n";
 
 }
 
-CDpan::Recode::recode($folder_process, \@idv_names)
-    or die "Error: Operation Recode is abnormal.\n";
+# CDpan::Recode::recode($folder_process, \@idv_names)
+    # or die "Error: Operation Recode is abnormal.\n";
 CDpan::RepeatMasker::repeat_masker($par, $folder_process)
     or die "Error: Operation RepeatMasker is abnormal.\n";
 

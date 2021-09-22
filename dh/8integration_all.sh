@@ -5,12 +5,12 @@
 #SBATCH -n 4
 
 module load Perl
-for breed in AQ-1 AQ-2 AQ-A117mu AQ-D037mu AQF-B0079gong AQF-B0088gong AQF-B0090gong AQF-B0092gong AQF-S0352mu AQF-S01163mu AQF-S01164mu AQF-S01172 AQF-S01174mu AQF-S01180mu AQF-S01185mu; do
+for breed in JXH-5026 JXH-6002 JXH-7054 JXH-8062 JXH-8086 JXH-9008 JXH-9009 JXH-9028 JXH-9042 JXH-9047 JXH-9050 JXH-9057 JXH-9060 JXH-9062 JXH-9063 JXH-9068 JXH-9070 JXH-9076 JXH-9087 JXH-9088; do
 	##switch to destination file
-	mkdir /storage3/duh/pan_genome/Anqing/$breed/link_new
-	cd /storage3/duh/pan_genome/Anqing/$breed/link_new
+	mkdir /storage3/duh/pan_genome/Jiaxinghei/$breed/link_new
+	cd /storage3/duh/pan_genome/Jiaxinghei/$breed/link_new
 
-	cp /storage3/duh/pan_genome/Anqing/$breed/bowtie2/all/mateLinks.txt ./
+	cp /storage3/duh/pan_genome/Jiaxinghei/$breed/bowtie2/all/mateLinks.txt ./
 
 	mkdir ./1
 	mkdir ./2
@@ -36,7 +36,7 @@ for breed in AQ-1 AQ-2 AQ-A117mu AQ-D037mu AQF-B0079gong AQF-B0088gong AQF-B0090
 			sort - | uniq -c - >./4/$contig.chr
 		sed -i 's/^[ ]*//' ./4/$contig.chr
 		perl ./2do.pl ./4/$contig.chr $contig
-	done 
+	done
 
 	##third step
 	mkdir -p ./2/2a
@@ -63,8 +63,10 @@ for breed in AQ-1 AQ-2 AQ-A117mu AQ-D037mu AQF-B0079gong AQF-B0088gong AQF-B0090
 	for i in $(ls ./4/); do
 		if [ -s ./4/$i ]; then
 			contig=$(echo $i | awk -F'.' '{print $1}')
+			echo $contig >>./4.contig.name
+		else
+			unset contig
 		fi
-		echo $contig >>./4.contig.name
 	done
 
 	awk 'NR==FNR{a[$1]=$2;next}{print $1,a[$1],$2}' ./contig.name ./4.contig.name >./4.contig.name.length
@@ -81,22 +83,45 @@ for breed in AQ-1 AQ-2 AQ-A117mu AQ-D037mu AQF-B0079gong AQF-B0088gong AQF-B0090
 	for i in $(ls ./4/); do
 		if [ -s ./4/$i ]; then
 			contig=$(echo $i | awk -F'.' '{print $1}')
+			echo $contig >>./1/4.name
+		else
+			unset contig
 		fi
-		echo $contig >>./1/4.name
 	done
 
 	for i in $(ls ./3/); do
 		if [ -s ./3/$i ]; then
 			contig=$(echo $i | awk -F'.' '{print $1}')
+			echo $contig >>./1/3.name
+		else
+			unset contig
 		fi
-		echo $contig >>./1/3.name
+	done
+
+	cat ./1/3.name | while read line; do
+		contig=$(echo $line | awk '{print $1}')
+		awk '{print $6}' ./3/$contig.link |
+			sort - | uniq -c - | sed 's/^[ ]*//' - | sort -nrk 1 - | head -n 1 - >./3/$contig.chr
+		chrpart3=$(awk '{print $2}' ./3/$contig.chr)
+		printf "$line $chrpart3\n" >>./1/3.name.re
 	done
 
 	rm -rf ./1/2to4.name
 
 	awk 'NR==FNR{a[$1]=$2;next}{print $1,a[$1],$2}' ./contig.name ./1/4.name >./1/4.name.re
-	awk 'NR==FNR{a[$1]=$2;next}{print $1,a[$1],$2}' ./contig.name ./1/3.name >./1/3.name.re
 
 	mv ./1/4.name.re ./1/4.name
 	mv ./1/3.name.re ./1/3.name
+
+	for i in $(ls ./4/); do
+		if [ ! -s ./4/$i ]; then
+			contig=$(echo $i | awk -F'.' '{print $1}')
+			echo $contig >>./1/5.name
+		else
+			unset contig
+		fi
+	done
+
+	rm -rf ./4
+	mkdir ./4
 done

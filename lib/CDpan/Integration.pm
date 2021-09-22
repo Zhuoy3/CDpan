@@ -151,6 +151,57 @@ sub integration {
         do3($contig3_contig, "./3/$contig3_contig.link.new", $contig3_length, $contig3_chr);
     }
 
+    close $CONTIG_LENGTH;
+
+    system 'for i in `ls ./4/`; do if [ -s ./4/$i ]; then echo $i | cut -d . -f1 >>./4.contig.name;fi; done'
+        and die "Error: Command failed to run normally: $?\n";
+
+    system "awk 'NR==FNR{a[\$1]=\$2;next}{print \$1,a[\$1],\$2}' ./contig.name ./4.contig.name > ./4.contig.name.length"
+            and die "Error: Command failed to run normally: $?\n";
+
+    open $CONTIG_LENGTH, '<', "./4.contig.name.length"
+        or die "Error: Cannot open file '$output_dir/$link_new/4.contig.name.length': $!\n";
+
+    while (<$CONTIG_LENGTH>) {
+        ( my $contig4_contig, my $contig4_length ) = split /\s+/, $_;
+        do4($contig4_contig, "./4/$contig4_contig.link", $contig4_length);
+    }
+
+    close $CONTIG_LENGTH;
+
+    system 'for i in `ls ./4/`; do if [ -s ./4/$i ]; then echo $i | cut -d . -f1 >>./1/4.name;fi; done'
+        and die "Error: Command failed to run normally: $?\n";
+
+    system 'for i in `ls ./3/`; do if [ -s ./3/$i ]; then echo $i | cut -d . -f1 >>./1/3.name;fi; done'
+        and die "Error: Command failed to run normally: $?\n";
+
+    open my $CONTIG_NAME, '<', "./1/3.name"
+        or die "Error: Cannot open file '$output_dir/$link_new/1/3.name': $!\n";
+
+    while (<$CONTIG_NAME>) {
+        chomp;
+        system "awk '{print \$6}' ./3/$_.link | sort - | uniq -c - | sed 's/^[ ]*//' - | sort -nrk 1 - | head -n 1 - > ./3/$_.chr"
+            and die "Error: Command failed to run normally: $?\n";
+        system "chrpart3=$(awk '{print \$2}' ./3/$_.chr); printf \"$_ \$chrpart3\\n\" >> ./1/3.name.re"
+            and die "Error: Command failed to run normally: $?\n";
+    }
+
+    unlink "./1/2to4.name";
+
+    system "awk 'NR==FNR{a[\$1]=\$2;next}{print \$1,a[\$1],\$2}' ./contig.name ./1/4.name > ./1/4.name.re"
+        and die "Error: Command failed to run normally: $?\n";
+
+    system 'mv ./1/4.name.re ./1/4.name'
+        and die "Error: Command failed to run normally: $?\n";
+    system 'mv ./1/3.name.re ./1/3.name'
+        and die "Error: Command failed to run normally: $?\n";
+
+    system 'for i in `ls ./4/`; do if [ ! -s ./4/$i ]; then echo $i | cut -d . -f1 >>./1/5.name;fi; done'
+        and die "Error: Command failed to run normally: $?\n";
+
+    system "rm -rf ./4";
+    mkdir "./4";
+
     return 1;
 }
 
@@ -244,8 +295,56 @@ sub do3 {
     return 1;
 }
 
+sub do4 {
+    ( my $opt_n, my $opt_i, my $opt_l) = @_;
 
+    open IN,"<$opt_i";
+    open OUT1,">$opt_i.left";
+    open OUT2,">$opt_i.right";
+    while(<IN>) {
+        chomp;
+        my @a=split/\s+/,$_;
+        my $ed=$opt_l-500;
+        if(($a[4] <= 500) && ($a[3] <= 500)) {
+            print OUT1 "$_\n"; # output the left end results
+        } elsif(($a[4] >= $ed) && ($a[3] >= $ed)) {
+            print OUT2 "$_\n"; ##output the right end results
+        }
+    }
+    close IN;
+    close OUT1;
+    close OUT2;
 
+    ##left end place
+    PLACE:foreach my $file_suffix ( qw \ left right\ ){
+        system"awk '{print \$6}' $opt_i.$file_suffix | sort - | uniq -c - | sed 's/^[ ]*//' > $opt_i.$file_suffix.chr";
+        if ( -s "$opt_i.$file_suffix.chr") {
+            open IN,"<$opt_i.$file_suffix.chr";
+            my $sum=0;
+            my @b;
+            my @chr;
+            while(<IN>) {
+                chomp;
+                my @a = split /\s+/, $_;
+                push @b, $a[0];
+                push @chr, $a[1];
+                $sum += $a[0];
+            }
+            close IN;
+            foreach my $b_em ( @b ) {
+                if( $b_em/$sum >=0.95) {
+                    move "$opt_i", "./3";
+                    unlink "$opt_i.$file_suffix", "$opt_i.$file_suffix.chr";
+                    last PLACE;
+                }
+            }
+        }
+        unlink "$opt_i.$file_suffix", "$opt_i.$file_suffix.chr";
+    }
+    unlink "$opt_i.right" if ( -e "$opt_i.right" );
+
+    return 1;
+}
 
 1;
 

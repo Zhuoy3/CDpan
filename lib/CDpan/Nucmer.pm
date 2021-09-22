@@ -29,7 +29,7 @@ sub nucmer {
                      "-g 1000 " .
                      "-c 90 " .
                      "-l 500 " .
-                     "-t 30";
+                     "-t 10";
     print "Start use cmd: \'$cmd_nucmer\'.\n";
     system $cmd_nucmer
         and die "Error: Command \'$cmd_nucmer\' failed to run normally: $?\n";

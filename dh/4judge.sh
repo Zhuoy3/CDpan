@@ -1,25 +1,12 @@
 #!/bin/bash
-###
- # @Description:
- # @Author: Zhuo Yue
- # @Date: 2021-07-15 23:00:43
- # @LastEditors: Zhuo Yue
- # @LastEditTime: 2021-08-24 11:35:55
- # @Calls:
- # @Called By:
- # @FilePath: \CDpan\dh\4judge.sh
-###
-#PBS -N Anqing
-#PBS -q batch
 
-for i in AQ-1 AQ-2 AQ-A117mu AQ-D037mu AQF-B0079gong AQF-B0088gong AQF-B0090gong AQF-B0092gong AQF-S01163mu AQF-S01164mu AQF-S01172 AQF-S01174mu AQF-S01180mu AQF-S01185mu AQF-S0352mu
+for i in JXH-5026 JXH-6002 JXH-7054 JXH-8062 JXH-8086 JXH-9008 JXH-9009 JXH-9028 JXH-9042 JXH-9047 JXH-9050 JXH-9057 JXH-9060 JXH-9062 JXH-9063 JXH-9068 JXH-9070 JXH-9076 JXH-9087 JXH-9088 
 do
-	cd /diskd/duh/domestic/pan_genome/Anqing/$i
-	perl /diskd/duh/domestic/pan_genome/extract_id.pl \
-	/diskd/duh/domestic/pan_genome/Anqing/$i/centrifuge.output \
-	/diskd/duh/domestic/pan_genome/centrifuge/Chordata.taxid
-
-	perl /diskd/duh/domestic/pan_genome/extract_sequence.pl \
-	/diskd/duh/domestic/pan_genome/Anqing/$i/keep_id.list \
-	/diskd/duh/domestic/pan_genome/Anqing/$i/large_1000.fasta
+	cd /storage3/duh/pan_genome/Jiaxinghei/$i/centrifuge
+	perl /storage3/duh/pan_genome/extract_id.pl \
+	/storage3/duh/pan_genome/Jiaxinghei/$i/centrifuge/centrifuge.output \
+	/storage3/duh/pan_genome/centrifuge/Chordata.taxid
+	perl /storage3/duh/pan_genome/extract_sequence.pl \
+	/storage3/duh/pan_genome/Jiaxinghei/$i/centrifuge/keep_id.list \
+	/storage3/duh/pan_genome/Jiaxinghei/$i/centrifuge/large_1000.fasta
 done

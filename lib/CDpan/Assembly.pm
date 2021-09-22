@@ -34,7 +34,6 @@ sub assembly {
     "JF_SIZE=200000000\n" .
     "DO_HOMOPOLYMER_TRIM=0\n" .
     "END\n";
-    #TODO NUM_THREADS是否运行用户指定
 
     open CONFIG, '>', "$output_dir/$idv_folder_name.masurca_config.txt"
         or die "Error: Couldn't create $output_dir/$idv_folder_name.masurca_config.txt: $!\n";

@@ -20,17 +20,17 @@ sub integration {
     # $output_dir is a folder path which is used to output
     (my $par, my $idv_folder_name, my $output_dir, my $work_dir) = @_;
 
-    mkdir "$output_dir/$link_new"
-        or die "Error: Cannot create process folder '$output_dir/$link_new': $!\n";
+    mkdir "$output_dir/link_new"
+        or die "Error: Cannot create process folder '$output_dir/link_new': $!\n";
 
     # switch to destination file
-    copy "$output_dir/$idv_folder_name.mateLinks.txt", "$output_dir/$link_new/mateLinks.txt"
+    copy "$output_dir/$idv_folder_name.mateLinks.txt", "$output_dir/link_new/mateLinks.txt"
         or die "Error: Cannot copy file '$output_dir/$idv_folder_name.mateLinks.txt': $!\n";
-    copy "$work_dir/all.fasta.fai", "$output_dir/$link_new/all.fasta.fai"
+    copy "$work_dir/all.fasta.fai", "$output_dir/link_new/all.fasta.fai"
         or die "Error: Cannot copy file '$work_dir/all.fasta.fai': $!\n";
 
-    chdir "$output_dir/$link_new"
-        or die "Error: Cannot chdir to '$output_dir/$link_new': $!\n";
+    chdir "$output_dir/link_new"
+        or die "Error: Cannot chdir to '$output_dir/link_new': $!\n";
 
 	mkdir "./1";
 	mkdir "./2";
@@ -43,7 +43,7 @@ sub integration {
 
     # 1do
     open my $CONTIG, '<', "./mateLinks.txt"
-        or die "Error: Cannot open file '$output_dir/$link_new/mateLinks.txt': $!\n";
+        or die "Error: Cannot open file '$output_dir/link_new/mateLinks.txt': $!\n";
 
     my %contig;
     my $line = 0;
@@ -57,11 +57,11 @@ sub integration {
 
 
     open my $INPUT, "<", "./contig.name"
-        or die "Error: Cannot open file '$output_dir/$link_new/contig.name': $!\n";
+        or die "Error: Cannot open file '$output_dir/link_new/contig.name': $!\n";
     open my $OUTPUT1, ">", "./1/1.name"
-        or die "Error: Cannot create file '$output_dir/$link_new/1/1.name': $!\n";
+        or die "Error: Cannot create file '$output_dir/link_new/1/1.name': $!\n";
     open my $OUTPUT2, ">", "./1/2to4.name"
-        or die "Error: Cannot create file '$output_dir/$link_new/1/2to4.name': $!\n";
+        or die "Error: Cannot create file '$output_dir/link_new/1/2to4.name': $!\n";
 
     my @contig_2to4;
     while(<$INPUT>) {
@@ -70,7 +70,7 @@ sub integration {
         my $have_contigs = 0;
 
         open my $LINK, ">", "./4/$lines_links[0].link"
-            or die "Error: Cannot create file '$output_dir/$link_new/4/$lines_links[0].link': $!\n";
+            or die "Error: Cannot create file '$output_dir/link_new/4/$lines_links[0].link': $!\n";
 
         if( exists $contig{$lines_links[0]} ) {
             foreach my $key (keys %{$contig{$lines_links[0]}}) {
@@ -96,7 +96,7 @@ sub integration {
             and die "Error: Command failed to run normally: $?\n";
 
         open my $CHR_FILE, '<', "./4/$contig_2to4_em.chr"
-            or die "Error: Cannot create file '$output_dir/$link_new/4/$contig_2to4_em.chr': $!\n";
+            or die "Error: Cannot create file '$output_dir/link_new/4/$contig_2to4_em.chr': $!\n";
         my $chr_sum = 0;
         my @chr;
         my @chr_num;
@@ -116,13 +116,13 @@ sub integration {
             my $pr = $chr_num / $chr_sum;
             if ( $pr >= 0.95 ) {
                 open my $CHR_OUT, '>>', "./3.contig.name"
-                    or die "Error: Cannot create file '$output_dir/$link_new/3.contig.name': $!\n";
+                    or die "Error: Cannot create file '$output_dir/link_new/3.contig.name': $!\n";
                 print $CHR_OUT "$contig_2to4_em $chr\n";
                 push @contig_3, $contig_2to4_em;
                 close $CHR_OUT;
 
                 move "./4/$contig_2to4_em.link", "./3/$contig_2to4_em.link"
-                    or die "Error: Cannot move file '$output_dir/$link_new/4/$contig_2to4_em.link': $!\n";
+                    or die "Error: Cannot move file '$output_dir/link_new/4/$contig_2to4_em.link': $!\n";
                 unlink "./4/$contig_2to4_em.chr";
                 last;
             }
@@ -144,7 +144,7 @@ sub integration {
 
 
     open my $CONTIG_LENGTH, '<', "./3.contig.name.length"
-        or die "Error: Cannot open file '$output_dir/$link_new/3.contig.name.length': $!\n";
+        or die "Error: Cannot open file '$output_dir/link_new/3.contig.name.length': $!\n";
 
     while (<$CONTIG_LENGTH>) {
         ( my $contig3_contig, my $contig3_length, my $contig3_chr ) = split /\s+/, $_;
@@ -160,7 +160,7 @@ sub integration {
             and die "Error: Command failed to run normally: $?\n";
 
     open $CONTIG_LENGTH, '<', "./4.contig.name.length"
-        or die "Error: Cannot open file '$output_dir/$link_new/4.contig.name.length': $!\n";
+        or die "Error: Cannot open file '$output_dir/link_new/4.contig.name.length': $!\n";
 
     while (<$CONTIG_LENGTH>) {
         ( my $contig4_contig, my $contig4_length ) = split /\s+/, $_;
@@ -176,7 +176,7 @@ sub integration {
         and die "Error: Command failed to run normally: $?\n";
 
     open my $CONTIG_NAME, '<', "./1/3.name"
-        or die "Error: Cannot open file '$output_dir/$link_new/1/3.name': $!\n";
+        or die "Error: Cannot open file '$output_dir/link_new/1/3.name': $!\n";
 
     while (<$CONTIG_NAME>) {
         chomp;

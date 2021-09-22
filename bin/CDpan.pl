@@ -33,6 +33,7 @@ use CDpan::Recode;
 use CDpan::RepeatMasker;
 use CDpan::Align;
 use CDpan::Change;
+use CDpan::Integration;
 
 my $file_par_path = $ENV{'CDPAN_SCRIPT'} or die "Error: Cannot find parameter of script file.\n";
 our $debug = $ENV{'CDPAN_DEBUG'} ? 1 : 0;
@@ -122,8 +123,12 @@ foreach my $idv_name (@idv_names) {
         or die "Error: Operation Align is abnormal.\n";
     CDpan::Change::change($par, $idv_name, $idv_output_folder)
         or die "Error: Operation Change is abnormal.\n";
-
+    CDpan::Integration::integration($par, $idv_name, $idv_output_folder, $folder_process)
+        or die "Error: Operation Integration is abnormal.\n";
+    system "python3 $FindBin::Bin/ex.py"
 }
+
+
 
 # chdir $cwd;
 # system "rm -rf $folder_process";

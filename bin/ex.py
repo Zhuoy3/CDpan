@@ -1,16 +1,15 @@
-#!/home/liujf/WORKSPACE/zhuoy/bin/pypy
+#!/bin/python3
 '''
 Description:
 Author: Zhuo Yue
 Date: 2021-06-09 15:02:54
 LastEditors: Zhuo Yue
-LastEditTime: 2021-09-18 10:53:06
+LastEditTime: 2021-09-22 16:27:49
 Calls:
 Called By:
 FilePath: \CDpan\bin\ex.py
 '''
-
-import time
+#
 import copy
 import re
 import os
@@ -138,7 +137,6 @@ def Location(file_path_paf_string, file_path_location_string):
     breed_individual = re.search(
         '[^/]+\/[^/]+\.all\.paf', file_path_paf_string).group().replace('.all.paf', '')
     file_location = f'{file_path_location_string}{breed_individual}'
-    # TODO 1/0 check?
     location = {}
 
     with open(f'{file_location}/2a.name') as f:
@@ -225,62 +223,34 @@ def Location(file_path_paf_string, file_path_location_string):
     return location
 
 
-debug = False
-# TODO 0.8
-# for threshold in [x / 100 for x in range(70, 100, 5)]:
-for threshold in [0.8]:
-    # if debug:
-    #     if (threshold > 0.71):
-    #         continue
-    # Start of the main program
-    start_time = time.time()
-    ''''
-    if len(sys.argv) != 5:
-        print('Error: Number of wrong parameters.')
-        sys.exit(1)
-    fasta, arrange, location, output = sys.argv[1:5]
-    '''
-    fasta = '/home/liujf/WORKSPACE/zhuoy/test/dispensable_genome.fasta.length'
+threshold = 0.8
 
-    # arrange = '/home/liujf/WORKSPACE/zhuoy/test/arrange/'
-    # arrange = '/home/liujf/WORKSPACE/zhuoy/test/test/'
 
-    location = '/home/liujf/WORKSPACE/zhuoy/test/location/'
+if len(sys.argv) != 5:
+    print('Error: Number of wrong parameters.')
+    sys.exit(1)
+# fasta, arrange, location, output = sys.argv[1:5]
+fasta, minimap, location, output = sys.argv[1:5]
 
-    output = "/home/liujf/WORKSPACE/zhuoy/test/compare"
-    if debug:
-        output = '/home/liujf/WORKSPACE/zhuoy/test/test'
+seq = []
+with open(fasta) as f:
+    for line in f:
+        seq.append([line.rstrip('\n').split('\t')[0]])
 
-    # aexist = '/home/liujf/WORKSPACE/zhuoy/test/aexist/'
-    # aexist = '/home/liujf/WORKSPACE/zhuoy/test/test/'
+header = ['Contig']
+os.chdir(minimap)
+file_list = os.popen('find')
+for file_string in file_list:
+    file = re.search('[^/]+\.all\.paf', file_string)
+    if file:
+        file = file.group()
+        loc = Location(file_string.rstrip('\n'), location)
+        seq = Arrange(file_string.rstrip('\n'), seq, loc, threshold)
+        # seq = Aexist(file_string.rstrip('\n'), seq, loc)
+        header.append(file.replace('.all.paf', ''))
 
-    minimap = '/home/liujf/WORKSPACE/zhuoy/test/minimap/'
-    if debug:
-        minimap = '/home/liujf/WORKSPACE/zhuoy/test/test/'
-
-    seq = []
-    with open(fasta) as f:
-        for line in f:
-            seq.append([line.rstrip('\n').split('\t')[0]])
-
-    header = ['Contig']
-    os.chdir(minimap)
-    file_list = os.popen('find')
-    for file_string in file_list:
-        file = re.search('[^/]+\.all\.paf', file_string)
-        if file:
-            file = file.group()
-            # TODO 先做一步contigs存在性的判定
-            loc = Location(file_string.rstrip('\n'), location)
-            seq = Arrange(file_string.rstrip('\n'), seq, loc, threshold)
-            # seq = Aexist(file_string.rstrip('\n'), seq, loc)
-            header.append(file.replace('.all.paf', ''))
-
-    f = open(f"{output}_{threshold}.txt", 'w+')
-    f.write(' '.join(header) + '\n')
-    for line in seq:
-        f.write(' '.join(line) + '\n')
-    f.close()
-
-    end_time = time.time()
-    print(f"It took {end_time-start_time:.2f} seconds to compute.\n")
+f = open(f"{output}_{threshold}.txt", 'w+')
+f.write(' '.join(header) + '\n')
+for line in seq:
+    f.write(' '.join(line) + '\n')
+f.close()

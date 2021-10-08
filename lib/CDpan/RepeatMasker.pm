@@ -21,7 +21,7 @@ sub repeat_masker {
     # my $cmd_repeat_masker = "$repeat_masker " .
     #                         "-parallel 12 " .
     #                         "-nolow " .
-    #                         "-species pig " .
+    #                         "-species pig " . #TODO
     #                         "$work_dir/all.fasta " .
     #                         "> $work_dir/repeat_masker.log";
     # print "Start use cmd: \'$cmd_repeat_masker\'.\n";

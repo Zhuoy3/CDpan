@@ -16,7 +16,7 @@ sub recode {
 
     my @idv_names = @$idv_names;
 
-    open my $OUTPUT , ">", "$work_dir/all.fasta"
+    open my $OUTPUT , ">", "$work_dir/all.fasta"#TODO merge
         or die "Error: Couldn't create output file $work_dir/all.fasta: $!.\n";
 
     my $index = 0;

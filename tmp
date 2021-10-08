@@ -1,0 +1,14 @@
+TrimGalore/0.6.7
+Cutadapt/3.4
+FastQC/0.11.9
+BWA/0.7.17
+GATK/4.2.1.0
+samtools/1.13
+MaSuRCA/4.0.4
+centrifuge/1.0.4
+MMseqs2/13-45111
+mummer/4.0.0rc1
+RepeatMasker/4.1.2-p1
+Bowtie2/2.4.4
+bedtools/2.30.0
+minimap2/2.22

@@ -14,8 +14,9 @@ if [ -h $0 ]
 then
     bin=`ls -ld $0|awk '{print $NF}'`
 else
-    bin=`cd $(dirname $0); pwd`'/'`basename  $0`
+    bin=$0
 fi
 
-export CDPAN_PATH=${bin}.pl
-${bin}.pl "$@"
+bin=`cd $(dirname $bin); pwd`
+
+${bin}/main.pl "$@"

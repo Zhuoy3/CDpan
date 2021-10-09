@@ -193,21 +193,21 @@ print STDERR $main_start;
 
 
 # $FindBin::Bin is path to bin folder from where 'CDpan.pl' was invoked
-my $par_default = new Config::IniFiles(-file => "$FindBin::Bin/../config/par_default.ini");
-my $par = new Config::IniFiles(-file                => $file_par_path,
-                                -import              => $par_default,
-                                -allowedcommentchars => '#')
-    or die "Error: Could not import parameter from \'$file_par_path\': @Config::IniFiles::errors.\n";
+# my $par_default = new Config::IniFiles(-file => "$FindBin::Bin/../config/par_default.ini");
+# my $par = new Config::IniFiles(-file                => $file_par_path,
+#                                 -import              => $par_default,
+#                                 -allowedcommentchars => '#')
+#     or die "Error: Could not import parameter from \'$file_par_path\': @Config::IniFiles::errors.\n";
 
 
 #TODO 暂时调整
-#_CheckRedundant($par);
-_CheckMissing($par);
-_CheckTools($par) unless $main::debug;
-_CheckFile($par);
+# #_CheckRedundant($par);
+# _CheckMissing($par);
+# _CheckTools($par) unless $main::debug;
+# _CheckFile($par);
 
-#$par->WriteConfig("$file_par_path.import") if $main::debug;
-$par->WriteConfig("$file_par_path.import");
+# #$par->WriteConfig("$file_par_path.import") if $main::debug;
+# $par->WriteConfig("$file_par_path.import");
 
 
 

@@ -6,6 +6,7 @@
 
 use strict;
 use warnings;
+use feature qw\ say \;
 
 use FindBin;
 use lib "$FindBin::Bin/../lib";
@@ -15,13 +16,12 @@ use Cwd;
 # use File::Copy qw / copy move /;
 # use File::Path qw / rmtree /;
 # use File::Slurp;
-# use File::Spec::Functions  qw /:ALL/;
-# use Mnet::Tee (); # This module has not modified 'say', must use 'print' for log
+use File::Spec::Functions  qw /:ALL/;
 # use Config::IniFiles;
-use CDpan::Parameter;
-use CDpan::QualityControl;
-use CDpan::Comparison;
-use CDpan::Extract;
+# use CDpan::Parameter;
+# use CDpan::QualityControl;
+# use CDpan::Comparison;
+# use CDpan::Extract;
 # use CDpan::Assembly;
 # use CDpan::Test;
 # use CDpan::Judge;
@@ -34,20 +34,19 @@ use CDpan::Extract;
 # use CDpan::Change;
 # use CDpan::Integration;
 
-#-----------------------------------------------------------------------------
-#----------------------------------- MAIN ------------------------------------
-#-----------------------------------------------------------------------------
-
+#-------------------------------------------------------------------------------
+#------------------------------------ START ------------------------------------
+#-------------------------------------------------------------------------------
 our $version = "0.2.2";
 our $date = "Oct 8 2021";
 
 PrintUsage() if @ARGV == 0;
 
-#-----------------------------------------------------------------------------
-#--------------------------------- CMD LINE ----------------------------------
-#-----------------------------------------------------------------------------
-
+#-------------------------------------------------------------------------------
+#---------------------------------- CMD LINE -----------------------------------
+#-------------------------------------------------------------------------------
 our $cwd = Cwd::getcwd;
+our $datestring = localtime();
 our $module = shift @ARGV;
 
 if ( $module =~ m/^-/ ) {
@@ -80,32 +79,54 @@ if ( defined $modules{$module} ) {
 }
 
 our $input_file;
-our $config_file;;
+our $config_file;
+our $work_dir = rel2abs('./cdpan_tmp');
 our $output_prefix;
-our $output_dir;
-
+our $output_dir = $cwd;
+our $save_process = 0;
+our $no_quality_control = 0;
 
 while (@ARGV) {
     my $option = shift;
 
-    if     ( $option eq '-i' or $option eq '--input') {
-        $input_file  = shift;
+    if    ( $option eq '-i' or $option eq '--input') {
+        $input_file = shift;
         PrintExitMessage("Command \'$option\' is missing parameters\n") if ( ($input_file // '-' )=~ /^-/ );
-    }elsif ( $option eq '-c' or $option eq '--config') {
-        $config_file  = shift;
+        $input_file = rel2abs($input_file) unless file_name_is_absolute($input_file);
+    }
+    elsif ( $option eq '-c' or $option eq '--config') {
+        $config_file = shift;
         PrintExitMessage("Command \'$option\' is missing parameters\n") if ( ($config_file // '-' )=~ /^-/ );
-    }elsif ( $option eq '-o' or $option eq '--output') {
+        $config_file = rel2abs($config_file) unless file_name_is_absolute($config_file);
+    }
+    elsif ( $option eq '-w' or $option eq '--work_dir') {
+        $work_dir = shift;
+        PrintExitMessage("Command \'$option\' is missing parameters\n") if ( ($work_dir // '-' )=~ /^-/ );
+        $work_dir = rel2abs($work_dir) unless file_name_is_absolute($work_dir);
+    }
+    elsif ( $option eq '-o' or $option eq '--output') {
         $output_prefix = shift;
         PrintExitMessage("Command \'$option\' is missing parameters\n") if ( ($output_prefix // '-' )=~ /^-/ );
-    }elsif ( $option eq '-O' or $option eq '--output_dir') {
+    }
+    elsif ( $option eq '-O' or $option eq '--output_dir') {
         $output_dir  = shift;
         PrintExitMessage("Command \'$option\' is missing parameters\n") if ( ($output_dir // '-' )=~ /^-/ );
-    }elsif ( $option eq '-v' or $option eq '--version') {
+        $output_dir = rel2abs($output_dir) unless file_name_is_absolute($output_dir);
+    }
+    elsif ( $option eq '-p' or $option eq '--process') {
+        $save_process = 1;
+    }
+    elsif (                    $option eq '--no-qc') {
+        $no_quality_control = 1;
+    }
+    elsif ( $option eq '-v' or $option eq '--version') {
         print STDERR "CDpan $version $date\n";
         PrintExitMessage();
-    }elsif ( $option eq '-h' or $option eq '--help') {
+    }
+    elsif ( $option eq '-h' or $option eq '--help') {
         PrintUsage();
-    }else {
+    }
+    else {
         PrintExitMessage("Invalid command: $option\n");
     }
 }
@@ -117,32 +138,83 @@ unless ( defined $config_file ) {
     PrintExitMessage("Parameter \'config_file\' is required\n");
 }
 unless ( defined $output_prefix ) {
-    if ( $input_file =~ m/\./){
-        ($output_prefix) = $input_file =~ /^(.+?)\..*/;
+    ( undef, undef, my $input_file_filename ) = splitpath($input_file);
+    if ( $input_file_filename =~ m/\./){
+        ($output_prefix) = $input_file_filename =~ /^(.+?)\..*$/;
     }else{
-        $output_prefix = $input_file
+        $output_prefix = $input_file_filename;
     }
 }
-unless ( defined $output_dir ) {
-    $output_dir = $cwd;
-}
 
-print " $input_file $config_file $output_prefix $output_dir";
+#-------------------------------------------------------------------------------
+#------------------------------------ MAIN -------------------------------------
+#-------------------------------------------------------------------------------
+
+my $main_save_process       = $save_process?"True":"False";
+my $main_no_quality_control = $no_quality_control?"True":"False";
+
+my $main_start = "
+                     _____  ______
+                    /  __ \\ |  _  \\
+                    | /  \\/ | | | |  _ __     __ _   _ __
+                    | |     | | | | | \'_ \\   / _` | | \'_ \\
+                    | \\__/\\ | |/ /  | |_) | | (_| | | | | |
+                    \\____/  |___/   | .__/   \\__,_| |_| |_|
+                                    | |
+                                    |_|
+
+--------------------------------------------------------------------------------
+
+Version:                 $version ( $date )
+Runing:                  $datestring
+
+Module :                 $module
+
+Input file:              $input_file
+Config file:             $config_file
+Work directory:          $work_dir
+Prefix of output file:   $output_prefix
+Output directory:        $output_dir
+
+Save process file:       $main_save_process
+No quality control:      $main_no_quality_control
+
+--------------------------------------------------------------------------------
+
+";
+
+print STDERR $main_start;
+
+#-------------------------------------------------------------------------------
+#----------------------------------- CHECK -------------------------------------
+#-------------------------------------------------------------------------------
 
 
 
 
-# print "Start running...\n";
-# print "Debug: Run in debug mode.\n" if $debug;
-# print "\n================================================================================\n\n";
+# $FindBin::Bin is path to bin folder from where 'CDpan.pl' was invoked
+my $par_default = new Config::IniFiles(-file => "$FindBin::Bin/../config/par_default.ini");
+my $par = new Config::IniFiles(-file                => $file_par_path,
+                                -import              => $par_default,
+                                -allowedcommentchars => '#')
+    or die "Error: Could not import parameter from \'$file_par_path\': @Config::IniFiles::errors.\n";
 
-# print "Debug: Find script file: \'$file_par_path\'.\n" if $debug;
+
+#TODO 暂时调整
+#_CheckRedundant($par);
+_CheckMissing($par);
+_CheckTools($par) unless $main::debug;
+_CheckFile($par);
+
+#$par->WriteConfig("$file_par_path.import") if $main::debug;
+$par->WriteConfig("$file_par_path.import");
+
+
+
+
 # $file_par_path = rel2abs($file_par_path);
-# print "Debug: Real path of script file is \'$file_par_path\'.\n" if $debug;
 
-# die "Error: There is no such parameter file: \'$file_par_path\'.\n" unless (-e $file_par_path);
 
-# print "Read parameters from \'$file_par_path\'.\n";
 
 # my $par = CDpan::Parameter::InputPar($file_par_path);
 
@@ -254,8 +326,11 @@ Module: filter
 
 Options: -i, --input         path of input file ( Mandatory )
          -c, --config        path of config file ( Mandatory )
+         -w, --work_dir      path of work directory ( Default is directory \'./cdpan_tmp\' )
+         -p, --process       whether to keep process files (Default is False)
          -o, --output        prefix of the output file (Default is prefix of input file)
          -O, --output_dir    output directory (Default is the current directory)
+             --no-qc         no quality control (Default is False)
          -v, --version       print version message
          -h, --help          print help message
 
@@ -276,9 +351,3 @@ sub PrintExitMessage {
 
     exit(-1);
 }
-# END {
-#     print "\n================================================================================\n\n";
-#     my $file_log_path = ($file_par_path // 'CDpan') =~ s/\.[^\.]+$//r;
-#     print "Output log in file \'$file_log_path.log\'.\n";
-#     Mnet::Tee::file("$file_log_path.log");
-# }

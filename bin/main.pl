@@ -17,22 +17,10 @@ use Cwd;
 # use File::Path qw / rmtree /;
 # use File::Slurp;
 use File::Spec::Functions  qw /:ALL/;
-# use Config::IniFiles;
-# use CDpan::Parameter;
-# use CDpan::QualityControl;
-# use CDpan::Comparison;
-# use CDpan::Extract;
-# use CDpan::Assembly;
-# use CDpan::Test;
-# use CDpan::Judge;
-# use CDpan::MMSeqs;
-# use CDpan::Nucmer;
-# use CDpan::DeRepeat;
-# use CDpan::Recode;
-# use CDpan::RepeatMasker;
-# use CDpan::Align;
-# use CDpan::Change;
-# use CDpan::Integration;
+use Config::IniFiles;
+
+use CDpanPrint qw / :ALL /;
+use CDpanCheck qw / :ALL /;
 
 #-------------------------------------------------------------------------------
 #------------------------------------ START ------------------------------------
@@ -187,16 +175,14 @@ No quality control:      $main_no_quality_control
 #----------------------------------- CHECK -------------------------------------
 #-------------------------------------------------------------------------------
 
+#TODO read input file
 
-
-
-# $FindBin::Bin is path to bin folder from where 'CDpan.pl' was invoked
-# my $par_default = new Config::IniFiles(-file => "$FindBin::Bin/../config/par_default.ini");
-# my $par = new Config::IniFiles(-file                => $file_par_path,
-#                                 -import              => $par_default,
-#                                 -allowedcommentchars => '#')
-#     or die "Error: Could not import parameter from \'$file_par_path\': @Config::IniFiles::errors.\n";
-
+my  $par_default = new Config::IniFiles(-file => "$FindBin::Bin/../config/par_default.ini");
+our $par = new Config::IniFiles(-file                => $config_file,
+                                -import              => $par_default,
+                                -allowedcommentchars => '#')
+    or PrintErrorMessage("Could not read config file from \'$config_file\': @Config::IniFiles::errors\n");
+PreCheck($par);
 
 #TODO 暂时调整
 # #_CheckRedundant($par);

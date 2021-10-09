@@ -10,6 +10,7 @@ use strict;
 use warnings;
 
 use File::Spec::Functions  qw /:ALL/;
+use File::Slurp;
 use Config::IniFiles;
 use CDpanPrint qw / :ALL /;
 
@@ -22,12 +23,19 @@ sub PreCheck {
     (my $par) = @_;
 
     __CheckTools__($par);
+    __CheckConfig__($par);
+    __CheckFile__($par);
 
     return 1;
 }
 
 sub __CheckTools__ {
     (my $par) = @_;
+
+    print STDERR "--------------------------------------------------------------------------------\n";
+    print STDERR "\n";
+    print STDERR "Start checking tools\n";
+    print STDERR "\n";
 
     my $exit_tools = 0;
 
@@ -47,6 +55,7 @@ sub __CheckTools__ {
                             bowtie2
                             bedtools
                             bowtie2-build \;
+
     print STDERR "Tools needed: @tools_needed\n";
     print STDERR "\n";
 
@@ -94,14 +103,162 @@ sub __CheckTools__ {
                 printf STDERR "%-22s", "$tools:";
                 print  STDERR "$new_tools_path\n";
                 $par->newval('TOOLS', $tools, $new_tools_path);
-
             }
         }
     }
 
     exit(255) if $exit_tools;
 
+    print STDERR "\n";
+    print STDERR "Finish checking tools\n";
+    print STDERR "\n";
+
     return 1;
+}
+
+sub __CheckConfig__ {
+    (my $par) = @_;
+
+    print STDERR "--------------------------------------------------------------------------------\n";
+    print STDERR "\n";
+    print STDERR "Start checking configs\n";
+    print STDERR "\n";
+
+    my %default_params = (
+        "CDPAN" => {
+            "thread" => 1,
+        },
+        "QUALITYCONTROL" => {
+            "quality" => 20,
+            "length" => 20,
+            "cores" => 12,
+        },
+    );
+
+    my @par_sections = sort $par->Sections;
+
+    foreach my $section (@par_sections) {
+        next if (grep { $_ eq $section } qw \ TOOLS DATA \ );
+        unless (grep { $_ eq $section } ( keys %default_params )) {
+            PrintWarnMessage("[$section] => ... is not needed, ignore it\n");
+            $par->DeleteSection($section);
+            next;
+        }
+
+        my @par_parameters = sort $par->Parameters($section);
+        foreach my $param (@par_parameters) {
+            unless (grep { $_ eq $param } ( keys $default_params{$section} )){
+                PrintWarnMessage("[$section] => $param is not needed, ignore it\n");
+                $par->delval($section, $param);
+            }
+        }
+    }
+
+    print STDERR "\n";
+
+    foreach my $section ( sort keys %default_params ) {
+        foreach my $param ( sort keys $default_params{$section} ) {
+            if ( defined $par->val($section, $param)) {
+                printf STDERR "%-30s", "[$section] => $param:";
+                print  STDERR $par->val($section, $param);
+                print  STDERR "\n";
+            }
+            else{
+                if ( defined $default_params{$section}{$param} ) {
+                    $par->delval($section, $param);
+                    $par->newval($section, $param, $default_params{$section}{$param});
+                    printf STDERR "%-30s", "[$section] => $param:";
+                    print  STDERR $par->val($section, $param);
+                    print  STDERR " (Default)\n";
+                }
+                else{
+                    PrintErrorMessage("[$section] => $param mustbeen specified\n");
+                }
+            }
+        }
+    }
+
+    print STDERR "\n";
+    print STDERR "Finish checking configs\n";
+    print STDERR "\n";
+
+    return 1;
+}
+
+sub __CheckFile__ {
+    (my $par) = @_;
+
+    print STDERR "--------------------------------------------------------------------------------\n";
+    print STDERR "\n";
+    print STDERR "Start checking files\n";
+    print STDERR "\n";
+
+    foreach my $file_for_check qw \ ref qry index taxid \ {
+        unless ( defined $par->val('DATA', $file_for_check) ) {
+            PrintErrorMessage("[DATA] => $file_for_check must been specified\n");
+        }
+
+        if ( -e -r $par->val('DATA', $file_for_check) ){
+            unless (file_name_is_absolute($par->val('DATA', $file_for_check))){
+                $par->setval('DATA', $file_for_check,rel2abs($par->val('DATA', $file_for_check)));
+            }
+            printf STDERR "%-30s", "['DATA'] => $file_for_check:";
+            print  STDERR $par->val('DATA', $file_for_check);
+            print  STDERR "\n";
+        }
+        else{
+            if ( $file_for_check eq 'index' ){
+                my $file_for_check_path = $par->val('DATA', $file_for_check);
+                my $file_for_check_path = "ls $file_for_check_path*";
+                my @file_for_check_path = `$file_for_check_path`;
+                if (@file_for_check_path){
+                    unless (file_name_is_absolute($par->val('DATA', $file_for_check))){
+                        $par->setval('DATA', $file_for_check,rel2abs($par->val('DATA', $file_for_check)));
+                    }
+                    printf STDERR "%-30s", "['DATA'] => $file_for_check:";
+                    print  STDERR $par->val('DATA', $file_for_check);
+                    print  STDERR "\n";
+                    next;
+                }
+            }
+
+            PrintErrorMessage("Could not open $file_for_check file: " . $par->val('DATA', $file_for_check) . "\n");
+        }
+    }
+
+    print STDERR "\n";
+
+    if ( -e $main::work_dir) {
+        my @dir_files = File::Slurp::read_dir($main::work_dir, prefix => 1);
+        if ( @dir_files ) {
+            PrintErrorMessage("Working direction $main::work_dir exists and has file\n");
+        }
+        else {
+            PrintWarnMessage("Working direction $main::work_dir exists but is empty\n");
+        }
+    }
+    else{
+        mkdir $main::work_dir or PrintErrorMessage("Error: Cannot create working direction: $!\n");
+    }
+
+    unless ( -e $main::output_dir) {
+        mkdir $main::output_dir or PrintErrorMessage("Error: Cannot create output direction: $!\n");
+    }
+
+    foreach my $output_suffix qw \ .dispensable_genome.fasta .location.txt \ {
+        if ( -e "$main::output_dir/$main::output_prefix$output_suffix" ) {
+            rename "$main::output_dir/$main::output_prefix$output_suffix" => "$main::output_dir/$main::output_prefix$output_suffix.old"
+                or die "Error: Cannot change the name of file $main::output_dir/$main::output_prefix$output_suffix: $!\n";
+            PrintWarnMessage("Output file $main::output_dir/$main::output_prefix$output_suffix exists and has been renamed\n");
+        }
+    }
+
+    print STDERR "\n";
+    print STDERR "Finish checking files\n";
+    print STDERR "\n";
+
+    return 1;
+
 }
 
 1;

@@ -15,7 +15,6 @@ use lib "$FindBin::Bin/../tools/Perl/lib/";
 use Cwd;
 # use File::Copy qw / copy move /;
 # use File::Path qw / rmtree /;
-# use File::Slurp;
 use File::Spec::Functions  qw /:ALL/;
 use Config::IniFiles;
 
@@ -167,8 +166,6 @@ Output directory:        $output_dir
 Save process file:       $main_save_process
 No quality control:      $main_no_quality_control
 
---------------------------------------------------------------------------------
-
 ";
 
 #-------------------------------------------------------------------------------
@@ -177,10 +174,7 @@ No quality control:      $main_no_quality_control
 
 #TODO read input file
 
-my  $par_default = new Config::IniFiles(-file => "$FindBin::Bin/../config/par_default.ini");
-our $par = new Config::IniFiles(-file                => $config_file,
-                                -import              => $par_default,
-                                -allowedcommentchars => '#')
+our $par = new Config::IniFiles(-file => $config_file, -allowedcommentchars => '#')
     or PrintErrorMessage("Could not read config file from \'$config_file\': @Config::IniFiles::errors\n");
 PreCheck($par);
 

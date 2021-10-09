@@ -1,10 +1,10 @@
 #!/bin/python3
 '''
 Description:
-Author: Zhuo Yue
+Author: zhuoy
 Date: 2021-06-09 15:02:54
-LastEditors: Zhuo Yue
-LastEditTime: 2021-09-22 16:27:49
+LastEditors: zhuoy
+LastEditTime: 2021-10-09 15:28:27
 Calls:
 Called By:
 FilePath: \CDpan\bin\ex.py

@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # Description:
-# Author: Zhuo Yue
+# Author: zhuoy
 # Date: 2021-03-15
 
 package CDpan::Comparison;

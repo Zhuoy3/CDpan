@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # Description:
-# Author: Zhuo Yue
+# Author: zhuoy
 # Date: 2021-03-03
 
 use strict;
@@ -40,7 +40,7 @@ use File::Spec::Functions  qw /:ALL/;
 our $version = "0.2.2";
 our $date = "Oct 8 2021";
 
-PrintUsage() if @ARGV == 0;
+Usage() if @ARGV == 0;
 
 #-------------------------------------------------------------------------------
 #---------------------------------- CMD LINE -----------------------------------
@@ -53,7 +53,7 @@ if ( $module =~ m/^-/ ) {
     if ( $module eq '-v' or $module eq '--version') {
         PrintExitMessage("CDpan $version $date\n");
     }elsif ( $module eq '-h' or $module eq '--help') {
-        PrintUsage();
+        Usage();
     }
 }
 
@@ -124,7 +124,7 @@ while (@ARGV) {
         PrintExitMessage();
     }
     elsif ( $option eq '-h' or $option eq '--help') {
-        PrintUsage();
+        Usage();
     }
     else {
         PrintExitMessage("Invalid command: $option\n");
@@ -153,7 +153,7 @@ unless ( defined $output_prefix ) {
 my $main_save_process       = $save_process?"True":"False";
 my $main_no_quality_control = $no_quality_control?"True":"False";
 
-my $main_start = "
+print STDERR "
                      _____  ______
                     /  __ \\ |  _  \\
                     | /  \\/ | | | |  _ __     __ _   _ __
@@ -182,8 +182,6 @@ No quality control:      $main_no_quality_control
 --------------------------------------------------------------------------------
 
 ";
-
-print STDERR $main_start;
 
 #-------------------------------------------------------------------------------
 #----------------------------------- CHECK -------------------------------------
@@ -295,9 +293,9 @@ print STDERR $main_start;
 #     print "END OF PROGRAMME.\n";
 # exit 0;
 
-sub PrintUsage {
+sub Usage {
 
-my $usage = "
+print STDERR "
 Program: CDpan
 Version: $version
 
@@ -336,18 +334,5 @@ Options: -i, --input         path of input file ( Mandatory )
 
 ";
 
-print STDERR $usage;
-
 exit(-1);
-
-}
-
-sub PrintExitMessage {
-    my $print_message = shift;
-
-    print STDERR $print_message;
-    print STDERR "\n";
-    print STDERR "For more information, try \'CDpan --help\'\n";
-
-    exit(-1);
 }

@@ -9,24 +9,28 @@ package CDpan;
 use strict;
 use warnings;
 
-use CDpan::Print;
+use CDpan::Print qw \ :NONE \ ;
 use CDpan::PreProcess;
 use CDpan::Master;
 
 
 require Exporter;
 our @ISA = qw \ Exporter \;
-our @EXPORT = qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage
+our @EXPORT = qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage PrintStartMessage PrintEndMessage
                    PreProcess
                    Filter Align Extract Assembly Mope Vot Soot Merge Location RunAll RunDisplace\;
-our %EXPORT_TAGS = ( ALL    => [ @EXPORT ],
-                     PRINT  => [ qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage\ ],
-                     MODULE => [ qw \ Filter Align Extract Assembly Mope Vot Soot Merge Location RunAll RunDisplace\ ] );
+our %EXPORT_TAGS = (
+    ALL    => [ @EXPORT ],
+    PRINT  => [ qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage PrintStartMessage PrintEndMessage\ ],
+    MODULE => [ qw \ Filter Align Extract Assembly Mope Vot Soot Merge Location RunAll RunDisplace\ ],
+);
 
 # module CDpan::Print
 sub PrintExitMessage  { return &CDpan::Print::PrintExitMessage  };
 sub PrintWarnMessage  { return &CDpan::Print::PrintWarnMessage  };
 sub PrintErrorMessage { return &CDpan::Print::PrintErrorMessage };
+sub PrintStartMessage { return &CDpan::Print::PrintStartMessage };
+sub PrintEndMessage   { return &CDpan::Print::PrintEndMessage   };
 
 # module CDpan::Check
 sub PreProcess { return &CDpan::PreProcess::PreProcess };

@@ -4,75 +4,81 @@
 # Author: zhuoy
 # Date: 2021-03-02
 
-package CDpan::QualityControl;
+package CDpan::Module::Filter;
 
 use strict;
 use warnings;
+
 use File::Spec::Functions qw /:ALL/;
 use Config::IniFiles;
 use File::Slurp;
 
-sub QualityControl {
-    # &qualitycontrol($opt, $idv_folder_name, $output_dir)
-    # $opt is a quotation in 'Config::IniFiles' format
-    # $idv_folder_name is the name of the individual
-    # $output_dir is a folder path which is used to output_dir
+use CDpan::Print qw / :PRINT /;
 
-    (my $par, my $idv_folder, my $idv_folder_name, my $output_dir) = @_;
+sub Filter {
+    (my $par, my $idv_name) = @_;
 
+    # my $idv_folder_name,
 
-    my @idv_file = sort ( File::Slurp::read_dir($idv_folder, prefix => 1) );
-    die "Error: The number of genome data in the folder \'@idv_file\' is abnormal (singular)." if ( @idv_file & 1);
-    foreach my $file (@idv_file) {
-        die "Error: Incorrectly formatted genotype data: \'$file\'." unless ( $file =~ m/\S+_[12]\.fq\.gz$/ );
-    }
+    my $output_dir = catdir($par->val('CDPAN', 'work_dir'), $idv_name);
+    mkdir $output_dir or PrintErrorMessage("Cannot create direction $output_dir: $!");
 
-    my $name;
-    my $count = 1;
-    foreach my $file (@idv_file) {
-        if ( $count & 1 ) {
-            die "Error: Two-paired data does not match: \'$file\'." unless ( ($name) = $file =~ m/\S+\/(\S+)_1\.fq\.gz$/ );
-        } else {
-            die "Error: Two-paired data does not match: \'$file\'." unless ( $file =~ m/\S+\/${name}_2\.fq\.gz$/ );
+    my $output_file_prefix = catfile($output_dir, $idv_name);
+
+    my @idv_file;
+    foreach my $file (File::Slurp::read_dir( catdir($par->val('CDPAN', 'input_dir'), $idv_name ), prefix => 1)) {
+        if ( $file =~ m/\S+_[12]\.fq\.gz$/ ){
+            push @idv_file, $file;
+        }else{
+            PrintWarnMessage("Incorrectly formatted genotype data: $file, ignore it");
         }
-
-       $count += 1;
     }
+    PrintErrorMessage("The number of genome data in the direction @idv_file is abnormal (singular).") if ( @idv_file & 1);
+    @idv_file = sort @idv_file;
+
+    # my $name;
+    # my $count = 1;
+    # foreach my $file (@idv_file) {
+    #     if ( $count & 1 ) {
+    #         PrintErrorMessage("Two-paired data does not match: $file") unless ( ($name) = $file =~ m/\S+\/(\S+?)1?\S*_1\.fq\.gz$/ );
+    #     } else {
+    #         PrintErrorMessage("Two-paired data does not match: $file") unless ( $file =~ m/\S+\/${name}2?\S*_2\.fq\.gz$/ );
+    #     }
+
+    #    $count += 1;
+    # }
 
     my $idv_file_amount = @idv_file;
 
     # The default value is set when the parameter is imported, and there is no need to handle it here
-    my $quality    = $par->val('QUALITYCONTROL', 'quality'); # Trim low-quality ends from reads in addition to adapter removal.
-    my $length     = $par->val('QUALITYCONTROL', 'length'); # Discard reads that became shorter than length INT because of either quality or adapter trimming.
-    my $error_rate = $par->val('QUALITYCONTROL', 'error_rate'); # Maximum allowed error rate (no. of errors divided by the length of the matching region)
-    my $cores      = $par->val('QUALITYCONTROL', 'cores'); # Number of cores to be used for trimming
+    my $quality     = $par->val('FILTER', 'quality');
+    my $length      = $par->val('FILTER', 'length');
+    my $error_rate  = $par->val('FILTER', 'error-rate');
+    my $thread      = $par->val('CDPAN',  'thread');
 
     # Read the software path and set it to the default value
-    (my $trim_galore = $par->val('TOOLS', 'trim_galore', './trim_galore') ) =~ s/\/trim_galore$//;
-    (my $cutadapt    = $par->val('TOOLS', 'cutadapt',    './cutadapt')    ) =~ s/\/cutadapt$//;
-    (my $fastqc      = $par->val('TOOLS', 'fastqc',      './fastqc')      ) =~ s/\/fastqc$//;
-
-    # Add environment variables
-    $ENV{PATH} = "$trim_galore:$cutadapt:$fastqc:$ENV{PATH}:";
+    my $trim_galore = $par->val('TOOLS', 'trim_galore');
+    my $cutadapt    = $par->val('TOOLS', 'cutadapt');
+    my $fastqc      = $par->val('TOOLS', 'fastqc');
 
     while (@idv_file) {
         my $paired1 = shift @idv_file;
         my $paired2 = shift @idv_file;
-        # trim_galore -q 20 --phred33 --stringency 3 --length 20 -e 0.1 --paired a1_1.fq.gz a1_2.fq.gz --gzip -o ./ -j 6
-        my $cmd_trim_galore = $par->val('TOOLS', 'trim_galore') . " " .
-                           "--quality $quality " .
-                           "--phred33 " .
-                           "--stringency 3 " .
-                           "--length $length " .
-                           "-e $error_rate " .
-                           "--paired $paired1 $paired2 " .
-                           "--gzip " .
-                           "--output_dir $output_dir " .
-                           "-j $cores " .
-                           "2> /dev/null";
-        print "Start use cmd: \'$cmd_trim_galore\'.\n";
+        my $cmd_trim_galore = "$trim_galore " .
+                              "--quality $quality " .
+                              "--phred33 " .
+                              "--stringency 3 " .
+                              "--length $length " .
+                              "-e $error_rate " .
+                              "--paired $paired1 $paired2 " .
+                              "--gzip " .
+                              "--output_dir $output_dir " .
+                              "-j $thread " .
+                              "2> /dev/null";
+        # print "Start use cmd: $cmd_trim_galore\n";
+        print STDERR "    quality control for $paired1 $paired2\n";
         system $cmd_trim_galore
-            and die "Error: Command \'$cmd_trim_galore\' failed to run normally: $?\n";
+            and PrintErrorMessage("Command $cmd_trim_galore failed to run normally: $?\n");
     }
 
     # merge data
@@ -87,22 +93,24 @@ sub QualityControl {
         }
     }
     unless ( (@result_files_1 == @result_files_2) && ( @result_files_1 == ($idv_file_amount >> 1) ) ) {
-        die "Error: The number of result files of trim_galore is abnormal, trim_galore may not be running normally.";
+        PrintErrorMessage("The number of result files of trim_galore is abnormal, trim_galore may not be running normally");
     }
 
     @result_files_1 = sort @result_files_1;
     @result_files_2 = sort @result_files_2;
 
-    my $cmd_merge_data_1 = "cat @result_files_1 > $output_dir/${idv_folder_name}_clean_1.fq.gz";
-    print "Start use cmd: \'$cmd_merge_data_1\'.\n";
+    my $cmd_merge_data_1 = "cat @result_files_1 > ${output_file_prefix}_clean_1.fq.gz";
+    # print "Start use cmd: $cmd_merge_data_1\n";
+    print STDERR "    merge @result_files_1 to ${output_file_prefix}_clean_1.fq.gz\n";
     system $cmd_merge_data_1
-        and die "Error: Command \'$cmd_merge_data_1\' failed to run normally: $?\n";
+        and PrintErrorMessage("Command $cmd_merge_data_1 failed to run normally: $?\n");
     unlink @result_files_1;
 
-    my $cmd_merge_data_2 = "cat @result_files_2 > $output_dir/${idv_folder_name}_clean_2.fq.gz";
-    print "Start use cmd: \'$cmd_merge_data_2\'.\n";
+    my $cmd_merge_data_2 = "cat @result_files_2 > ${output_file_prefix}_clean_2.fq.gz";
+    # print "Start use cmd: $cmd_merge_data_2\n";
+    print STDERR "    merge @result_files_2 to ${output_file_prefix}_clean_2.fq.gz\n";
     system $cmd_merge_data_2
-        and die "Error: Command \'$cmd_merge_data_2\' failed to run normally: $?\n";
+        and PrintErrorMessage("Command $cmd_merge_data_2 failed to run normally: $?\n");
     unlink @result_files_2;
 
     return 1;

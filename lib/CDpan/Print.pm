@@ -14,13 +14,15 @@ $Term::ANSIColor::AUTORESET = 1;
 
 require Exporter;
 our @ISA = qw \ Exporter \;
-our @EXPORT = qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage \;
-our %EXPORT_TAGS = ( PRINT => [ qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage\ ] );
+our @EXPORT = qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage PrintStartMessage PrintEndMessage \;
+our %EXPORT_TAGS = (
+     PRINT => [ qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage PrintStartMessage PrintEndMessage\ ],
+     NONE => []);
 
 sub PrintExitMessage {
     my $print_message = shift;
 
-    print STDERR $print_message;
+    print STDERR "$print_message\n";
     print STDERR "\n";
     print STDERR "For more information, try \'CDpan --help\'\n";
 
@@ -31,7 +33,7 @@ sub PrintWarnMessage {
     my $print_message = shift;
 
     print STDERR BOLD MAGENTA "Warning: ";
-    print STDERR $print_message;
+    print STDERR "$print_message\n";
 
     return 1;
 }
@@ -42,10 +44,31 @@ sub PrintErrorMessage {
 
     print STDERR "\n";
     print STDERR BOLD RED "Error: ";
-    print STDERR $print_message;
+    print STDERR "$print_message\n";
     print STDERR "\n";
 
     exit(255) if $is_die;
+
+    return 1;
+}
+
+sub PrintStartMessage {
+    my $print_message = shift;
+
+    print STDERR "--------------------------------------------------------------------------------\n";
+    print STDERR "\n";
+    print STDERR "$print_message\n";
+    print STDERR "\n";
+
+    return 1;
+}
+
+sub PrintEndMessage {
+    my $print_message = shift;
+
+    print STDERR "\n";
+    print STDERR "$print_message\n";
+    print STDERR "\n";
 
     return 1;
 }

@@ -37,7 +37,7 @@ our $module = shift @ARGV;
 
 if ( $module =~ m/^-/ ) {
     if ( $module eq '-v' or $module eq '--version') {
-        PrintExitMessage("CDpan $version $date\n");
+        PrintExitMessage("CDpan $version $date");
     }elsif ( $module eq '-h' or $module eq '--help') {
         Usage();
     }
@@ -59,7 +59,7 @@ our %modules = (
 if ( defined $modules{$module} ) {
     $modules{$module} = 1;
 } else {
-    PrintExitMessage("Invalid module: $module\n");
+    PrintExitMessage("Invalid module: $module");
 }
 
 our $input_dir;
@@ -111,15 +111,15 @@ while (@ARGV) {
         Usage();
     }
     else {
-        PrintExitMessage("Invalid command: $option\n");
+        PrintExitMessage("Invalid command: $option");
     }
 }
 
 unless ( defined $input_dir ) {
-    PrintExitMessage("Parameter \'input_dir\' is required\n");
+    PrintExitMessage("Parameter \'input_dir\' is required");
 }
 # unless ( not defined $config_file ) { #TODO and ( $modules{$module} or $modules{$module}) ) {
-#     PrintExitMessage("Parameter \'config_file\' is required\n");
+#     PrintExitMessage("Parameter \'config_file\' is required");
 # }
 $config_file = '' unless defined $config_file;
 unless ( defined $output_prefix ) {
@@ -170,28 +170,26 @@ No quality control:      $main_no_quality_control
 our $par;
 if ( $config_file ) {
     $par = new Config::IniFiles(-file => $config_file, -allowedcommentchars => '#')
-        or PrintErrorMessage("Could not read config file from \'$config_file\': @Config::IniFiles::errors\n");
+        or PrintErrorMessage("Could not read config file from \'$config_file\': @Config::IniFiles::errors");
 }
 else{
     $par = new Config::IniFiles();
 }
 PreProcess($par);
 
-defined $modules{$module}
+if    ( $modules{ "filter"       } ) { Filter(   $par ); }
+elsif ( $modules{ "align"        } ) { Align(    $par ); }
+elsif ( $modules{ "extract"      } ) { Extract(  $par ); }
+elsif ( $modules{ "assembly"     } ) { Assembly( $par ); }
+elsif ( $modules{ "mope"         } ) { Mope(     $par ); }
+elsif ( $modules{ "vot"          } ) { Vot(      $par ); }
+elsif ( $modules{ "soot"         } ) { Soot(     $par ); }
+elsif ( $modules{ "merge"        } ) { Merge(    $par ); }
+elsif ( $modules{ "location"     } ) { Location( $par ); }
+elsif ( $modules{ "RUN-ALL"      } ) { RunAll(   $par ); }
+elsif ( $modules{ "RUN-DISPLACE" } ) { RunDisplace( $par ); }
 
-
-if    ( $modules( "filter"       ) ) { Filter(      $par ); }
-elsif ( $modules( "align"        ) ) { Align(       $par ); }
-elsif ( $modules( "extract"      ) ) { Extract(     $par ); }
-elsif ( $modules( "assembly"     ) ) { Assembly(    $par ); }
-elsif ( $modules( "mope"         ) ) { Mope(        $par ); }
-elsif ( $modules( "vot"          ) ) { Vot(         $par ); }
-elsif ( $modules( "soot"         ) ) { Soot(        $par ); }
-elsif ( $modules( "merge"        ) ) { Merge(       $par ); }
-elsif ( $modules( "location"     ) ) { Location(    $par ); }
-elsif ( $modules( "RUN-ALL"      ) ) { RunAll(      $par ); }
-elsif ( $modules( "RUN-DISPLACE" ) ) { RunDisplace( $par ); }
-
+print STDERR "END\n";
 exit 0;
 
 

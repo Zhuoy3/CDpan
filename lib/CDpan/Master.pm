@@ -10,10 +10,12 @@ use strict;
 use warnings;
 
 use Config::IniFiles;
+use File::Slurp;
 
 use CDpan::Print qw / :PRINT /;
 
-# use CDpan::QualityControl;
+use CDpan::Module::Filter;
+
 # use CDpan::Comparison;
 # use CDpan::Extract;
 # use CDpan::Assembly;
@@ -28,7 +30,20 @@ use CDpan::Print qw / :PRINT /;
 # use CDpan::Change;
 # use CDpan::Integration;
 
-sub Filter;
+sub Filter {
+    (my $par) = @_;
+
+    PrintStartMessage("Start Module Filter");
+    my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
+
+    foreach my $idv_name (@input_idvs) {
+        print STDERR "Processing: $idv_name\n";
+        CDpan::Module::Filter::Filter($par, $idv_name) or PrintErrorMessage("Module Filter exited abnormally for $idv_name");
+    }
+
+    return 1;
+};
+
 sub Align;
 sub Extract;
 sub Assembly;
@@ -40,19 +55,11 @@ sub Location;
 sub RunAll;
 sub RunDisplace;
 
-# print "\n================================================================================\n\n";
-# print "Start quality control...\n";
 
-# my @input_folder = sort ( File::Slurp::read_dir($par->val('DATA', 'input'), prefix => 1) );
 
 # our $ref_index = 0; # mark the existence of the reference genome index used by bwa
 # our $ref_dict = 0; # mark the existence of the reference genome dict used by gatkmy
 
-# my @idv_names;
-# foreach my $idv_folder (@input_folder) {
-#     my $idv_name = pop [ splitdir($idv_folder) ];
-#     push @idv_names, $idv_name;
-#     my $idv_output_folder = catdir($folder_process, $idv_name);
 
 #     #TODO　Filteration
 #     CDpan::QualityControl::QualityControl($par, $idv_folder, $idv_name, $idv_output_folder)
@@ -77,7 +84,6 @@ sub RunDisplace;
 #     move "$idv_output_folder/$idv_name.filtered.mmseqs.final.fa", "$folder_process/$idv_name.fasta"
 #         or die "Error:Couln't move $idv_output_folder/$idv_name.filtered.mmseqs.final.fa to $folder_process/$idv_name.fasta: $!.\n";
 
-# }
 
 # CDpan::Recode::recode($folder_process, \@idv_names)
 #     or die "Error: Operation Recode is abnormal.\n";
@@ -100,12 +106,6 @@ sub RunDisplace;
 
 
 
-# chdir $cwd;
-# system "rm -rf $folder_process";
-
-#     print "\n================================================================================\n\n";
-#     print "END OF PROGRAMME.\n";
-# exit 0;
 
 
 

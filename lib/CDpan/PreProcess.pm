@@ -37,10 +37,7 @@ sub PreProcess {
 sub __CheckTools__ {
     (my $par) = @_;
 
-    print STDERR "--------------------------------------------------------------------------------\n";
-    print STDERR "\n";
-    print STDERR "Start checking tools\n";
-    print STDERR "\n";
+    PrintStartMessage("Start checking tools");
 
     my $exit_tools = 0;
 
@@ -57,8 +54,8 @@ sub __CheckTools__ {
                             nucmer
                             show-coords
                             RepeatMasker
-                            bowtie2
                             bedtools
+                            bowtie2
                             bowtie2-build \;
 
     print STDERR "Tools needed: @tools_needed\n";
@@ -72,7 +69,7 @@ sub __CheckTools__ {
     print STDERR "\n";
     foreach my $tools (@tools_specify) {
         unless (grep { $_ eq $tools } @tools_needed) {
-            PrintWarnMessage("$tools is not needed, ignore it\n");
+            PrintWarnMessage("$tools is not needed, ignore it");
             $par->delval('TOOLS', $tools);
             next;
         }
@@ -86,7 +83,7 @@ sub __CheckTools__ {
             $par->setval('TOOLS', $tools, $tools_path);
         }
         else{
-            PrintWarnMessage("$tools does not exist or lacks execute permission, search it from PATH\n");
+            PrintWarnMessage("$tools does not exist or lacks execute permission, search it from PATH");
             $par->delval('TOOLS', $tools);
         }
     }
@@ -114,9 +111,7 @@ sub __CheckTools__ {
 
     exit(255) if $exit_tools;
 
-    print STDERR "\n";
-    print STDERR "Finish checking tools\n";
-    print STDERR "\n";
+    PrintEndMessage("Finish checking tools");
 
     return 1;
 }
@@ -124,19 +119,16 @@ sub __CheckTools__ {
 sub __CheckConfig__ {
     (my $par) = @_;
 
-    print STDERR "--------------------------------------------------------------------------------\n";
-    print STDERR "\n";
-    print STDERR "Start checking configs\n";
-    print STDERR "\n";
+    PrintStartMessage("Start checking configs");
 
     my %default_params = (
         "CDPAN" => {
-            "thread" => 1,
+            "thread" => 12,
         },
-        "QUALITYCONTROL" => {
+        "FILTER" => {
             "quality" => 20,
             "length" => 20,
-            "cores" => 12,
+            "error-rate" => 0.1,
         },
     );
 
@@ -145,7 +137,7 @@ sub __CheckConfig__ {
     foreach my $section (@par_sections) {
         next if (grep { $_ eq $section } qw \ TOOLS DATA \ );
         unless (grep { $_ eq $section } ( keys %default_params )) {
-            PrintWarnMessage("[$section] => ... is not needed, ignore it\n");
+            PrintWarnMessage("[$section] => ... is not needed, ignore it");
             $par->DeleteSection($section);
             next;
         }
@@ -153,7 +145,7 @@ sub __CheckConfig__ {
         my @par_parameters = sort $par->Parameters($section);
         foreach my $param (@par_parameters) {
             unless (grep { $_ eq $param } ( keys $default_params{$section} )){
-                PrintWarnMessage("[$section] => $param is not needed, ignore it\n");
+                PrintWarnMessage("[$section] => $param is not needed, ignore it");
                 $par->delval($section, $param);
             }
         }
@@ -177,15 +169,13 @@ sub __CheckConfig__ {
                     print  STDERR " (Default)\n";
                 }
                 else{
-                    PrintErrorMessage("[$section] => $param mustbeen specified\n");
+                    PrintErrorMessage("[$section] => $param mustbeen specified");
                 }
             }
         }
     }
 
-    print STDERR "\n";
-    print STDERR "Finish checking configs\n";
-    print STDERR "\n";
+    PrintEndMessage("Finish checking configs");
 
     return 1;
 }
@@ -193,16 +183,13 @@ sub __CheckConfig__ {
 sub __CheckFile__ {
     (my $par) = @_;
 
-    print STDERR "--------------------------------------------------------------------------------\n";
-    print STDERR "\n";
-    print STDERR "Start checking files\n";
-    print STDERR "\n";
+    PrintStartMessage("Start checking files");
 
     my @file_for_check = qw \\  ;
     #TODO my @file_for_check = qw \ ref qry index taxid \;
     foreach my $file_for_check (@file_for_check) {
         unless ( defined $par->val('DATA', $file_for_check) ) {
-            PrintErrorMessage("[DATA] => $file_for_check must been specified\n");
+            PrintErrorMessage("[DATA] => $file_for_check must been specified");
         }
 
         if ( -e -r $par->val('DATA', $file_for_check) ){
@@ -229,7 +216,7 @@ sub __CheckFile__ {
                 }
             }
 
-            PrintErrorMessage("Could not open $file_for_check file: " . $par->val('DATA', $file_for_check) . "\n");
+            PrintErrorMessage("Could not open $file_for_check file: " . $par->val('DATA', $file_for_check) . "");
         }
     }
 
@@ -238,18 +225,18 @@ sub __CheckFile__ {
     if ( -e $main::work_dir) {
         my @dir_files = File::Slurp::read_dir($main::work_dir, prefix => 1);
         if ( @dir_files ) {
-            PrintErrorMessage("Working direction $main::work_dir exists and has file\n");
+            PrintErrorMessage("Working direction $main::work_dir exists and has file");
         }
         else {
-            PrintWarnMessage("Working direction $main::work_dir exists but is empty\n");
+            PrintWarnMessage("Working direction $main::work_dir exists but is empty");
         }
     }
     else{
-        mkdir $main::work_dir or PrintErrorMessage("Error: Cannot create working direction: $!\n");
+        mkdir $main::work_dir or PrintErrorMessage("Cannot create working direction: $!");
     }
 
     unless ( -e $main::output_dir) {
-        mkdir $main::output_dir or PrintErrorMessage("Error: Cannot create output direction: $!\n");
+        mkdir $main::output_dir or PrintErrorMessage("Cannot create output direction: $!");
     }
 
     my @output_suffix = qw \ .dispensable_genome.fasta .location.txt \;
@@ -257,14 +244,12 @@ sub __CheckFile__ {
         my $output_file_name = catfile("$main::output_dir", "$main::output_prefix$output_suffix");
         if ( -e $output_file_name ) {
             rename $output_file_name => "$output_file_name.old"
-                or die "Error: Cannot change the name of file $output_file_name: $!\n";
-            PrintWarnMessage("Output file $output_file_name exists and has been renamed\n");
+                or PrintErrorMessage("Cannot change the name of file $output_file_name: $!");
+            PrintWarnMessage("Output file $output_file_name exists and has been renamed");
         }
     }
 
-    print STDERR "\n";
-    print STDERR "Finish checking files\n";
-    print STDERR "\n";
+    PrintEndMessage("Finish checking files");
 
     return 1;
 

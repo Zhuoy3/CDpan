@@ -4,7 +4,7 @@
 # Author: zhuoy
 # Date: 2021-08-11
 
-package CDpanMaster;
+package CDpan;
 
 use strict;
 use warnings;

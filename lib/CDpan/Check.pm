@@ -246,10 +246,11 @@ sub __CheckFile__ {
     }
 
     foreach my $output_suffix qw \ .dispensable_genome.fasta .location.txt \ {
-        if ( -e "$main::output_dir/$main::output_prefix$output_suffix" ) {
-            rename "$main::output_dir/$main::output_prefix$output_suffix" => "$main::output_dir/$main::output_prefix$output_suffix.old"
-                or die "Error: Cannot change the name of file $main::output_dir/$main::output_prefix$output_suffix: $!\n";
-            PrintWarnMessage("Output file $main::output_dir/$main::output_prefix$output_suffix exists and has been renamed\n");
+        my $output_file_name = catfile("$main::output_dir", "$main::output_prefix$output_suffix");
+        if ( -e $output_file_name ) {
+            rename $output_file_name => "$output_file_name.old"
+                or die "Error: Cannot change the name of file $output_file_name: $!\n";
+            PrintWarnMessage("Output file $output_file_name exists and has been renamed\n");
         }
     }
 

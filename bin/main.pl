@@ -65,11 +65,11 @@ if ( defined $modules{$module} ) {
     PrintExitMessage("Invalid module: $module\n");
 }
 
-our $input_file;
+our $input_dir;
 our $config_file;
-our $work_dir = rel2abs('./cdpan_tmp');
 our $output_prefix;
 our $output_dir = $cwd;
+our $work_dir = catdir($output_dir,'./cdpan_tmp');
 our $save_process = 0;
 our $no_quality_control = 0;
 
@@ -77,9 +77,9 @@ while (@ARGV) {
     my $option = shift;
 
     if    ( $option eq '-i' or $option eq '--input') {
-        $input_file = shift;
-        PrintExitMessage("Command \'$option\' is missing parameters\n") if ( ($input_file // '-' )=~ /^-/ );
-        $input_file = rel2abs($input_file) unless file_name_is_absolute($input_file);
+        $input_dir = shift;
+        PrintExitMessage("Command \'$option\' is missing parameters\n") if ( ($input_dir // '-' )=~ /^-/ );
+        $input_dir = rel2abs($input_dir) unless file_name_is_absolute($input_dir);
     }
     elsif ( $option eq '-c' or $option eq '--config') {
         $config_file = shift;
@@ -118,19 +118,14 @@ while (@ARGV) {
     }
 }
 
-unless ( defined $input_file ) {
-    PrintExitMessage("Parameter \'input_file\' is required\n");
+unless ( defined $input_dir ) {
+    PrintExitMessage("Parameter \'input_dir\' is required\n");
 }
-unless ( defined $config_file ) {
-    PrintExitMessage("Parameter \'config_file\' is required\n");
-}
+# unless ( not defined $config_file ) { #TODO and ( $modules{$module} or $modules{$module}) ) {
+#     PrintExitMessage("Parameter \'config_file\' is required\n");
+# }
 unless ( defined $output_prefix ) {
-    ( undef, undef, my $input_file_filename ) = splitpath($input_file);
-    if ( $input_file_filename =~ m/\./){
-        ($output_prefix) = $input_file_filename =~ /^(.+?)\..*$/;
-    }else{
-        $output_prefix = $input_file_filename;
-    }
+    ( undef, undef, $output_prefix ) = splitpath($input_dir);
 }
 
 #-------------------------------------------------------------------------------
@@ -157,7 +152,7 @@ Runing:                  $datestring
 
 Module :                 $module
 
-Input file:              $input_file
+Input directory:         $input_dir
 Config file:             $config_file
 Work directory:          $work_dir
 Prefix of output file:   $output_prefix
@@ -279,13 +274,12 @@ print STDERR "
 Program: CDpan
 Version: $version
 
-Usage: CDpan <module> -i input_file -c config_file [options]
+Usage: CDpan <module> -i input_dir [options]
 
-Note: To use CDpan, you need to specify a module, and input two file: \'input_file\'
-      and \'config_file\'. The file \'input_file\' is a space delimited file and contain
-      two columns: id of individual and path of sequence file. The file \'config_file\'
-      is a variant of .ini-style configuration file. For more information, please refer
-      to the manual from https://github.com/kimi-du-bio/CDpan.
+Note: To use CDpan, you need to specify a module and a directory of input file. Each sub-directory
+      of the input directory should be a separate individual and contain file which will be used
+      by the module. CDpan will interpret directory name as individual names. For more information,
+      please refer to the manual from https://github.com/kimi-du-bio/CDpan.
 
 Module: filter
         align
@@ -300,19 +294,18 @@ Module: filter
 
         RUN-ALL         Run all modules of CDpan
         RUN-DISPLACE    Run all modules of CDpan except location
-        MAKE-CONFIG     Output complete configuration file
 
-Options: -i, --input         path of input file ( Mandatory )
-         -c, --config        path of config file ( Mandatory )
-         -w, --work_dir      path of work directory ( Default is directory \'./cdpan_tmp\' )
-         -p, --process       whether to keep process files (Default is False)
-         -o, --output        prefix of the output file (Default is prefix of input file)
-         -O, --output_dir    output directory (Default is the current directory)
-             --no-qc         no quality control (Default is False)
+Options: -i, --input         path of input directory          ( Mandatory )
+         -c, --config        path of config file              ( Required by )
+         -w, --work_dir      path of work directory           ( Default is \'\${output_dir}/cdpan_tmp\' )
+         -p, --process       whether to keep process files    ( Default is False )
+         -o, --output        prefix of the output file        ( Default is name of input directory )
+         -O, --output_dir    output directory                 ( Default is the current directory )
+             --no-qc         no quality control               ( Default is False )
          -v, --version       print version message
          -h, --help          print help message
 
 ";
-
+#TODO
 exit(-1);
 }

@@ -14,7 +14,7 @@ use CDpan::Print;
 require Exporter;
 our @ISA = qw \ Exporter \;
 our @EXPORT = qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage
-                   PreCheck \;
+                   PreProcess \;
 our %EXPORT_TAGS = ( ALL => [ @EXPORT ],
                      PRINT => [ qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage\ ] );
 

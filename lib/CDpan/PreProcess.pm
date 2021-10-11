@@ -4,7 +4,7 @@
 # Author: zhuoy
 # Date: 2021-10-09
 
-package CDpan::Check;
+package CDpan::PreProcess;
 
 use strict;
 use warnings;
@@ -15,12 +15,13 @@ use Config::IniFiles;
 
 use CDpan::Print qw / :PRINT /;
 
-sub PreCheck {
+sub PreProcess {
     (my $par) = @_;
 
+    # Check
     __CheckTools__($par);
     __CheckConfig__($par);
-    #TODO __CheckFile__($par) if $main::module;
+    __CheckFile__($par);
 
     $par->newval('CDPAN', 'input_dir', $main::input_dir);
     $par->newval('CDPAN', 'config_file', $main::config_file);
@@ -197,7 +198,8 @@ sub __CheckFile__ {
     print STDERR "Start checking files\n";
     print STDERR "\n";
 
-    my @file_for_check = qw \ ref qry index taxid \;
+    my @file_for_check = qw \\  ;
+    #TODO my @file_for_check = qw \ ref qry index taxid \;
     foreach my $file_for_check (@file_for_check) {
         unless ( defined $par->val('DATA', $file_for_check) ) {
             PrintErrorMessage("[DATA] => $file_for_check must been specified\n");

@@ -23,12 +23,13 @@ sub PreProcess {
     __CheckConfig__($par);
     __CheckFile__($par);
 
-    $par->newval('CDPAN', 'input_dir', $main::input_dir);
-    $par->newval('CDPAN', 'config_file', $main::config_file);
-    $par->newval('CDPAN', 'output_prefix', $main::output_prefix);
-    $par->newval('CDPAN', 'output_dir', $main::output_dir);
-    $par->newval('CDPAN', 'work_dir', $main::work_dir);
-    $par->newval('CDPAN', 'save_process', $main::save_process);
+    $par->newval('CDPAN', 'module',             $main::module);
+    $par->newval('CDPAN', 'input_dir',          $main::input_dir);
+    $par->newval('CDPAN', 'config_file',        $main::config_file);
+    $par->newval('CDPAN', 'output_prefix',      $main::output_prefix);
+    $par->newval('CDPAN', 'output_dir',         $main::output_dir);
+    $par->newval('CDPAN', 'work_dir',           $main::work_dir);
+    $par->newval('CDPAN', 'output_level',       $main::output_level);
     $par->newval('CDPAN', 'no_quality_control', $main::no_quality_control);
 
     return 1;

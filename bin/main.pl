@@ -14,7 +14,7 @@ use lib "$FindBin::Bin/../tools/Perl/lib/";
 
 use Cwd;
 # use File::Copy qw / copy move /;
-# use File::Path qw / rmtree /;
+use File::Path qw / rmtree /;
 use File::Spec::Functions  qw /:ALL/;
 use Config::IniFiles;
 
@@ -67,7 +67,7 @@ our $config_file;
 our $output_prefix;
 our $output_dir = $cwd;
 our $work_dir = catdir($output_dir,'./cdpan_tmp');
-our $save_process = 0;
+our $output_level = 0;
 our $no_quality_control = 0;
 
 while (@ARGV) {
@@ -97,8 +97,11 @@ while (@ARGV) {
         PrintExitMessage("Command \'$option\' is missing parameters\n") if ( ($output_dir // '-' )=~ /^-/ );
         $output_dir = rel2abs($output_dir) unless file_name_is_absolute($output_dir);
     }
-    elsif ( $option eq '-p' or $option eq '--process') {
-        $save_process = 1;
+    elsif ( $option eq '-l' or $option eq '--output-level') {
+        $output_level = shift;
+        PrintExitMessage("Command \'$option\' is missing parameters\n") if ( ($output_level // '-' )=~ /^-/ );
+        PrintExitMessage("Command \'$option\' is illegal parameter ( Should be 0, 1 or 2)\n") unless ( ($output_level // '-' )=~ /^[012]$/ );
+        $output_level += 0;
     }
     elsif (                    $option eq '--no-qc') {
         $no_quality_control = 1;
@@ -130,7 +133,6 @@ unless ( defined $output_prefix ) {
 #------------------------------------ MAIN -------------------------------------
 #-------------------------------------------------------------------------------
 
-my $main_save_process       = $save_process?"True":"False";
 my $main_no_quality_control = $no_quality_control?"True":"False";
 
 print STDERR "
@@ -153,10 +155,10 @@ Module :                 $module
 Input directory:         $input_dir
 Config file:             $config_file
 Work directory:          $work_dir
-Prefix of output file:   $output_prefix
 Output directory:        $output_dir
+Prefix of output file:   $output_prefix
 
-Save process file:       $main_save_process
+output level:            $output_level
 No quality control:      $main_no_quality_control
 
 ";
@@ -177,21 +179,41 @@ else{
 }
 PreProcess($par);
 
-if    ( $modules{ "filter"       } ) { Filter(   $par ); }
-elsif ( $modules{ "align"        } ) { Align(    $par ); }
-elsif ( $modules{ "extract"      } ) { Extract(  $par ); }
-elsif ( $modules{ "assembly"     } ) { Assembly( $par ); }
-elsif ( $modules{ "mope"         } ) { Mope(     $par ); }
-elsif ( $modules{ "vot"          } ) { Vot(      $par ); }
-elsif ( $modules{ "soot"         } ) { Soot(     $par ); }
-elsif ( $modules{ "merge"        } ) { Merge(    $par ); }
-elsif ( $modules{ "location"     } ) { Location( $par ); }
-elsif ( $modules{ "RUN-ALL"      } ) { RunAll(   $par ); }
+if    ( $modules{ "filter"       } ) { Filter(      $par ); }
+elsif ( $modules{ "align"        } ) { Align(       $par ); }
+elsif ( $modules{ "extract"      } ) { Extract(     $par ); }
+elsif ( $modules{ "assembly"     } ) { Assembly(    $par ); }
+elsif ( $modules{ "mope"         } ) { Mope(        $par ); }
+elsif ( $modules{ "vot"          } ) { Vot(         $par ); }
+elsif ( $modules{ "soot"         } ) { Soot(        $par ); }
+elsif ( $modules{ "merge"        } ) { Merge(       $par ); }
+elsif ( $modules{ "location"     } ) { Location(    $par ); }
+elsif ( $modules{ "RUN-ALL"      } ) { RunAll(      $par ); }
 elsif ( $modules{ "RUN-DISPLACE" } ) { RunDisplace( $par ); }
 
-print STDERR "END\n";
+rmtree $par->val('CDPAN', 'work_dir') or PrintErrorMessage("Cannot delete work direction: $!");
+
+PrintStartMessage("Output file:");
+
+my @search_res = qw \ filter align extract assembly mope vot soot merge location \;
+foreach my $search_res_module (@search_res) {
+    if (defined $par->val('RESULT', $search_res_module)){
+        printf STDERR "%-20s", "Module $search_res_module:";
+        print  STDERR $par->val('RESULT', $search_res_module);
+        print  STDERR "\n";
+    }
+}
+
+PrintEndMessage("END of CDpan");
+
 exit 0;
 
+
+
+
+#-------------------------------------------------------------------------------
+#----------------------------------- USAGE -------------------------------------
+#-------------------------------------------------------------------------------
 
 sub Usage {
 
@@ -222,7 +244,7 @@ Module: filter
 Options: -i, --input         path of input directory          ( Mandatory )
          -c, --config        path of config file              ( Required by )
          -w, --work_dir      path of work directory           ( Default is \'\${output_dir}/cdpan_tmp\' )
-         -p, --process       whether to keep process files    ( Default is False )
+         -l, --output-level  level of detail of the output    ( Default is 0 )
          -o, --output        prefix of the output file        ( Default is name of input directory )
          -O, --output_dir    output directory                 ( Default is the current directory )
              --no-qc         no quality control               ( Default is False )

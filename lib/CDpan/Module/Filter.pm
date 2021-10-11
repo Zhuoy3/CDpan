@@ -18,9 +18,7 @@ use CDpan::Print qw / :PRINT /;
 sub Filter {
     (my $par, my $idv_name) = @_;
 
-    # my $idv_folder_name,
-
-    my $output_dir = catdir($par->val('CDPAN', 'work_dir'), $idv_name);
+    my $output_dir = catdir($par->val('CDPAN', 'work_dir'),'filter', $idv_name);
     mkdir $output_dir or PrintErrorMessage("Cannot create direction $output_dir: $!");
 
     my $output_file_prefix = catfile($output_dir, $idv_name);
@@ -78,7 +76,7 @@ sub Filter {
                               "-j $thread " .
                               "2> /dev/null";
         # print "Start use cmd: $cmd_trim_galore\n";
-        print STDERR "    quality control for $paired1 $paired2\n";
+        PrintProcessMessage('quality control for %% %%',$paired1,$paired2);
         system $cmd_trim_galore
             and PrintErrorMessage("Command $cmd_trim_galore failed to run normally: $?\n");
     }
@@ -103,17 +101,24 @@ sub Filter {
 
     my $cmd_merge_data_1 = "cat @result_files_1 > ${output_file_prefix}_clean_1.fq.gz";
     # print "Start use cmd: $cmd_merge_data_1\n";
-    print STDERR "    merge @result_files_1 to ${output_file_prefix}_clean_1.fq.gz\n";
+    PrintProcessMessage('merge %%=> %%', \@result_files_1, "${output_file_prefix}_clean_1.fq.gz");
     system $cmd_merge_data_1
         and PrintErrorMessage("Command $cmd_merge_data_1 failed to run normally: $?\n");
-    unlink @result_files_1;
 
     my $cmd_merge_data_2 = "cat @result_files_2 > ${output_file_prefix}_clean_2.fq.gz";
     # print "Start use cmd: $cmd_merge_data_2\n";
-    print STDERR "    merge @result_files_2 to ${output_file_prefix}_clean_2.fq.gz\n";
+    PrintProcessMessage('merge %%=> %%', \@result_files_2, "${output_file_prefix}_clean_2.fq.gz");
     system $cmd_merge_data_2
         and PrintErrorMessage("Command $cmd_merge_data_2 failed to run normally: $?\n");
-    unlink @result_files_2;
+
+    if ( $par->val('CDPAN', 'output_level') < 2 ) {
+        foreach (File::Slurp::read_dir($output_dir, prefix => 1)){
+            if ( $_ ne "${output_file_prefix}_clean_1.fq.gz" and
+                $_ ne "${output_file_prefix}_clean_2.fq.gz"){
+                unlink $_ or PrintErrorMessage("Cannot delete file: $_: $!");
+            }
+        }
+    }
 
     return 1;
 }

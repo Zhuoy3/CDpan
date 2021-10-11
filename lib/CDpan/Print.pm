@@ -9,14 +9,15 @@ package CDpan::Print;
 use strict;
 use warnings;
 
+use File::Spec::Functions qw /:ALL/;
 use Term::ANSIColor qw(:constants);
 $Term::ANSIColor::AUTORESET = 1;
 
 require Exporter;
 our @ISA = qw \ Exporter \;
-our @EXPORT = qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage PrintStartMessage PrintEndMessage \;
+our @EXPORT = qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage PrintStartMessage PrintEndMessage PrintProcessMessage \;
 our %EXPORT_TAGS = (
-     PRINT => [ qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage PrintStartMessage PrintEndMessage\ ],
+     PRINT => [ qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage PrintStartMessage PrintEndMessage PrintProcessMessage\ ],
      NONE => []);
 
 sub PrintExitMessage {
@@ -72,6 +73,36 @@ sub PrintEndMessage {
 
     return 1;
 }
+
+sub PrintProcessMessage {
+    my @print_message = split /%%/, shift;
+    my @print_files = @_;
+
+    print STDERR "    ";
+
+    foreach (@print_message) {
+        print STDERR $_;
+
+        my $file = shift @print_files;
+
+        if ( ref $file ){
+            foreach my $file_sub (@{$file}){
+                ( my $file_name, my $idv_dir_name ) = reverse splitdir($file_sub);
+                print STDERR "$idv_dir_name/$file_name ";
+            }
+        }
+        else {
+            ( my $file_name, my $idv_dir_name ) = reverse splitdir($file);
+            print STDERR "$idv_dir_name/$file_name";
+        }
+    }
+
+    print STDERR "\n";
+
+    return 1;
+}
+
+
 
 1;
 

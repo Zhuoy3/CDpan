@@ -9,6 +9,8 @@ package CDpan::Master;
 use strict;
 use warnings;
 
+use File::Spec::Functions qw /:ALL/;
+use File::Copy qw / move /;
 use Config::IniFiles;
 use File::Slurp;
 
@@ -33,13 +35,33 @@ use CDpan::Module::Filter;
 sub Filter {
     (my $par) = @_;
 
-    PrintStartMessage("Start Module Filter");
+    PrintStartMessage("Start Module filter");
+
+    my $work_dir = catdir($par->val('CDPAN', 'work_dir'), 'filter');
+    mkdir $work_dir or PrintErrorMessage("Cannot create work direction $work_dir: $!");
+
     my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
 
     foreach my $idv_name (@input_idvs) {
         print STDERR "Processing: $idv_name\n";
-        CDpan::Module::Filter::Filter($par, $idv_name) or PrintErrorMessage("Module Filter exited abnormally for $idv_name");
+        CDpan::Module::Filter::Filter($par, $idv_name) or PrintErrorMessage("Module filter exited abnormally for $idv_name");
+        print STDERR "\n";
     }
+
+    if ($main::modules{ "filter" }){
+        my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'filter');
+        move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
+        $par->newval('RESULT', 'filter', $output_dir);
+
+        print STDERR "Since module filter is being used, program will end\n";
+    }
+    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+        $par->setval('CDPAN', 'work_dir', $work_dir);
+
+        print STDERR "Since module RUN* is being used, continue to run module align\n";
+    }
+
+    PrintEndMessage("Finish Module filter");
 
     return 1;
 };

@@ -16,21 +16,22 @@ use CDpan::Master;
 
 require Exporter;
 our @ISA = qw \ Exporter \;
-our @EXPORT = qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage PrintStartMessage PrintEndMessage
+our @EXPORT = qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage PrintStartMessage PrintEndMessage PrintProcessMessage
                    PreProcess
                    Filter Align Extract Assembly Mope Vot Soot Merge Location RunAll RunDisplace\;
 our %EXPORT_TAGS = (
     ALL    => [ @EXPORT ],
-    PRINT  => [ qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage PrintStartMessage PrintEndMessage\ ],
+    PRINT  => [ qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage PrintStartMessage PrintEndMessage PrintProcessMessage\ ],
     MODULE => [ qw \ Filter Align Extract Assembly Mope Vot Soot Merge Location RunAll RunDisplace\ ],
 );
 
 # module CDpan::Print
-sub PrintExitMessage  { return &CDpan::Print::PrintExitMessage  };
-sub PrintWarnMessage  { return &CDpan::Print::PrintWarnMessage  };
-sub PrintErrorMessage { return &CDpan::Print::PrintErrorMessage };
-sub PrintStartMessage { return &CDpan::Print::PrintStartMessage };
-sub PrintEndMessage   { return &CDpan::Print::PrintEndMessage   };
+sub PrintExitMessage    { return &CDpan::Print::PrintExitMessage  };
+sub PrintWarnMessage    { return &CDpan::Print::PrintWarnMessage  };
+sub PrintErrorMessage   { return &CDpan::Print::PrintErrorMessage };
+sub PrintStartMessage   { return &CDpan::Print::PrintStartMessage };
+sub PrintEndMessage     { return &CDpan::Print::PrintEndMessage   };
+sub PrintProcessMessage { return &CDpan::Print::PrintProcessMessage };
 
 # module CDpan::Check
 sub PreProcess { return &CDpan::PreProcess::PreProcess };

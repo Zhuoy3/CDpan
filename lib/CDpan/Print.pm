@@ -4,7 +4,7 @@
 # Author: zhuoy
 # Date: 2021-10-09
 
-package CDpanPrint;
+package CDpan::Print;
 
 use strict;
 use warnings;
@@ -15,7 +15,7 @@ $Term::ANSIColor::AUTORESET = 1;
 require Exporter;
 our @ISA = qw \ Exporter \;
 our @EXPORT = qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage \;
-our %EXPORT_TAGS = ( ALL => [ @EXPORT ] );
+our %EXPORT_TAGS = ( PRINT => [ qw \ PrintExitMessage PrintWarnMessage PrintErrorMessage\ ] );
 
 sub PrintExitMessage {
     my $print_message = shift;

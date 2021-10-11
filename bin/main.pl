@@ -18,8 +18,7 @@ use Cwd;
 use File::Spec::Functions  qw /:ALL/;
 use Config::IniFiles;
 
-use CDpanPrint qw / :ALL /;
-use CDpanCheck qw / :ALL /;
+use CDpan qw / :ALL /;
 
 #-------------------------------------------------------------------------------
 #------------------------------------ START ------------------------------------
@@ -124,6 +123,7 @@ unless ( defined $input_dir ) {
 # unless ( not defined $config_file ) { #TODO and ( $modules{$module} or $modules{$module}) ) {
 #     PrintExitMessage("Parameter \'config_file\' is required\n");
 # }
+$config_file = '' unless defined $config_file;
 unless ( defined $output_prefix ) {
     ( undef, undef, $output_prefix ) = splitpath($input_dir);
 }
@@ -169,23 +169,16 @@ No quality control:      $main_no_quality_control
 
 #TODO read input file
 
-our $par = new Config::IniFiles(-file => $config_file, -allowedcommentchars => '#')
-    or PrintErrorMessage("Could not read config file from \'$config_file\': @Config::IniFiles::errors\n");
+our $par;
+if ( $config_file ) {
+    $par = new Config::IniFiles(-file => $config_file, -allowedcommentchars => '#')
+        or PrintErrorMessage("Could not read config file from \'$config_file\': @Config::IniFiles::errors\n");
+}
+else{
+    $par = new Config::IniFiles();
+}
+
 PreCheck($par);
-
-#TODO 暂时调整
-# #_CheckRedundant($par);
-# _CheckMissing($par);
-# _CheckTools($par) unless $main::debug;
-# _CheckFile($par);
-
-# #$par->WriteConfig("$file_par_path.import") if $main::debug;
-# $par->WriteConfig("$file_par_path.import");
-
-
-
-
-# $file_par_path = rel2abs($file_par_path);
 
 
 
@@ -286,7 +279,6 @@ Module: filter
         extract
         assembly
         mpope
-        judge
         vot
         soot
         merge

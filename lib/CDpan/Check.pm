@@ -4,7 +4,7 @@
 # Author: zhuoy
 # Date: 2021-10-09
 
-package CDpanCheck;
+package CDpan::Check;
 
 use strict;
 use warnings;
@@ -12,19 +12,23 @@ use warnings;
 use File::Spec::Functions  qw /:ALL/;
 use File::Slurp;
 use Config::IniFiles;
-use CDpanPrint qw / :ALL /;
 
-require Exporter;
-our @ISA = qw \ Exporter \;
-our @EXPORT = qw \ PreCheck \;
-our %EXPORT_TAGS = ( ALL => [ @EXPORT ] );
+use CDpan::Print qw / :PRINT /;
 
 sub PreCheck {
     (my $par) = @_;
 
     __CheckTools__($par);
     __CheckConfig__($par);
-    __CheckFile__($par);
+    #TODO __CheckFile__($par) if $main::module;
+
+    $par->newval('CDPAN', 'input_dir', $main::input_dir);
+    $par->newval('CDPAN', 'config_file', $main::config_file);
+    $par->newval('CDPAN', 'output_prefix', $main::output_prefix);
+    $par->newval('CDPAN', 'output_dir', $main::output_dir);
+    $par->newval('CDPAN', 'work_dir', $main::work_dir);
+    $par->newval('CDPAN', 'save_process', $main::save_process);
+    $par->newval('CDPAN', 'no_quality_control', $main::no_quality_control);
 
     return 1;
 }
@@ -193,7 +197,8 @@ sub __CheckFile__ {
     print STDERR "Start checking files\n";
     print STDERR "\n";
 
-    foreach my $file_for_check qw \ ref qry index taxid \ {
+    my @file_for_check = qw \ ref qry index taxid \;
+    foreach my $file_for_check (@file_for_check) {
         unless ( defined $par->val('DATA', $file_for_check) ) {
             PrintErrorMessage("[DATA] => $file_for_check must been specified\n");
         }
@@ -209,7 +214,7 @@ sub __CheckFile__ {
         else{
             if ( $file_for_check eq 'index' ){
                 my $file_for_check_path = $par->val('DATA', $file_for_check);
-                my $file_for_check_path = "ls $file_for_check_path*";
+                $file_for_check_path = "ls $file_for_check_path*";
                 my @file_for_check_path = `$file_for_check_path`;
                 if (@file_for_check_path){
                     unless (file_name_is_absolute($par->val('DATA', $file_for_check))){
@@ -245,7 +250,8 @@ sub __CheckFile__ {
         mkdir $main::output_dir or PrintErrorMessage("Error: Cannot create output direction: $!\n");
     }
 
-    foreach my $output_suffix qw \ .dispensable_genome.fasta .location.txt \ {
+    my @output_suffix = qw \ .dispensable_genome.fasta .location.txt \;
+    foreach my $output_suffix (@output_suffix) {
         my $output_file_name = catfile("$main::output_dir", "$main::output_prefix$output_suffix");
         if ( -e $output_file_name ) {
             rename $output_file_name => "$output_file_name.old"

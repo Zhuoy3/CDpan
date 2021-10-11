@@ -37,16 +37,18 @@ sub Filter {
     @idv_file = sort @idv_file;
 
     # my $name;
-    # my $count = 1;
-    # foreach my $file (@idv_file) {
-    #     if ( $count & 1 ) {
-    #         PrintErrorMessage("Two-paired data does not match: $file") unless ( ($name) = $file =~ m/\S+\/(\S+?)1?\S*_1\.fq\.gz$/ );
-    #     } else {
-    #         PrintErrorMessage("Two-paired data does not match: $file") unless ( $file =~ m/\S+\/${name}2?\S*_2\.fq\.gz$/ );
-    #     }
+    my $count = 1;
+    foreach my $file (@idv_file) {
+        if ( $count & 1 ) {
+            # PrintErrorMessage("Two-paired data does not match: $file") unless ( ($name) = $file =~ m/\S+\/(\S+?)1?\S*_1\.fq\.gz$/ );
+            PrintErrorMessage("Two-paired data does not match: $file") unless ( $file =~ m/\S+_1\.fq\.gz$/ );
+        } else {
+            # PrintErrorMessage("Two-paired data does not match: $file") unless ( $file =~ m/\S+\/${name}2?\S*_2\.fq\.gz$/ );
+            PrintErrorMessage("Two-paired data does not match: $file") unless ( $file =~ m/\S+_2\.fq\.gz$/ );
+        }
 
-    #    $count += 1;
-    # }
+       $count += 1;
+    }
 
     my $idv_file_amount = @idv_file;
 

@@ -4,7 +4,7 @@ There is an increasing understanding that a reference sequence representing a ge
 2.Installation
 Requirements
 
-Building the latest version from the repository 
+Building the latest version from the repository
 
 Running CDpan
 Run CDpan from the command line like this:
@@ -123,7 +123,7 @@ The "input_path" is the output directory of the previous process. This step is u
 
 The "input_path" is the output directory of the assembly process. This step is used to remove the contaminants sequences in the assembled results.
 
-##Remove the redundants 
+##Remove the redundants
 
     CDpan vot -i input_path -c config_file
 
@@ -150,7 +150,8 @@ The "input_path" is XXXX. This step is used to determine the genomic positions o
 4.Config file
 The follwing is a example of the "config_file", you can also find this file in the XXX folder:
 
-##This part definites the threads used in the pipeline
+# This part definites the threads used in the pipeline
+
 [CDPAN]
 thread = 1
 
@@ -193,18 +194,18 @@ error-rate = 0.1    ##Maximum allowed error rate
 ##The parameter of assembly.
 [ASSEMBLY]
 fragment-mean=300   ##The fragment mean of paired-end reads
-fragment-stdev=50   ##The fragment standard deviation of paired-end reads 
+fragment-stdev=50   ##The fragment standard deviation of paired-end reads
 
 ##The parameter of mope module.
 [MOPE]
-host-taxids = null  ##The NCBI taxid of your research species 
+host-taxids = null  ##The NCBI taxid of your research species
 min-length = 1000   ##The minmum length of new DNA sequences
 
 ##The parameter of vot module (we recommend to only just change the "min-seq-id" parameter).
 [VOT]
-cov-mode = 1        
+cov-mode = 1
 coverage = 0.9
-min-seq-id = 0.9    ##The ratio of length overlap fortwo sequences 
+min-seq-id = 0.9    ##The ratio of length overlap fortwo sequences
 cluster-mode = 2
 
 ##The parameter of soot module
@@ -215,5 +216,4 @@ minmatch = 500      ##The minimum length of a single exact match
 
 [MERGE]
 
-[LOCATION] 
-
+[LOCATION]

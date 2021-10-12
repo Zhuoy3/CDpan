@@ -17,8 +17,8 @@ use File::Slurp;
 use CDpan::Print qw / :PRINT /;
 
 use CDpan::Module::Filter;
+use CDpan::Module::Align;
 
-# use CDpan::Comparison;
 # use CDpan::Extract;
 # use CDpan::Assembly;
 # use CDpan::Test;
@@ -56,9 +56,9 @@ sub Filter {
         print STDERR "Since module filter is being used, program will end\n";
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
-        $par->setval('CDPAN', 'work_dir', $work_dir);
+        $par->setval('CDPAN', 'input_dir', $work_dir);
 
-        print STDERR "Since module RUN* is being used, continue to run module align\n";
+        print STDERR "Since module $main::module is being used, continue to run module align\n";
     }
 
     PrintEndMessage("Finish Module filter");
@@ -66,7 +66,46 @@ sub Filter {
     return 1;
 };
 
-sub Align;
+sub Align {
+    (my $par) = @_;
+
+    PrintStartMessage("Start Module align");
+
+    my $work_dir = catdir($par->val('CDPAN', 'work_dir'), 'align');
+    mkdir $work_dir or PrintErrorMessage("Cannot create work direction $work_dir: $!");
+
+    my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
+
+    print STDERR "Index\n";
+    CDpan::Module::Align::AlignIndex($par) or PrintErrorMessage("Module align exited abnormally when build index");
+    print STDERR "\n";
+
+    foreach my $idv_name (@input_idvs) {
+        print STDERR "Processing: $idv_name\n";
+        CDpan::Module::Align::Align($par, $idv_name) or PrintErrorMessage("Module align exited abnormally for $idv_name");
+        print STDERR "\n";
+    }
+
+    CDpan::Module::Align::AlignRemoveIndex($par) or PrintErrorMessage("Module align exited abnormally when remove index");
+
+    if ($main::modules{ "align" }){
+        my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'align');
+        move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
+        $par->newval('RESULT', 'align', $output_dir);
+
+        print STDERR "Since module align is being used, program will end\n";
+    }
+    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+        $par->setval('CDPAN', 'input_dir', $work_dir);
+
+        print STDERR "Since module $main::module is being used, continue to run module align\n";
+    }
+
+    PrintEndMessage("Finish Module align");
+
+    return 1;
+};
+
 sub Extract;
 sub Assembly;
 sub Mope;
@@ -83,9 +122,7 @@ sub RunDisplace;
 # our $ref_dict = 0; # mark the existence of the reference genome dict used by gatkmy
 
 
-#     #TODO　Filteration
-#     CDpan::QualityControl::QualityControl($par, $idv_folder, $idv_name, $idv_output_folder)
-#         or die "Error: Operation QualityControl is abnormal.\n";
+
 #     CDpan::Comparison::comparison($par, $idv_name, $idv_output_folder)#TODO alignment
 #         or die "Error: Operation Comparison is abnormal.\n";
 #     CDpan::Extract::extract($par, $idv_name, $idv_output_folder)

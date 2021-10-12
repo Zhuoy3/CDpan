@@ -121,9 +121,9 @@ while (@ARGV) {
 unless ( defined $input_dir ) {
     PrintExitMessage("Parameter \'input_dir\' is required");
 }
-# unless ( not defined $config_file ) { #TODO and ( $modules{$module} or $modules{$module}) ) {
-#     PrintExitMessage("Parameter \'config_file\' is required");
-# }
+if ( not defined $config_file and $modules{'align'} ) {
+    PrintExitMessage("Parameter \'config_file\' is required for Module $module");
+}
 $config_file = '' unless defined $config_file;
 unless ( defined $output_prefix ) {
     ( undef, undef, $output_prefix ) = splitpath($input_dir);
@@ -167,8 +167,6 @@ No quality control:      $main_no_quality_control
 #----------------------------------- CHECK -------------------------------------
 #-------------------------------------------------------------------------------
 
-#TODO read input file
-
 our $par;
 if ( $config_file ) {
     $par = new Config::IniFiles(-file => $config_file, -allowedcommentchars => '#')
@@ -191,7 +189,8 @@ elsif ( $modules{ "location"     } ) { Location(    $par ); }
 elsif ( $modules{ "RUN-ALL"      } ) { RunAll(      $par ); }
 elsif ( $modules{ "RUN-DISPLACE" } ) { RunDisplace( $par ); }
 
-rmtree $par->val('CDPAN', 'work_dir') or PrintErrorMessage("Cannot delete work direction: $!");
+#TODO
+# rmtree $par->val('CDPAN', 'work_dir') or PrintErrorMessage("Cannot delete work direction: $!");
 
 PrintStartMessage("Output file:");
 

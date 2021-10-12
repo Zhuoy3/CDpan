@@ -125,11 +125,38 @@ sub __CheckConfig__ {
     my %default_params = (
         "CDPAN" => {
             "thread" => 12,
+            'sort' => 0,
         },
         "FILTER" => {
             "quality" => 20,
             "length" => 20,
             "error-rate" => 0.1,
+            'sort' => 1,
+        },
+        "ALIGN" => {
+            "library" => "ILLUMINA",
+            'sort' => 2,
+        },
+        "EXTRACT" => {
+            'sort' => 3,
+        },
+        "ASSEMBLY" => {
+            'sort' => 4,
+        },
+        "MOPE" => {
+            'sort' => 5,
+        },
+        "VOT" => {
+            'sort' => 6,
+        },
+        "SOOT" => {
+            'sort' => 7,
+        },
+        "MERGE" => {
+            'sort' => 8,
+        },
+        "LOCATION" => {
+            'sort' => 9,
         },
     );
 
@@ -154,15 +181,16 @@ sub __CheckConfig__ {
 
     print STDERR "\n";
 
-    foreach my $section ( sort keys %default_params ) {
+    foreach my $section ( sort { $default_params{$a}{'sort'} <=> $default_params{$b}{'sort'} } keys %default_params ) {
         foreach my $param ( sort keys $default_params{$section} ) {
+            next if ( $param eq 'sort');
             if ( defined $par->val($section, $param)) {
                 printf STDERR "%-30s", "[$section] => $param:";
                 print  STDERR $par->val($section, $param);
                 print  STDERR "\n";
             }
             else{
-                if ( defined $default_params{$section}{$param} ) {
+                if ( $default_params{$section}{$param} ) {
                     $par->delval($section, $param);
                     $par->newval($section, $param, $default_params{$section}{$param});
                     printf STDERR "%-30s", "[$section] => $param:";
@@ -186,8 +214,8 @@ sub __CheckFile__ {
 
     PrintStartMessage("Start checking files");
 
-    my @file_for_check = qw \\  ;
-    #TODO my @file_for_check = qw \ ref qry index taxid \;
+    my @file_for_check = qw \ ref \  ;
+    #TODO my @file_for_check = qw \  qry index taxid \;
     foreach my $file_for_check (@file_for_check) {
         unless ( defined $par->val('DATA', $file_for_check) ) {
             PrintErrorMessage("[DATA] => $file_for_check must been specified");

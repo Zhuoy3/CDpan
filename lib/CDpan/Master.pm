@@ -72,7 +72,7 @@ sub Align {
     PrintStartMessage("Start Module align");
 
     my $work_dir = catdir($par->val('CDPAN', 'work_dir'), 'align');
-    # mkdir $work_dir or PrintErrorMessage("Cannot create work direction $work_dir: $!");
+    mkdir $work_dir or PrintErrorMessage("Cannot create work direction $work_dir: $!");
 
     my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
 
@@ -82,8 +82,6 @@ sub Align {
 
     foreach my $idv_name (@input_idvs) {
         print STDERR "Processing: $idv_name\n";
-        #TODO
-        next if ($idv_name eq 'TP18');
         CDpan::Module::Align::Align($par, $idv_name) or PrintErrorMessage("Module align exited abnormally for $idv_name");
         print STDERR "\n";
     }
@@ -186,17 +184,6 @@ sub RunDisplace;
 
 
 
-# our $ref_index = 0; # mark the existence of the reference genome index used by bwa
-# our $ref_dict = 0; # mark the existence of the reference genome dict used by gatkmy
-
-
-
-#     CDpan::Comparison::comparison($par, $idv_name, $idv_output_folder)#TODO alignment
-#         or PrintErrorMessage("Operation Comparison is abnormal.\n");
-#     CDpan::Extract::extract($par, $idv_name, $idv_output_folder)
-#         or PrintErrorMessage("Operation Extract is abnormal.\n");
-#     CDpan::Assembly::assembly($par, $idv_name, $idv_output_folder)
-#         or PrintErrorMessage("Operation Assembly is abnormal.\n");
 #     CDpan::Test::test($par, $idv_name, $idv_output_folder)#remove contaminents
 #         or PrintErrorMessage("Operation Test is abnormal.\n");
 #     CDpan::Judge::judge($par, $idv_name, $idv_output_folder)

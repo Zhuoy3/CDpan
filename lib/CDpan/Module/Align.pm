@@ -12,6 +12,7 @@ use warnings;
 use Config::IniFiles;
 use File::Spec::Functions qw /:ALL/;
 use File::Path qw / rmtree /;
+use File::Copy qw / copy move /;
 
 use CDpan::Print qw / :PRINT /;
 
@@ -118,13 +119,13 @@ sub Align {
 sub AlignIndex {
     (my $par) = @_;
 
-    my $output_dir = catdir($par->val('CDPAN', 'work_dir'),'align', 'index');
-    # mkdir $output_dir or PrintErrorMessage("Cannot create direction $output_dir: $!");
+    my $output_dir = catdir($par->val('CDPAN', 'work_dir'), 'ref_index');
+    mkdir $output_dir or PrintErrorMessage("Cannot create direction $output_dir: $!");
 
     my $ref = $par->val('DATA', 'ref');
     (undef, undef, my $ref_name)= splitpath($ref);
     my $new_ref = catfile($output_dir, $ref_name);
-    link $ref, $new_ref;
+    copy $ref, $new_ref;
     $par->newval('ALIGN', 'ref_index', $new_ref);
 
     my $bwa = $par->val('TOOLS', 'bwa');
@@ -132,9 +133,8 @@ sub AlignIndex {
     my $cmd_bwa_index = "$bwa index $new_ref 2> /dev/null";
     # print "Start use cmd: $cmd_bwa_index\n";
     PrintProcessMessage('build index for %%',$new_ref);
-    # system $cmd_bwa_index
-        # and PrintErrorMessage("Error: Command $cmd_bwa_index failed to run normally: $?");
-    #TODO
+    system $cmd_bwa_index
+        and PrintErrorMessage("Error: Command $cmd_bwa_index failed to run normally: $?");
 
     my $gatk = $par->val('TOOLS', 'gatk');
     my $cmd_gatk_dict = "$gatk --java-options \"-Xmx64G\" CreateSequenceDictionary " .
@@ -144,9 +144,8 @@ sub AlignIndex {
                         ">/dev/null 2> /dev/null";
     # print "Start use cmd: $cmd_gatk_dict\n";
     PrintProcessMessage('build dictionary for %%', $new_ref);
-    # system $cmd_gatk_dict
-        # and PrintErrorMessage("Command $cmd_gatk_dict failed to run normally: $?\n");
-    #TODO
+    system $cmd_gatk_dict
+        and PrintErrorMessage("Command $cmd_gatk_dict failed to run normally: $?\n");
 
     return 1;
 }
@@ -154,9 +153,14 @@ sub AlignIndex {
 sub AlignRemoveIndex {
     (my $par) = @_;
 
+    my $index_dir = catdir($par->val('CDPAN', 'work_dir'), 'ref_index');
     if ( $par->val('CDPAN', 'output_level') < 2 ) {
-        my $index_dir = catdir($par->val('CDPAN', 'work_dir'),'align', 'index');
         rmtree $index_dir or PrintErrorMessage("Cannot delete direction $index_dir: $!");
+    }
+    elsif ($main::modules{ "align" }){
+        my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'ref_index');
+        move $index_dir, $output_dir or PrintErrorMessage("Couln't move $index_dir to $output_dir: $!");
+
     }
 
     return 1;

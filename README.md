@@ -10,7 +10,13 @@ Download from project homepage, <https://github.com/kimi-du-bio/CDpan>, or check
 
 ### Dependencies
 
-Using CDpan requires the following to be installed:
+CDpan require Perl version 5.16 or greater to run. Only Linux is supported (May or may not run under Perl for MacOS or Windows, etc).
+
+CDpan uses two Perl modules, ```Config::IniFiles``` and ```File::Slurp```, which may be not installed by default configuration of perl, you can install them as following:
+
+    cpan -i Config::IniFiles File::Slurp
+
+Using CDpan requires the following tools to be installed:
 
 - [TrimGalore](https://github.com/FelixKrueger/TrimGalore)
 - [Cutadapt](https://github.com/marcelm/cutadapt)
@@ -18,7 +24,7 @@ Using CDpan requires the following to be installed:
 - [BWA]()
 - [GATK]()
 - [samtools]()
-- [MaSuRCA]()
+- [MaSuRCA 3.x]() (Not compatible with MaSuRCA 4.0 or greater)
 - [centrifuge]()
 - [MMseqs2]()
 - [mummer]()
@@ -27,8 +33,10 @@ Using CDpan requires the following to be installed:
 - [bedtools]()
 - [minimap2]()
 
-Building the latest version from the repository
+CDpan has been tested on the following environment: ```Perl v5.34, TrimGalore v0.6.7, Cutadapt v3.4, FastQC v0.11.9, BWA v0.7.17, GATK v4.2.1.0, samtools v1.13, MaSuRCA v3.4.2, centrifuge v1.0.4, MMseqs2 v13, mummer v4.0.0, RepeatMasker v4.1.2, Bowtie2 v2.4.4, bedtools v2.30.0, minimap2 v2.22```. It may run on any other version of most tools except the MaSuRCA 4.0 or greater.
 
+Building the latest version from the repository
+Quick Start Guide
 Running CDpan
 Run CDpan from the command line like this:
 

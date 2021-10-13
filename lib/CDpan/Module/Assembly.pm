@@ -39,6 +39,7 @@ sub Assembly {
     my $thread  = $par->val('CDPAN', 'thread');
     my $fragment_mean  = $par->val('ASSEMBLY', 'fragment-mean');
     my $fragment_stdev = $par->val('ASSEMBLY', 'fragment-stdev');
+    my $jf_size = $par->val('ASSEMBLY', 'JF_SIZE');
 
     my $config = "" .
     "DATA\n" .
@@ -52,10 +53,10 @@ sub Assembly {
     "USE_LINKING_MATES = 1\n" .
     "KMER_COUNT_THRESHOLD = 1\n" .
     "NUM_THREADS = $thread\n" .
-    "JF_SIZE=2000000000\n" .
+    "JF_SIZE=$jf_size\n" .
     "DO_HOMOPOLYMER_TRIM=0\n" .
     "END\n";
-#TODO
+
     open CONFIG, '>', "${output_file_prefix}.masurca_config.txt"
         or PrintErrorMessage("Couldn't create ${output_file_prefix}.masurca_config.txt: $!\n");
     print CONFIG $config;

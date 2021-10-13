@@ -143,6 +143,7 @@ sub __CheckConfig__ {
         "ASSEMBLY" => {
             "fragment-mean" => 300,
             "fragment-stdev" => 50,
+            "JF_SIZE" => 2000000000,
             'sort' => 4,
         },
         "MOPE" => {
@@ -174,7 +175,7 @@ sub __CheckConfig__ {
 
         my @par_parameters = sort $par->Parameters($section);
         foreach my $param (@par_parameters) {
-            unless (grep { $_ eq $param } ( keys $default_params{$section} )){
+            unless (grep { $_ eq $param } ( keys %{ $default_params{$section} } )){
                 PrintWarnMessage("[$section] => $param is not needed, ignore it");
                 $par->delval($section, $param);
             }
@@ -184,7 +185,7 @@ sub __CheckConfig__ {
     print STDERR "\n";
 
     foreach my $section ( sort { $default_params{$a}{'sort'} <=> $default_params{$b}{'sort'} } keys %default_params ) {
-        foreach my $param ( sort keys $default_params{$section} ) {
+        foreach my $param ( sort keys %{ $default_params{$section} } ) {
             next if ( $param eq 'sort');
             if ( defined $par->val($section, $param)) {
                 printf STDERR "%-30s", "[$section] => $param:";

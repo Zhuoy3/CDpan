@@ -44,7 +44,7 @@ sub Align {
                     "2> $output_dir/$idv_folder_name.align.log";
     print "Start use cmd: \'$cmd_align\'.\n";
     system $cmd_align
-        and die "Error: Command \'$cmd_align\' failed to run normally: $?\n";
+        and PrintErrorMessage("Command \'$cmd_align\' failed to run normally: $?\n");
 
     return 1;
 }

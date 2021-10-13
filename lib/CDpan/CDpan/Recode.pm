@@ -17,12 +17,12 @@ sub recode {
     my @idv_names = @$idv_names;
 
     open my $OUTPUT , ">", "$work_dir/all.fasta"#TODO merge
-        or die "Error: Couldn't create output file $work_dir/all.fasta: $!.\n";
+        or PrintErrorMessage("Couldn't create output file $work_dir/all.fasta: $!.\n");
 
     my $index = 0;
     foreach my $idv_name (@idv_names) {
         open my $INPUT, "<", "$work_dir/$idv_name.fasta"
-            or die "Error: Could not open individual file $work_dir/$idv_name.fasta: $!.\n";
+            or PrintErrorMessage("Could not open individual file $work_dir/$idv_name.fasta: $!.\n");
 
         while (<$INPUT>) {
             if ( m/^>/ ){

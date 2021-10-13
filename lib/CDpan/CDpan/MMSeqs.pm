@@ -34,7 +34,7 @@ sub mmseqs {
                      "> $output_dir/$idv_folder_name.filtered.mmseqs.log";
     print "Start use cmd: \'$cmd_mmseqs\'.\n";
     system $cmd_mmseqs
-        and die "Error: Command \'$cmd_mmseqs\' failed to run normally: $?\n";
+        and PrintErrorMessage("Command \'$cmd_mmseqs\' failed to run normally: $?\n");
 
     #TODO 建立索引的程序是否需要
 

@@ -141,6 +141,8 @@ sub __CheckConfig__ {
             'sort' => 3,
         },
         "ASSEMBLY" => {
+            "fragment-mean" => 300,
+            "fragment-stdev" => 50,
             'sort' => 4,
         },
         "MOPE" => {
@@ -214,11 +216,16 @@ sub __CheckFile__ {
 
     PrintStartMessage("Start checking files");
 
-    my @file_for_check = qw \ ref \  ;
-    #TODO my @file_for_check = qw \  qry index taxid \;
+    my @file_for_check = qw \ ref qry index taxid \;
     foreach my $file_for_check (@file_for_check) {
         unless ( defined $par->val('DATA', $file_for_check) ) {
-            PrintErrorMessage("[DATA] => $file_for_check must been specified");
+            if ( $main::modules{"RUN-ALL"} or $main::modules{"RUN-DISPLACE"} ){
+                PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
+            }elsif ( $file_for_check eq 'ref' and  $main::modules{"align"} ){
+                PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
+            }else{
+                next;
+            }
         }
 
         if ( -e -r $par->val('DATA', $file_for_check) ){
@@ -254,9 +261,10 @@ sub __CheckFile__ {
     if ( -e $main::work_dir) {
         my @dir_files = File::Slurp::read_dir($main::work_dir, prefix => 1);
         if ( @dir_files ) {
-            # PrintErrorMessage("Working direction $main::work_dir exists and has file");
-        # }
-        # else { #TODO
+            #TODO PrintErrorMessage("Working direction $main::work_dir exists and has file");
+            PrintWarnMessage("Working direction $main::work_dir exists and has file");
+        }
+        else {
             PrintWarnMessage("Working direction $main::work_dir exists but is empty");
         }
     }

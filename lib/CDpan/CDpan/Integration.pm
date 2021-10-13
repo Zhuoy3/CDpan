@@ -21,16 +21,16 @@ sub integration {
     (my $par, my $idv_folder_name, my $output_dir, my $work_dir) = @_;
 
     mkdir "$output_dir/link_new"
-        or die "Error: Cannot create process folder '$output_dir/link_new': $!\n";
+        or PrintErrorMessage("Cannot create process folder '$output_dir/link_new': $!\n");
 
     # switch to destination file
     copy "$output_dir/$idv_folder_name.mateLinks.txt", "$output_dir/link_new/mateLinks.txt"
-        or die "Error: Cannot copy file '$output_dir/$idv_folder_name.mateLinks.txt': $!\n";
+        or PrintErrorMessage("Cannot copy file '$output_dir/$idv_folder_name.mateLinks.txt': $!\n");
     copy "$work_dir/all.fasta.fai", "$output_dir/link_new/all.fasta.fai"
-        or die "Error: Cannot copy file '$work_dir/all.fasta.fai': $!\n";
+        or PrintErrorMessage("Cannot copy file '$work_dir/all.fasta.fai': $!\n");
 
     chdir "$output_dir/link_new"
-        or die "Error: Cannot chdir to '$output_dir/link_new': $!\n";
+        or PrintErrorMessage("Cannot chdir to '$output_dir/link_new': $!\n");
 
 	mkdir "./1";
 	mkdir "./2";
@@ -39,11 +39,11 @@ sub integration {
 
     # archive the contig name and length
     system "awk '{print \$1,\$2}' ./all.fasta.fai > ./contig.name"
-        and die "Error: Command failed to run normally: $?\n";
+        and PrintErrorMessage("Command failed to run normally: $?\n");
 
     # 1do
     open my $CONTIG, '<', "./mateLinks.txt"
-        or die "Error: Cannot open file '$output_dir/link_new/mateLinks.txt': $!\n";
+        or PrintErrorMessage("Cannot open file '$output_dir/link_new/mateLinks.txt': $!\n");
 
     my %contig;
     my $line = 0;
@@ -57,11 +57,11 @@ sub integration {
 
 
     open my $INPUT, "<", "./contig.name"
-        or die "Error: Cannot open file '$output_dir/link_new/contig.name': $!\n";
+        or PrintErrorMessage("Cannot open file '$output_dir/link_new/contig.name': $!\n");
     open my $OUTPUT1, ">", "./1/1.name"
-        or die "Error: Cannot create file '$output_dir/link_new/1/1.name': $!\n";
+        or PrintErrorMessage("Cannot create file '$output_dir/link_new/1/1.name': $!\n");
     open my $OUTPUT2, ">", "./1/2to4.name"
-        or die "Error: Cannot create file '$output_dir/link_new/1/2to4.name': $!\n";
+        or PrintErrorMessage("Cannot create file '$output_dir/link_new/1/2to4.name': $!\n");
 
     my @contig_2to4;
     while(<$INPUT>) {
@@ -70,7 +70,7 @@ sub integration {
         my $have_contigs = 0;
 
         open my $LINK, ">", "./4/$lines_links[0].link"
-            or die "Error: Cannot create file '$output_dir/link_new/4/$lines_links[0].link': $!\n";
+            or PrintErrorMessage("Cannot create file '$output_dir/link_new/4/$lines_links[0].link': $!\n");
 
         if( exists $contig{$lines_links[0]} ) {
             foreach my $key (keys %{$contig{$lines_links[0]}}) {
@@ -93,10 +93,10 @@ sub integration {
     my @contig_3;
     foreach my $contig_2to4_em (@contig_2to4) {
         system "awk '{print \$6}' ./4/$contig_2to4_em.link | sort - | uniq -c - | sed 's/^[ ]*//' >./4/$contig_2to4_em.chr"
-            and die "Error: Command failed to run normally: $?\n";
+            and PrintErrorMessage("Command failed to run normally: $?\n");
 
         open my $CHR_FILE, '<', "./4/$contig_2to4_em.chr"
-            or die "Error: Cannot create file '$output_dir/link_new/4/$contig_2to4_em.chr': $!\n";
+            or PrintErrorMessage("Cannot create file '$output_dir/link_new/4/$contig_2to4_em.chr': $!\n");
         my $chr_sum = 0;
         my @chr;
         my @chr_num;
@@ -116,13 +116,13 @@ sub integration {
             my $pr = $chr_num / $chr_sum;
             if ( $pr >= 0.95 ) {
                 open my $CHR_OUT, '>>', "./3.contig.name"
-                    or die "Error: Cannot create file '$output_dir/link_new/3.contig.name': $!\n";
+                    or PrintErrorMessage("Cannot create file '$output_dir/link_new/3.contig.name': $!\n");
                 print $CHR_OUT "$contig_2to4_em $chr\n";
                 push @contig_3, $contig_2to4_em;
                 close $CHR_OUT;
 
                 move "./4/$contig_2to4_em.link", "./3/$contig_2to4_em.link"
-                    or die "Error: Cannot move file '$output_dir/link_new/4/$contig_2to4_em.link': $!\n";
+                    or PrintErrorMessage("Cannot move file '$output_dir/link_new/4/$contig_2to4_em.link': $!\n");
                 unlink "./4/$contig_2to4_em.chr";
                 last;
             }
@@ -136,15 +136,15 @@ sub integration {
 
     foreach my $contig_3_em ( @contig_3 ) {
         system "sort -u ./3/$contig_3_em.link >./3/$contig_3_em.link.new"
-            and die "Error: Command failed to run normally: $?\n";
+            and PrintErrorMessage("Command failed to run normally: $?\n");
     }
 
     system "awk 'NR==FNR{a[\$1]=\$2;next}{print \$1,a[\$1],\$2}' ./contig.name ./3.contig.name >./3.contig.name.length"
-            and die "Error: Command failed to run normally: $?\n";
+            and PrintErrorMessage("Command failed to run normally: $?\n");
 
 
     open my $CONTIG_LENGTH, '<', "./3.contig.name.length"
-        or die "Error: Cannot open file '$output_dir/link_new/3.contig.name.length': $!\n";
+        or PrintErrorMessage("Cannot open file '$output_dir/link_new/3.contig.name.length': $!\n");
 
     while (<$CONTIG_LENGTH>) {
         ( my $contig3_contig, my $contig3_length, my $contig3_chr ) = split /\s+/, $_;
@@ -154,13 +154,13 @@ sub integration {
     close $CONTIG_LENGTH;
 
     system 'for i in `ls ./4/`; do if [ -s ./4/$i ]; then echo $i | cut -d . -f1 >>./4.contig.name;fi; done'
-        and die "Error: Command failed to run normally: $?\n";
+        and PrintErrorMessage("Command failed to run normally: $?\n");
 
     system "awk 'NR==FNR{a[\$1]=\$2;next}{print \$1,a[\$1],\$2}' ./contig.name ./4.contig.name > ./4.contig.name.length"
-            and die "Error: Command failed to run normally: $?\n";
+            and PrintErrorMessage("Command failed to run normally: $?\n");
 
     open $CONTIG_LENGTH, '<', "./4.contig.name.length"
-        or die "Error: Cannot open file '$output_dir/link_new/4.contig.name.length': $!\n";
+        or PrintErrorMessage("Cannot open file '$output_dir/link_new/4.contig.name.length': $!\n");
 
     while (<$CONTIG_LENGTH>) {
         ( my $contig4_contig, my $contig4_length ) = split /\s+/, $_;
@@ -170,34 +170,34 @@ sub integration {
     close $CONTIG_LENGTH;
 
     system 'for i in `ls ./4/`; do if [ -s ./4/$i ]; then echo $i | cut -d . -f1 >>./1/4.name;fi; done'
-        and die "Error: Command failed to run normally: $?\n";
+        and PrintErrorMessage("Command failed to run normally: $?\n");
 
     system 'for i in `ls ./3/`; do if [ -s ./3/$i ]; then echo $i | cut -d . -f1 >>./1/3.name;fi; done'
-        and die "Error: Command failed to run normally: $?\n";
+        and PrintErrorMessage("Command failed to run normally: $?\n");
 
     open my $CONTIG_NAME, '<', "./1/3.name"
-        or die "Error: Cannot open file '$output_dir/link_new/1/3.name': $!\n";
+        or PrintErrorMessage("Cannot open file '$output_dir/link_new/1/3.name': $!\n");
 
     while (<$CONTIG_NAME>) {
         chomp;
         system "awk '{print \$6}' ./3/$_.link | sort - | uniq -c - | sed 's/^[ ]*//' - | sort -nrk 1 - | head -n 1 - > ./3/$_.chr"
-            and die "Error: Command failed to run normally: $?\n";
+            and PrintErrorMessage("Command failed to run normally: $?\n");
         system "chrpart3=$(awk '{print \$2}' ./3/$_.chr); printf \"$_ \$chrpart3\\n\" >> ./1/3.name.re"
-            and die "Error: Command failed to run normally: $?\n";
+            and PrintErrorMessage("Command failed to run normally: $?\n");
     }
 
     unlink "./1/2to4.name";
 
     system "awk 'NR==FNR{a[\$1]=\$2;next}{print \$1,a[\$1],\$2}' ./contig.name ./1/4.name > ./1/4.name.re"
-        and die "Error: Command failed to run normally: $?\n";
+        and PrintErrorMessage("Command failed to run normally: $?\n");
 
     system 'mv ./1/4.name.re ./1/4.name'
-        and die "Error: Command failed to run normally: $?\n";
+        and PrintErrorMessage("Command failed to run normally: $?\n");
     system 'mv ./1/3.name.re ./1/3.name'
-        and die "Error: Command failed to run normally: $?\n";
+        and PrintErrorMessage("Command failed to run normally: $?\n");
 
     system 'for i in `ls ./4/`; do if [ ! -s ./4/$i ]; then echo $i | cut -d . -f1 >>./1/5.name;fi; done'
-        and die "Error: Command failed to run normally: $?\n";
+        and PrintErrorMessage("Command failed to run normally: $?\n");
 
     system "rm -rf ./4";
     mkdir "./4";

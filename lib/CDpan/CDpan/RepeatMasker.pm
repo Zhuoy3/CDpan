@@ -26,7 +26,7 @@ sub repeat_masker {
     #                         "> $work_dir/repeat_masker.log";
     # print "Start use cmd: \'$cmd_repeat_masker\'.\n";
     # system $cmd_repeat_masker
-    #     and die "Error: Command \'$cmd_repeat_masker\' failed to run normally: $?\n";
+    #     and PrintErrorMessage("Command \'$cmd_repeat_masker\' failed to run normally: $?\n");
 
     # Read the software path and set it to the default value
     my $samtools = $par->val('TOOLS', 'samtools');
@@ -36,7 +36,7 @@ sub repeat_masker {
                        "$work_dir/all.fasta";
     print "Start use cmd: \'$cmd_samtools\'.\n";
     system $cmd_samtools
-        and die "Error: Command \'$cmd_samtools\' failed to run normally: $?\n";
+        and PrintErrorMessage("Command \'$cmd_samtools\' failed to run normally: $?\n");
 
     # Read the software path and set it to the default value
     my $bowtie2_build = $par->val('TOOLS', 'bowtie2-build');
@@ -47,7 +47,7 @@ sub repeat_masker {
                             "2> $work_dir/bowtie2_build2.log";
     print "Start use cmd: \'$cmd_bowtie2_build\'.\n";
     system $cmd_bowtie2_build
-        and die "Error: Command \'$cmd_bowtie2_build\' failed to run normally: $?\n";
+        and PrintErrorMessage("Command \'$cmd_bowtie2_build\' failed to run normally: $?\n");
 
     return 1;
 }

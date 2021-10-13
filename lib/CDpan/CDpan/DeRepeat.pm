@@ -25,16 +25,16 @@ sub de_repeat {
                         "> $output_dir/$idv_folder_name.repeat.names";
         print "Start use cmd: \'$cmd_repeat\'.\n";
         system $cmd_repeat
-            and die "Error: Command \'$cmd_repeat\' failed to run normally: $?\n";
+            and PrintErrorMessage("Command \'$cmd_repeat\' failed to run normally: $?\n");
 
         open my $REPEAT, "<", "$output_dir/$idv_folder_name.repeat.names"
-            or die "Error: Couldn't open file $output_dir/$idv_folder_name.repeat.names: $!\n";
+            or PrintErrorMessage("Couldn't open file $output_dir/$idv_folder_name.repeat.names: $!\n");
         my %id_repeat = map {chomp; $_, 1} (<$REPEAT>);
 
         open my $INPUT, "<", "$output_dir/$idv_folder_name.filtered.mmseqs_rep_seq.fasta"
-            or die "Error: Couldn't open file $output_dir/$idv_folder_name.filtered.mmseqs_rep_seq.fasta: $!\n";
+            or PrintErrorMessage("Couldn't open file $output_dir/$idv_folder_name.filtered.mmseqs_rep_seq.fasta: $!\n");
         open my $OUTPUT, ">", "$output_dir/$idv_folder_name.filtered.mmseqs.final.fa"
-            or die "Error: Couldn't create file $output_dir/$idv_folder_name.filtered.mmseqs.final.fa: $!\n";
+            or PrintErrorMessage("Couldn't create file $output_dir/$idv_folder_name.filtered.mmseqs.final.fa: $!\n");
 
         my $seq_input = Bio::SeqIO->new(-fh     => $INPUT,
                                         -format => 'Fasta');
@@ -48,7 +48,7 @@ sub de_repeat {
     }
     else{
         copy("$output_dir/$idv_folder_name.filtered.mmseqs_rep_seq.fasta", "$output_dir/$idv_folder_name.filtered.mmseqs.final.fa")
-             or die "Error: Copy file \'$output_dir/$idv_folder_name.filtered.mmseqs_rep_seq.fasta\' to \'$output_dir/$idv_folder_name.filtered.mmseqs.final.fa\' failed: $!\n";
+             or PrintErrorMessage("Copy file \'$output_dir/$idv_folder_name.filtered.mmseqs_rep_seq.fasta\' to \'$output_dir/$idv_folder_name.filtered.mmseqs.final.fa\' failed: $!\n");
     }
 
     return 1;

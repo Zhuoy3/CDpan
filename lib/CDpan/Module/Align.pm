@@ -50,13 +50,14 @@ sub Align {
     # print "Start use cmd: $cmd_bwa\n";
     PrintProcessMessage('aligning to the reference genome to %%', "${output_file_prefix}.sam");
     system $cmd_bwa
-        and die "Error: Command $cmd_bwa failed to run normally: $?\n";
+        and PrintErrorMessage("Command $cmd_bwa failed to run normally: $?\n");
 
     # Read the software path and set it to the default value
     my $gatk = $par->val('TOOLS', 'gatk');
 
     #reorder sam
-    my $cmd_reorder = "$gatk --java-options \"-Xmx32G\" ReorderSam " .
+    my $cmd_reorder = "$gatk --java-options \"-Xmx64G\" ReorderSam " .
+                      "--TMP_DIR $output_dir " .
                       "-I ${output_file_prefix}.sam " .
                       "-O ${output_file_prefix}.reorder.sam " .
                       "-R $ref " .
@@ -65,7 +66,7 @@ sub Align {
     # print "Start use cmd: $cmd_reorder\n";
     PrintProcessMessage('reorder sam to %%', "${output_file_prefix}.reorder.sam");
     system $cmd_reorder
-        and die "Error: Command $cmd_reorder failed to run normally: $?\n";
+        and PrintErrorMessage("Command $cmd_reorder failed to run normally: $?\n");
 
     # Read the software path and set it to the default value
     my $samtools = $par->val('TOOLS', 'samtools');
@@ -78,11 +79,12 @@ sub Align {
     # print "Start use cmd: $cmd_sam2bam\n";
     PrintProcessMessage('sam to bam: %%', "${output_file_prefix}.reorder.bam");
     system $cmd_sam2bam
-        and die "Error: Command $cmd_sam2bam failed to run normally: $?\n";
+        and PrintErrorMessage("Command $cmd_sam2bam failed to run normally: $?\n");
     unlink "${output_file_prefix}.reorder.sam";
 
     #sort bam
-    my $cmd_sort = "$gatk --java-options \"-Xmx32G\" SortSam " .
+    my $cmd_sort = "$gatk --java-options \"-Xmx64G\" SortSam " .
+                   "--TMP_DIR $output_dir " .
                    "-I ${output_file_prefix}.reorder.bam " .
                    "-O ${output_file_prefix}.sort.bam " .
                    "--SORT_ORDER coordinate " .
@@ -90,7 +92,7 @@ sub Align {
     # print "Start use cmd: $cmd_sort\n";
     PrintProcessMessage('sort bam to %%', "${output_file_prefix}.sort.bam");
     system $cmd_sort
-        and die "Error: Command $cmd_sort failed to run normally: $?\n";
+        and PrintErrorMessage("Command $cmd_sort failed to run normally: $?\n");
 
     if ( $par->val('CDPAN', 'output_level') == 1 ) {
         foreach (File::Slurp::read_dir($output_dir, prefix => 1)){
@@ -117,7 +119,7 @@ sub AlignIndex {
     (my $par) = @_;
 
     my $output_dir = catdir($par->val('CDPAN', 'work_dir'),'align', 'index');
-    mkdir $output_dir or PrintErrorMessage("Cannot create direction $output_dir: $!");
+    # mkdir $output_dir or PrintErrorMessage("Cannot create direction $output_dir: $!");
 
     my $ref = $par->val('DATA', 'ref');
     (undef, undef, my $ref_name)= splitpath($ref);
@@ -130,18 +132,20 @@ sub AlignIndex {
     my $cmd_bwa_index = "$bwa index $new_ref 2> /dev/null";
     # print "Start use cmd: $cmd_bwa_index\n";
     PrintProcessMessage('build index for %%',$new_ref);
-    system $cmd_bwa_index
-        and PrintErrorMessage("Error: Command $cmd_bwa_index failed to run normally: $?");
+    # system $cmd_bwa_index
+        # and PrintErrorMessage("Error: Command $cmd_bwa_index failed to run normally: $?");
+    #TODO
 
     my $gatk = $par->val('TOOLS', 'gatk');
-    my $cmd_gatk_dict = "$gatk --java-options \"-Xmx32G\" CreateSequenceDictionary " .
+    my $cmd_gatk_dict = "$gatk --java-options \"-Xmx64G\" CreateSequenceDictionary " .
                         "-R $new_ref " .
                         "-O $new_ref.dict " .
                         ">/dev/null 2> /dev/null";
     # print "Start use cmd: $cmd_gatk_dict\n";
     PrintProcessMessage('build dictionary for %%', $new_ref);
-    system $cmd_gatk_dict
-        and die "Error: Command $cmd_gatk_dict failed to run normally: $?\n";
+    # system $cmd_gatk_dict
+        # and PrintErrorMessage("Command $cmd_gatk_dict failed to run normally: $?\n");
+    #TODO
 
     return 1;
 }

@@ -121,9 +121,6 @@ while (@ARGV) {
 unless ( defined $input_dir ) {
     PrintExitMessage("Parameter \'input_dir\' is required");
 }
-if ( not defined $config_file and $modules{'align'} ) {
-    PrintExitMessage("Parameter \'config_file\' is required for Module $module");
-}
 $config_file = '' unless defined $config_file;
 unless ( defined $output_prefix ) {
     ( undef, undef, $output_prefix ) = splitpath($input_dir);
@@ -190,7 +187,7 @@ elsif ( $modules{ "RUN-ALL"      } ) { RunAll(      $par ); }
 elsif ( $modules{ "RUN-DISPLACE" } ) { RunDisplace( $par ); }
 
 #TODO
-# rmtree $par->val('CDPAN', 'work_dir') or PrintErrorMessage("Cannot delete work direction: $!");
+rmtree $par->val('CDPAN', 'work_dir') or PrintErrorMessage("Cannot delete work direction: $!");
 
 PrintStartMessage("Output file:");
 

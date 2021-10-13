@@ -21,11 +21,11 @@ sub judge {
     my $taxid = $par->val('CENTRIFUGE', 'taxid');
 
     open TAXID, '<', $taxid
-        or die "Error: Couldn't open file $taxid: $!\n";
+        or PrintErrorMessage("Couldn't open file $taxid: $!\n");
     my %id_taxid = map {chomp; $_, 1} (<TAXID>);
 
     open INPUT, "<", "$output_dir/$idv_folder_name.centrifuge.output"
-        or die "Error: Couldn't open file $output_dir/$idv_folder_name.centrifuge.output: $!\n";
+        or PrintErrorMessage("Couldn't open file $output_dir/$idv_folder_name.centrifuge.output: $!\n");
     my %id_centrifuge;
     while(<INPUT>) {
         next if m/^readID/;
@@ -38,9 +38,9 @@ sub judge {
     close INPUT;
 
     open my $INPUT, "<", "$output_dir/$idv_folder_name.final.genome.scf.large_1000.fasta"
-        or die "Error: Couldn't open file $output_dir/$idv_folder_name.final.genome.scf.large_1000.fasta: $!\n";
+        or PrintErrorMessage("Couldn't open file $output_dir/$idv_folder_name.final.genome.scf.large_1000.fasta: $!\n");
     open my $OUTPUT, ">", "$output_dir/$idv_folder_name.filtered.fa"
-        or die "Error: Couldn't create file $output_dir/$idv_folder_name.filtered.fa: $!\n";
+        or PrintErrorMessage("Couldn't create file $output_dir/$idv_folder_name.filtered.fa: $!\n");
 
     my $seq_input = Bio::SeqIO->new(-fh     => $INPUT,
                                     -format => 'Fasta');

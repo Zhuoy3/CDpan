@@ -32,7 +32,7 @@ sub nucmer {
                      "-t 10";
     print "Start use cmd: \'$cmd_nucmer\'.\n";
     system $cmd_nucmer
-        and die "Error: Command \'$cmd_nucmer\' failed to run normally: $?\n";
+        and PrintErrorMessage("Command \'$cmd_nucmer\' failed to run normally: $?\n");
 
     my $show_coords = $par->val('TOOLS', 'show-coords');
 
@@ -42,7 +42,7 @@ sub nucmer {
                           "> $output_dir/$idv_folder_name.filtered.mmseqs.delta.coords";
     print "Start use cmd: \'$cmd_show_coords\'.\n";
     system $cmd_show_coords
-        and die "Error: Command \'$cmd_show_coords\' failed to run normally: $?\n";
+        and PrintErrorMessage("Command \'$cmd_show_coords\' failed to run normally: $?\n");
 
     return 1;
 }

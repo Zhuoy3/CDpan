@@ -19,9 +19,9 @@ sub test {
 
     # Screen more than 1k sequences
     open FASTA, '<', "$output_dir/$idv_folder_name.final.genome.scf.fasta"
-        or die "Error: Couldn't open file $output_dir/$idv_folder_name.final.genome.scf.fasta: $!\n";
+        or PrintErrorMessage("Couldn't open file $output_dir/$idv_folder_name.final.genome.scf.fasta: $!\n");
     open LARGE, '>', "$output_dir/$idv_folder_name.final.genome.scf.large_1000.fasta"
-        or die "Error: Couldn't create file $output_dir/$idv_folder_name.final.genome.scf.large_1000.fasta: $!\n";
+        or PrintErrorMessage("Couldn't create file $output_dir/$idv_folder_name.final.genome.scf.large_1000.fasta: $!\n");
 
     my @fasta_new = ();
     my $fasta_length = 0;
@@ -60,7 +60,7 @@ sub test {
                          "2> $output_dir/$idv_folder_name.centrifuge.output.log";
     print "Start use cmd: \'$cmd_centrifuge\'.\n";
     system $cmd_centrifuge
-        and die "Error: Command \'$cmd_centrifuge\' failed to run normally: $?\n";
+        and PrintErrorMessage("Command \'$cmd_centrifuge\' failed to run normally: $?\n");
 
     my $cmd_centrifuge_kreport = "$centrifuge_kreport " .
 	                     "-x $index " .
@@ -71,7 +71,7 @@ sub test {
                          "2> $output_dir/$idv_folder_name.centrifuge.krakenOut.log";
     print "Start use cmd: \'$cmd_centrifuge_kreport\'.\n";
     system $cmd_centrifuge_kreport
-        and die "Error: Command \'$cmd_centrifuge_kreport\' failed to run normally: $?\n";
+        and PrintErrorMessage("Command \'$cmd_centrifuge_kreport\' failed to run normally: $?\n");
 
     return 1;
 }

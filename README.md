@@ -1,8 +1,31 @@
-1.User’s Guide
-There is an increasing understanding that a reference sequence representing a genome of individual is insufficient to capture the genomic diversity we observe in nature. With the development of short-reads sequencing, it’s convenient to achieve the high depth whole-genome sequencing data of an individual. Therefore, to help the researchers to capture the genomic sequences absent in the reference genome within the species, we propose the CDpan (Constructing dispensable genome for pan-genome anlysis) to construct the dispensable genome using high-throughput sequencing reads.
+# CDpan: Constructing dispensable genome for pan-genome analysis
 
-2.Installation
-Requirements
+## Introduction
+
+There is an increasing understanding that a reference sequence representing a genome of individual is insufficient to capture the genomic diversity we observe in nature. With the development of short-reads sequencing, it’s convenient to achieve the high depth whole-genome sequencing data of an individual. Therefore, to help the researchers to capture the genomic sequences absent in the reference genome within the species, we propose the CDpan (Constructing dispensable genome for pan-genome analysis) to construct the dispensable genome using high-throughput sequencing reads.
+
+## Installation
+
+Download from project homepage, <https://github.com/kimi-du-bio/CDpan>, or check out the code using Git from <https://github.com/kimi-du-bio/CDpan.git>.
+
+### Dependencies
+
+Using CDpan requires the following to be installed:
+
+- [TrimGalore](https://github.com/FelixKrueger/TrimGalore)
+- [Cutadapt](https://github.com/marcelm/cutadapt)
+- [FastQC](https://github.com/s-andrews/FastQC)
+- [BWA]()
+- [GATK]()
+- [samtools]()
+- [MaSuRCA]()
+- [centrifuge]()
+- [MMseqs2]()
+- [mummer]()
+- [RepeatMasker]()
+- [Bowtie2]()
+- [bedtools]()
+- [minimap2]()
 
 Building the latest version from the repository
 
@@ -195,6 +218,7 @@ error-rate = 0.1    ##Maximum allowed error rate
 [ASSEMBLY]
 fragment-mean=300   ##The fragment mean of paired-end reads
 fragment-stdev=50   ##The fragment standard deviation of paired-end reads
+JF_SIZE=jellyfish hash size, set this to about 10x the genome size.
 
 ##The parameter of mope module.
 [MOPE]

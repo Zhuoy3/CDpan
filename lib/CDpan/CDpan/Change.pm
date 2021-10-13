@@ -30,7 +30,7 @@ sub change {
                         "| sort > $output_dir/$idv_folder_name.readContigAlignment.txt";
     print "Start use cmd: \'$cmd_samtools1\'.\n";
     system $cmd_samtools1
-        and die "Error: Command \'$cmd_samtools1\' failed to run normally: $?\n";
+        and PrintErrorMessage("Command \'$cmd_samtools1\' failed to run normally: $?\n");
 
     my $cmd_samtools2 = "$samtools view " .
                         "-H $output_dir/$idv_folder_name.Sus_11_1_Links.bam " .
@@ -49,7 +49,7 @@ sub change {
     close $TMP;
 
     system "bash $output_dir/$idv_folder_name.tmp.sh"
-        and die "Error: Command \'$cmd_samtools2\' failed to run normally: $?\n";
+        and PrintErrorMessage("Command \'$cmd_samtools2\' failed to run normally: $?\n");
 
     unlink "$output_dir/$idv_folder_name.tmp.sh";
 
@@ -60,7 +60,7 @@ sub change {
                    "> $output_dir/$idv_folder_name.mateLinks.txt";
     print "Start use cmd: \'$cmd_join\'.\n";
     system $cmd_join
-        and die "Error: Command \'$cmd_join\' failed to run normally: $?\n";
+        and PrintErrorMessage("Command \'$cmd_join\' failed to run normally: $?\n");
 
     return 1;
 }

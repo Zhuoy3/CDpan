@@ -23,9 +23,9 @@ sub integration {
     my $minimap2 = $par->val('TOOLS', 'minimap2');
 
     mkdir "$output_dir/minimap2"
-        or die "Error: Cannot create process folder '$output_dir/minimap2': $!\n";
+        or PrintErrorMessage("Cannot create process folder '$output_dir/minimap2': $!\n");
     chdir "$output_dir/minimap2"
-        or die "Error: Cannot chdir to '$output_dir/minimap2': $!\n";
+        or PrintErrorMessage("Cannot chdir to '$output_dir/minimap2': $!\n");
 
     my $cmd_minimap2 = "$minimap2 " .
                        "-x asm10 " .
@@ -34,7 +34,7 @@ sub integration {
                        "> $output_dir/minimap2/aln.paf";
     print "Start use cmd: \'$cmd_minimap2\'.\n";
     system $cmd_minimap2
-        and die "Error: Command \'$cmd_minimap2\' failed to run normally: $?\n";
+        and PrintErrorMessage("Command \'$cmd_minimap2\' failed to run normally: $?\n");
 
     return 1;
 }

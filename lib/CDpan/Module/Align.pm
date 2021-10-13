@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 # Description:
 # Author: zhuoy
@@ -138,6 +138,7 @@ sub AlignIndex {
 
     my $gatk = $par->val('TOOLS', 'gatk');
     my $cmd_gatk_dict = "$gatk --java-options \"-Xmx64G\" CreateSequenceDictionary " .
+                        "--TMP_DIR $output_dir " .
                         "-R $new_ref " .
                         "-O $new_ref.dict " .
                         ">/dev/null 2> /dev/null";

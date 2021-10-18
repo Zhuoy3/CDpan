@@ -230,6 +230,8 @@ sub __CheckFile__ {
                 PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
             }elsif ( $file_for_check eq 'index' and  $main::modules{"mope"} ){
                 PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
+            }elsif ( $file_for_check eq 'taxid' and  $main::modules{"mope"} ){
+                PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
             }else{
                 next;
             }

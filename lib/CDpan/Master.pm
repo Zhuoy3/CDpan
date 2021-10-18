@@ -22,7 +22,6 @@ use CDpan::Module::Extract;
 use CDpan::Module::Assembly;
 use CDpan::Module::Mope;
 
-# use CDpan::Judge;
 # use CDpan::MMSeqs;
 # use CDpan::Nucmer;
 # use CDpan::DeRepeat;
@@ -222,11 +221,6 @@ sub RunAll;
 sub RunDisplace;
 
 
-
-#     CDpan::Test::test($par, $idv_name, $idv_output_folder)#remove contaminents
-#         or PrintErrorMessage("Operation Test is abnormal.\n");
-#     CDpan::Judge::judge($par, $idv_name, $idv_output_folder)
-#         or PrintErrorMessage("Operation Judge is abnormal.\n");
 #     CDpan::MMSeqs::mmseqs($par, $idv_name, $idv_output_folder)#remove redundant
 #         or PrintErrorMessage("Operation MMSeqs is abnormal.\n");
 #     CDpan::Nucmer::nucmer($par, $idv_name, $idv_output_folder)#precise delete

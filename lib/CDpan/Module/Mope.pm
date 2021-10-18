@@ -9,6 +9,7 @@ package CDpan::Module::Mope;
 use strict;
 use warnings;
 
+use Bio::SeqIO;
 use Config::IniFiles;
 use File::Spec::Functions qw /:ALL/;
 
@@ -81,23 +82,70 @@ sub Mope {
     system $cmd_centrifuge
         and PrintErrorMessage("Command \'$cmd_centrifuge\' failed to run normally: $?\n");
 
-    my $cmd_centrifuge_kreport = "$centrifuge_kreport " .
-	                     "-x $index " .
-	                     "${output_file_prefix}.centrifuge.output " .
-	                     "--min-score 0 " .
-	                     "--min-length 0 " .
-	                     "> ${output_file_prefix}.centrifuge.krakenOut " .
-                         "2> ${output_file_prefix}.centrifuge.krakenOut.log";
-    # print "Start use cmd: \'$cmd_centrifuge_kreport\'.\n";
-    PrintProcessMessage("make a Kraken-style report to %%", "${output_file_prefix}.centrifuge.krakenOut");
-    system $cmd_centrifuge_kreport
-        and PrintErrorMessage("Command \'$cmd_centrifuge_kreport\' failed to run normally: $?\n");
+    # my $cmd_centrifuge_kreport = "$centrifuge_kreport " .
+	#                      "-x $index " .
+	#                      "${output_file_prefix}.centrifuge.output " .
+	#                      "--min-score 0 " .
+	#                      "--min-length 0 " .
+	#                      "> ${output_file_prefix}.centrifuge.krakenOut " .
+    #                      "2> ${output_file_prefix}.centrifuge.krakenOut.log";
+    # # print "Start use cmd: \'$cmd_centrifuge_kreport\'.\n";
+    # PrintProcessMessage("make a Kraken-style report to %%", "${output_file_prefix}.centrifuge.krakenOut");
+    # system $cmd_centrifuge_kreport
+    #     and PrintErrorMessage("Command \'$cmd_centrifuge_kreport\' failed to run normally: $?\n");
 
-    if ( $par->val('CDPAN', 'output_level') == 0 ) {
+    my $taxid = $par->val('DATA', 'taxid');
+
+    PrintProcessMessage("extract sequence by taxid to %%", "${output_file_prefix}.filtered.fa");
+    open TAXID, '<', $taxid
+        or PrintErrorMessage("Couldn't open file $taxid: $!\n");
+    my %id_taxid = map {chomp; $_, 1} (<TAXID>);
+
+    open INPUT, "<", "${output_file_prefix}.centrifuge.output"
+        or PrintErrorMessage("Couldn't open file ${output_file_prefix}.centrifuge.output: $!\n");
+    my %id_centrifuge;
+    while(<INPUT>) {
+        next if m/^readID/;
+        chomp;
+        my @a = split m/\s+/;
+        if( $id_taxid{ $a[2] } ) {
+            $id_centrifuge{$a[0]} = 1;
+        }
+    }
+    close INPUT;
+
+    open my $INPUT, "<", "${output_file_prefix}.final.genome.scf.large.fasta"
+        or PrintErrorMessage("Couldn't open file ${output_file_prefix}.final.genome.scf.large.fasta: $!\n");
+    open my $OUTPUT, ">", "${output_file_prefix}.filtered.fa"
+        or PrintErrorMessage("Couldn't create file ${output_file_prefix}.filtered.fa: $!\n");
+
+    my $seq_input = Bio::SeqIO->new(-fh     => $INPUT,
+                                    -format => 'Fasta');
+    my $seq_output = Bio::SeqIO->new(-fh     => $OUTPUT,
+                                     -format => 'Fasta');
+
+    while ( my $seq = $seq_input->next_seq ) {
+        my $seq_id = $seq->id;
+        if ( $id_centrifuge{ $seq_id } ) {
+            $seq_output->write_seq($seq);
+        }
+    }
+
+    close $INPUT;
+    close $OUTPUT;
+
+    if ( $par->val('CDPAN', 'output_level') == 1 ) {
         foreach (File::Slurp::read_dir($output_dir, prefix => 1)){
             if ( $_ ne "${output_file_prefix}.final.genome.scf.large.fasta" and
                 $_ ne "${output_file_prefix}.centrifuge.output" and
-                $_ ne "${output_file_prefix}.centrifuge.krakenOut" ){
+                $_ ne "${output_file_prefix}.centrifuge.krakenOut" and
+                $_ ne "${output_file_prefix}.filtered.fa"){
+                unlink $_ or PrintErrorMessage("Cannot delete file: $_: $!");
+            }
+        }
+    }elsif ( $par->val('CDPAN', 'output_level') == 0 ) {
+        foreach (File::Slurp::read_dir($output_dir, prefix => 1)){
+            if ( $_ ne "${output_file_prefix}.filtered.fa" ){
                 unlink $_ or PrintErrorMessage("Cannot delete file: $_: $!");
             }
         }

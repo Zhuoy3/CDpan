@@ -12,6 +12,7 @@ use warnings;
 use Config::IniFiles;
 use File::Copy;
 use File::Spec::Functions qw /:ALL/;
+use File::Path qw / rmtree /;
 
 use CDpan::Print qw / :PRINT /;
 
@@ -26,9 +27,9 @@ sub Assembly {
     my $input_file_prefix = catfile($par->val('CDPAN', 'input_dir'), $idv_name, $idv_name);
     if ($main::modules{ "assembly" }){
         my @input_file_suffixs = qw \ .mateUnmapped_R1.fq
-                                     .mateUnmapped_R2.fq
-                                     .R1_mateMapped.fq
-                                     .R2_mateMapped.fq \ ;
+                                      .mateUnmapped_R2.fq
+                                      .R1_mateMapped.fq
+                                      .R2_mateMapped.fq \ ;
         foreach my $input_file_suffix (@input_file_suffixs){
             unless ( -e "${input_file_prefix}${input_file_suffix}"){
                 PrintErrorMessage("The input file ${input_file_prefix}${input_file_suffix} does not exist, whether the input direction is the output direction of Module filter");
@@ -67,12 +68,12 @@ sub Assembly {
     my $masurca = $par->val('TOOLS', 'masurca');
 
     my $cmd_masurca = "$masurca ${output_file_prefix}.masurca_config.txt > ${output_file_prefix}.masurca_config.log";
-    print "Start use cmd: \'$cmd_masurca\'.\n";
+    # print "Start use cmd: \'$cmd_masurca\'.\n";
+    PrintProcessMessage("assembled for $idv_name");
     system $cmd_masurca
         and PrintErrorMessage("Command \'$cmd_masurca\' failed to run normally: $?\n");
 
-    mkdir "$output_dir/assemble"
-        or PrintErrorMessage("Couldn't create $output_dir/assemble: $!\n");
+    mkdir "$output_dir/assemble" or PrintErrorMessage("Couldn't create $output_dir/assemble: $!\n");
     chdir "$output_dir/assemble";
     system "../assemble.sh > ../assemble.log"
         and PrintErrorMessage("Command ../assemble.sh: $?\n");
@@ -82,6 +83,20 @@ sub Assembly {
     }
     else{
         PrintWarnMessage("Couldn't find file: /CA/final.genome.scf.fasta: $!\n");
+    }
+
+    chdir $output_dir;
+
+    if ( $par->val('CDPAN', 'output_level') < 2 ) {
+        rmtree "$output_dir/assemble" or PrintErrorMessage("Cannot delete direction $output_dir/assemble: $!");
+    }
+
+    if ( $par->val('CDPAN', 'output_level') < 1 ) {
+        foreach (File::Slurp::read_dir($output_dir, prefix => 1)){
+            if ( $_ ne "${output_file_prefix}.final.genome.scf.fasta"){
+                unlink $_ or PrintErrorMessage("Cannot delete file: $_: $!");
+            }
+        }
     }
 
     chdir $main::cwd;

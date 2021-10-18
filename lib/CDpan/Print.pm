@@ -80,20 +80,25 @@ sub PrintProcessMessage {
 
     print STDERR "    ";
 
-    foreach (@print_message) {
-        print STDERR $_;
+    if ( @print_message == 1 and @print_files == 0) {
+        print STDERR "@print_message";
+    }
+    else{
+        foreach (@print_message) {
+            print STDERR $_;
 
-        my $file = shift @print_files;
+            my $file = shift @print_files;
 
-        if ( ref $file ){
-            foreach my $file_sub (@{$file}){
-                ( my $file_name, my $idv_dir_name ) = reverse splitdir($file_sub);
-                print STDERR "$idv_dir_name/$file_name ";
+            if ( ref $file ){
+                foreach my $file_sub (@{$file}){
+                    ( my $file_name, my $idv_dir_name ) = reverse splitdir($file_sub);
+                    print STDERR "$idv_dir_name/$file_name ";
+                }
             }
-        }
-        else {
-            ( my $file_name, my $idv_dir_name ) = reverse splitdir($file);
-            print STDERR "$idv_dir_name/$file_name";
+            else {
+                ( my $file_name, my $idv_dir_name ) = reverse splitdir($file);
+                print STDERR "$idv_dir_name/$file_name";
+            }
         }
     }
 

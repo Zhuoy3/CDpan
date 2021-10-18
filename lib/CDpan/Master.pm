@@ -56,6 +56,7 @@ sub Filter {
         print STDERR "Since module filter is being used, program will end\n";
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+        $par->newval('RESULT', 'filter', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
         print STDERR "Since module $main::module is being used, continue to run module align\n";
@@ -96,6 +97,7 @@ sub Align {
         print STDERR "Since module align is being used, program will end\n";
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+        $par->newval('RESULT', 'align', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
         print STDERR "Since module $main::module is being used, continue to run module align\n";
@@ -130,6 +132,7 @@ sub Extract {
         print STDERR "Since module extract is being used, program will end\n";
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+        $par->newval('RESULT', 'extract', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
         print STDERR "Since module $main::module is being used, continue to run module align\n";
@@ -164,6 +167,7 @@ sub Assembly {
         print STDERR "Since module assembly is being used, program will end\n";
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+        $par->newval('RESULT', 'assembly', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
         print STDERR "Since module $main::module is being used, continue to run module align\n";

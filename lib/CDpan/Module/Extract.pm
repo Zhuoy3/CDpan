@@ -25,7 +25,7 @@ sub Extract {
     my $input_file_prefix = catfile($par->val('CDPAN', 'input_dir'), $idv_name, $idv_name);
     if ($main::modules{ "extract" }){
         unless ( -e "${input_file_prefix}.sort.bam"){
-            PrintErrorMessage("The input file ${input_file_prefix}.sort.bam does not exist, whether the input direction is the output direction of Module filter");
+            PrintErrorMessage("The input file ${input_file_prefix}.sort.bam does not exist, whether the input direction is the output direction of Module align");
         }
     }
 

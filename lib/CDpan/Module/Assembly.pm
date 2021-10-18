@@ -32,7 +32,7 @@ sub Assembly {
                                       .R2_mateMapped.fq \ ;
         foreach my $input_file_suffix (@input_file_suffixs){
             unless ( -e "${input_file_prefix}${input_file_suffix}"){
-                PrintErrorMessage("The input file ${input_file_prefix}${input_file_suffix} does not exist, whether the input direction is the output direction of Module filter");
+                PrintErrorMessage("The input file ${input_file_prefix}${input_file_suffix} does not exist, whether the input direction is the output direction of Module extract");
             }
         }
     }
@@ -69,7 +69,7 @@ sub Assembly {
 
     my $cmd_masurca = "$masurca ${output_file_prefix}.masurca_config.txt > ${output_file_prefix}.masurca_config.log";
     # print "Start use cmd: \'$cmd_masurca\'.\n";
-    PrintProcessMessage("assembled for $idv_name");
+    PrintProcessMessage('assembled to %%', "${output_file_prefix}.final.genome.scf.fasta");
     system $cmd_masurca
         and PrintErrorMessage("Command \'$cmd_masurca\' failed to run normally: $?\n");
 

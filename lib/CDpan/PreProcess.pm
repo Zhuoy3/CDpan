@@ -147,6 +147,8 @@ sub __CheckConfig__ {
             'sort' => 4,
         },
         "MOPE" => {
+            'host-taxids' => undef,
+            'min-length' => 1000,
             'sort' => 5,
         },
         "VOT" => {
@@ -188,7 +190,8 @@ sub __CheckConfig__ {
         foreach my $param ( sort keys %{ $default_params{$section} } ) {
             next if ( $param eq 'sort');
             if ( defined $par->val($section, $param)) {
-                printf STDERR "%-30s", "[$section] => $param:";
+                printf STDERR "%-10s", "[$section]";
+                printf STDERR "%-25s", " => $param:";
                 print  STDERR $par->val($section, $param);
                 print  STDERR "\n";
             }
@@ -196,12 +199,13 @@ sub __CheckConfig__ {
                 if ( $default_params{$section}{$param} ) {
                     $par->delval($section, $param);
                     $par->newval($section, $param, $default_params{$section}{$param});
-                    printf STDERR "%-30s", "[$section] => $param:";
+                    printf STDERR "%-10s", "[$section]";
+                    printf STDERR "%-25s", " => $param:";
                     print  STDERR $par->val($section, $param);
                     print  STDERR " (Default)\n";
                 }
-                else{
-                    PrintErrorMessage("[$section] => $param mustbeen specified");
+                elsif ( $main::modules{ lc $section } or $main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" } ) {
+                    PrintErrorMessage("[$section] => $param is required by Module $main::module, please use config file to specify");
                 }
             }
         }
@@ -224,6 +228,8 @@ sub __CheckFile__ {
                 PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
             }elsif ( $file_for_check eq 'ref' and  $main::modules{"align"} ){
                 PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
+            }elsif ( $file_for_check eq 'index' and  $main::modules{"mope"} ){
+                PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
             }else{
                 next;
             }
@@ -233,7 +239,7 @@ sub __CheckFile__ {
             unless (file_name_is_absolute($par->val('DATA', $file_for_check))){
                 $par->setval('DATA', $file_for_check,rel2abs($par->val('DATA', $file_for_check)));
             }
-            printf STDERR "%-30s", "['DATA'] => $file_for_check:";
+            printf STDERR "%-25s", "['DATA'] => $file_for_check:";
             print  STDERR $par->val('DATA', $file_for_check);
             print  STDERR "\n";
         }
@@ -246,7 +252,7 @@ sub __CheckFile__ {
                     unless (file_name_is_absolute($par->val('DATA', $file_for_check))){
                         $par->setval('DATA', $file_for_check,rel2abs($par->val('DATA', $file_for_check)));
                     }
-                    printf STDERR "%-30s", "['DATA'] => $file_for_check:";
+                    printf STDERR "%-25s", "['DATA'] => $file_for_check:";
                     print  STDERR $par->val('DATA', $file_for_check);
                     print  STDERR "\n";
                     next;

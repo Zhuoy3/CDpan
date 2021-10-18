@@ -25,7 +25,7 @@ sub Align {
     my $output_file_prefix = catfile($output_dir, $idv_name);
 
     my $input_file_prefix = catfile($par->val('CDPAN', 'input_dir'), $idv_name, $idv_name);
-    if ($main::modules{ "filter" }){
+    if ($main::modules{ "align" }){
         unless ( -e "${input_file_prefix}_clean_1.fq.gz"){
             PrintErrorMessage("The input file ${input_file_prefix}_clean_1.fq.gz does not exist, whether the input direction is the output direction of Module filter");
         }

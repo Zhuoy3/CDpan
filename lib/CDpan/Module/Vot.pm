@@ -51,7 +51,7 @@ sub Vot {
                      "--cluster-mode $cluster_mode " .
                      "> ${output_file_prefix}.filtered.mmseqs.log";
     # print "Start use cmd: \'$cmd_mmseqs\'.\n";
-    PrintProcessMessage("    cascaded clustering to %%*", "${output_file_prefix}.filtered.mmseqs");
+    PrintProcessMessage("cascaded clustering to %%*", "${output_file_prefix}.filtered.mmseqs");
     system $cmd_mmseqs
         and PrintErrorMessage("Command \'$cmd_mmseqs\' failed to run normally: $?\n");
 
@@ -60,7 +60,11 @@ sub Vot {
     }
 
     if ( $par->val('CDPAN', 'output_level') == 0 ) {
-        unlink "${output_file_prefix}.filtered.mmseqs.log" or PrintErrorMessage("Cannot delete file: ${output_file_prefix}.filtered.mmseqs.log: $!");
+        foreach (File::Slurp::read_dir($output_dir, prefix => 1)){
+            if ( $_ ne "${output_file_prefix}.filtered.mmseqs_rep_seq.fasta"){
+                unlink $_ or PrintErrorMessage("Cannot delete file: $_: $!");
+            }
+        }
     }
 
     return 1;

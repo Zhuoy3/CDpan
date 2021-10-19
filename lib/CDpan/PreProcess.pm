@@ -159,6 +159,9 @@ sub __CheckConfig__ {
             'sort' => 6,
         },
         "SOOT" => {
+            'maxgap' => 1000,
+            'mincluster' => 90,
+            'minmatch' => 500,
             'sort' => 7,
         },
         "MERGE" => {
@@ -225,12 +228,14 @@ sub __CheckFile__ {
 
     PrintStartMessage("Start checking files");
 
-    my @file_for_check = qw \ ref qry index taxid \;
+    my @file_for_check = qw \ ref index taxid \;
     foreach my $file_for_check (@file_for_check) {
         unless ( defined $par->val('DATA', $file_for_check) ) {
             if ( $main::modules{"RUN-ALL"} or $main::modules{"RUN-DISPLACE"} ){
                 PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
             }elsif ( $file_for_check eq 'ref' and  $main::modules{"align"} ){
+                PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
+            }elsif ( $file_for_check eq 'ref' and  $main::modules{"soot"} ){
                 PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
             }elsif ( $file_for_check eq 'index' and  $main::modules{"mope"} ){
                 PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");

@@ -21,8 +21,8 @@ use CDpan::Module::Align;
 use CDpan::Module::Extract;
 use CDpan::Module::Assembly;
 use CDpan::Module::Mope;
+use CDpan::Module::Vot;
 
-# use CDpan::MMSeqs;
 # use CDpan::Nucmer;
 # use CDpan::DeRepeat;
 # use CDpan::Recode;
@@ -213,7 +213,41 @@ sub Mope {
 };
 
 
-sub Vot;
+sub Vot {
+    (my $par) = @_;
+
+    PrintStartMessage("Start Module mope");
+
+    my $work_dir = catdir($par->val('CDPAN', 'work_dir'), 'mope');
+    mkdir $work_dir or PrintErrorMessage("Cannot create work direction $work_dir: $!");
+
+    my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
+
+    foreach my $idv_name (@input_idvs) {
+        print STDERR "Processing: $idv_name\n";
+        CDpan::Module::Mope::Mope($par, $idv_name) or PrintErrorMessage("Module mope exited abnormally for $idv_name");
+        print STDERR "\n";
+    }
+
+    if ($main::modules{ "mope" }){
+        my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'mope');
+        move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
+        $par->newval('RESULT', 'mope', $output_dir);
+
+        print STDERR "Since module mope is being used, program will end\n";
+    }
+    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+        $par->newval('RESULT', 'mope', $work_dir);
+        $par->setval('CDPAN', 'input_dir', $work_dir);
+
+        print STDERR "Since module $main::module is being used, continue to run module align\n";
+    }
+
+    PrintEndMessage("Finish Module mope");
+
+    return 1;
+};
+
 sub Soot;
 sub Merge;
 sub Location;

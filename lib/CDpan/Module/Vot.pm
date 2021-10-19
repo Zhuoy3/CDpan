@@ -4,39 +4,64 @@
 # Author: zhuoy
 # Date: 2021-07-21
 
-package CDpan::MMSeqs;
+package CDpan::Module::Vot;
 
 use strict;
 use warnings;
-use Config::IniFiles;
 
-sub mmseqs {
-    # &extract($opt, $idv_folder_name, $output_dir)
-    # $opt is a quotation in 'Config::IniFiles' format
-    # $idv_folder_name is the name of the individual
-    # $output_dir is a folder path which is used to output
-    (my $par, my $idv_folder_name, my $output_dir) = @_;
+use Config::IniFiles;
+use File::Spec::Functions qw /:ALL/;
+use File::Path qw / rmtree /;
+
+use CDpan::Print qw / :PRINT /;
+
+sub Vot {
+    (my $par, my $idv_name) = @_;
+
+    my $output_dir = catdir($par->val('CDPAN', 'work_dir'),'vot', $idv_name);
+    mkdir $output_dir or PrintErrorMessage("Cannot create direction $output_dir: $!");
+
+    my $output_file_prefix = catfile($output_dir, $idv_name);
+
+    my $input_file_prefix = catfile($par->val('CDPAN', 'input_dir'), $idv_name, $idv_name);
+    if ($main::modules{ "vot" }){
+        unless ( -e "${input_file_prefix}.filtered.fa"){
+            PrintErrorMessage("The input file ${input_file_prefix}.filtered.fa does not exist, whether the input direction is the output direction of Module mope");
+        }
+    }
 
     # Read the software path and set it to the default value
     my $mmseqs = $par->val('TOOLS', 'mmseqs');
 
-    my $thread = $par->val('MMSEQS', 'thread');
+    my $thread = $par->val('CDPAN', 'thread');
+
+    my $cov_mode     = $par->val('VOT', 'cov-mode');
+    my $coverage     = $par->val('VOT', 'coverage');
+    my $min_seq_id   = $par->val('VOT', 'min-seq-id');
+    my $cluster_mode = $par->val('VOT', 'cluster-mode');
 
     my $cmd_mmseqs = "$mmseqs easy-linclust " .
-                     "$output_dir/$idv_folder_name.filtered.fa " .
-                     "$output_dir/$idv_folder_name.filtered.mmseqs " .
+                     "${input_file_prefix}.filtered.fa " .
+                     "${output_file_prefix}.filtered.mmseqs " .
                      "$output_dir/mmseqs_tmp " .
                      "--threads $thread " .
-                     "--cov-mode 1 " .
-                     "-c 0.9 " .
-                     "--min-seq-id 0.9 " .
-                     "--cluster-mode 2 " .
-                     "> $output_dir/$idv_folder_name.filtered.mmseqs.log";
-    print "Start use cmd: \'$cmd_mmseqs\'.\n";
+                     "--cov-mode $cov_mode " .
+                     "-c $coverage " .
+                     "--min-seq-id $min_seq_id " .
+                     "--cluster-mode $cluster_mode " .
+                     "> ${output_file_prefix}.filtered.mmseqs.log";
+    # print "Start use cmd: \'$cmd_mmseqs\'.\n";
+    PrintProcessMessage("    cascaded clustering to %%*", "${output_file_prefix}.filtered.mmseqs");
     system $cmd_mmseqs
         and PrintErrorMessage("Command \'$cmd_mmseqs\' failed to run normally: $?\n");
 
-    #TODO 建立索引的程序是否需要
+    if ( -e "$output_dir/mmseqs_tmp" ){
+        rmtree "$output_dir/mmseqs_tmp" or PrintErrorMessage("Cannot delete direction $output_dir/mmseqs_tmp: $!");
+    }
+
+    if ( $par->val('CDPAN', 'output_level') == 0 ) {
+        unlink "${output_file_prefix}.filtered.mmseqs.log" or PrintErrorMessage("Cannot delete file: ${output_file_prefix}.filtered.mmseqs.log: $!");
+    }
 
     return 1;
 }

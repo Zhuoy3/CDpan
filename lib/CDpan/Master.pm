@@ -216,47 +216,79 @@ sub Mope {
 sub Vot {
     (my $par) = @_;
 
-    PrintStartMessage("Start Module mope");
+    PrintStartMessage("Start Module vot");
 
-    my $work_dir = catdir($par->val('CDPAN', 'work_dir'), 'mope');
+    my $work_dir = catdir($par->val('CDPAN', 'work_dir'), 'vot');
     mkdir $work_dir or PrintErrorMessage("Cannot create work direction $work_dir: $!");
 
     my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
 
     foreach my $idv_name (@input_idvs) {
         print STDERR "Processing: $idv_name\n";
-        CDpan::Module::Mope::Mope($par, $idv_name) or PrintErrorMessage("Module mope exited abnormally for $idv_name");
+        CDpan::Module::Vot::Vot($par, $idv_name) or PrintErrorMessage("Module vot exited abnormally for $idv_name");
         print STDERR "\n";
     }
 
-    if ($main::modules{ "mope" }){
-        my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'mope');
+    if ($main::modules{ "vot" }){
+        my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'vot');
         move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
-        $par->newval('RESULT', 'mope', $output_dir);
+        $par->newval('RESULT', 'vot', $output_dir);
 
-        print STDERR "Since module mope is being used, program will end\n";
+        print STDERR "Since module vot is being used, program will end\n";
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
-        $par->newval('RESULT', 'mope', $work_dir);
+        $par->newval('RESULT', 'vot', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
         print STDERR "Since module $main::module is being used, continue to run module align\n";
     }
 
-    PrintEndMessage("Finish Module mope");
+    PrintEndMessage("Finish Module vot");
 
     return 1;
 };
 
-sub Soot;
+sub Soot {
+    (my $par) = @_;
+
+    PrintStartMessage("Start Module vot");
+
+    my $work_dir = catdir($par->val('CDPAN', 'work_dir'), 'vot');
+    mkdir $work_dir or PrintErrorMessage("Cannot create work direction $work_dir: $!");
+
+    my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
+
+    foreach my $idv_name (@input_idvs) {
+        print STDERR "Processing: $idv_name\n";
+        CDpan::Module::Vot::Vot($par, $idv_name) or PrintErrorMessage("Module vot exited abnormally for $idv_name");
+        print STDERR "\n";
+    }
+
+    if ($main::modules{ "vot" }){
+        my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'vot');
+        move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
+        $par->newval('RESULT', 'vot', $output_dir);
+
+        print STDERR "Since module vot is being used, program will end\n";
+    }
+    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+        $par->newval('RESULT', 'vot', $work_dir);
+        $par->setval('CDPAN', 'input_dir', $work_dir);
+
+        print STDERR "Since module $main::module is being used, continue to run module align\n";
+    }
+
+    PrintEndMessage("Finish Module vot");
+
+    return 1;
+};
+
 sub Merge;
 sub Location;
 sub RunAll;
 sub RunDisplace;
 
 
-#     CDpan::MMSeqs::mmseqs($par, $idv_name, $idv_output_folder)#remove redundant
-#         or PrintErrorMessage("Operation MMSeqs is abnormal.\n");
 #     CDpan::Nucmer::nucmer($par, $idv_name, $idv_output_folder)#precise delete
 #         or PrintErrorMessage("Operation Nucmer is abnormal.\n");
 #     CDpan::DeRepeat::de_repeat($par, $idv_name, $idv_output_folder)

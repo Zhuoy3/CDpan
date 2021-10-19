@@ -152,6 +152,10 @@ sub __CheckConfig__ {
             'sort' => 5,
         },
         "VOT" => {
+            'cov-mode' => '1',
+            'coverage' => '0.9',
+            'min-seq-id' => '0.9',
+            'cluster-mode' => '2',
             'sort' => 6,
         },
         "SOOT" => {

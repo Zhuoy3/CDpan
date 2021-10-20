@@ -10,7 +10,7 @@ use strict;
 use warnings;
 
 use File::Spec::Functions qw /:ALL/;
-use File::Copy qw / move /;
+use File::Copy qw / copy move /;
 use Config::IniFiles;
 use File::Slurp;
 
@@ -357,13 +357,87 @@ sub Location {
     return 1;
 };
 
-sub RunAll;
-sub RunDisplace;
+sub RunDisplace {
+    (my $par) = @_;
 
+    PrintStartMessage("Start Module RunDisplace");
+    print STDERR "The following modules will be executed sequentially:";
+    print STDERR "    filter align extract assembly mope vot soot merge";
 
-#     CDpan::Integration::integration($par, $idv_name, $idv_output_folder, $folder_process)
-#         or PrintErrorMessage("Operation Integration is abnormal.");
-#     #location
+    Filter   ( $par );
+    Align    ( $par );
+    Extract  ( $par );
+    Assembly ( $par );
+    Mope     ( $par );
+    Vot      ( $par );
+    Soot     ( $par );
+    Merge    ( $par );
+
+    my $result_file = catfile($par->val('RESULT', 'merge'), 'merge.fasta');
+    my $output_file = catfile($par->val('RESULT', 'output_dir'), 'dispensable_genome.fasta');
+    copy $result_file,$output_file
+        or PrintErrorMessage("Cannot copy file $result_file to $output_file: $!");
+
+    my @modules_by_rundisplace = qw \ filter align extract assembly mope vot soot merge \;
+    foreach my $module_by_rundisplace ( @modules_by_rundisplace) {
+        my $result_dir = $par->val('RESULT', $module_by_rundisplace);
+        if ( $par->val('CDPAN', 'output_level') == 0) {
+            rmtree $result_dir or PrintErrorMessage("Cannot delete direction $result_dir: $!");
+            $par->delval('RESULT', $module_by_rundisplace);
+        }
+        else {
+            my $output_dir = catdir($par->val('CDPAN', 'output_dir'), $module_by_rundisplace);
+            move $result_dir, $output_dir or PrintErrorMessage("Couln't move $result_dir to $output_dir: $!");
+            $par->setval('RESULT', $module_by_rundisplace, $output_dir);
+        }
+    }
+
+    PrintEndMessage("Finish Module RunDisplace");
+
+    return 1;
+};
+
+sub RunAll {
+    (my $par) = @_;
+
+    PrintStartMessage("Start Module RunDisplace");
+    print STDERR "The following modules will be executed sequentially:";
+    print STDERR "    filter align extract assembly mope vot soot merge location";
+
+    Filter   ( $par );
+    Align    ( $par );
+    Extract  ( $par );
+    Assembly ( $par );
+    Mope     ( $par );
+    Vot      ( $par );
+    Soot     ( $par );
+    Merge    ( $par );
+    Location ( $par );
+
+    my $result_file = catfile($par->val('RESULT', 'merge'), 'merge.fasta');
+    my $output_file = catfile($par->val('RESULT', 'output_dir'), 'dispensable_genome.fasta');
+    copy $result_file,$output_file
+        or PrintErrorMessage("Cannot copy file $result_file to $output_file: $!");
+
+    my @modules_by_rundisplace = qw \ filter align extract assembly mope vot soot merge location \;
+    foreach my $module_by_rundisplace ( @modules_by_rundisplace) {
+        my $result_dir = $par->val('RESULT', $module_by_rundisplace);
+        if ( $par->val('CDPAN', 'output_level') == 0) {
+            rmtree $result_dir or PrintErrorMessage("Cannot delete direction $result_dir: $!");
+            $par->delval('RESULT', $module_by_rundisplace);
+        }
+        else {
+            my $output_dir = catdir($par->val('CDPAN', 'output_dir'), $module_by_rundisplace);
+            move $result_dir, $output_dir or PrintErrorMessage("Couln't move $result_dir to $output_dir: $!");
+            $par->setval('RESULT', $module_by_rundisplace, $output_dir);
+        }
+    }
+
+    PrintEndMessage("Finish Module RunDisplace");
+
+    return 1;
+};
+
 #     system "python3 $FindBin::Bin/ex.py"
 
 

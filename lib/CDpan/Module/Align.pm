@@ -125,7 +125,8 @@ sub AlignIndex {
     my $ref = $par->val('DATA', 'ref');
     (undef, undef, my $ref_name)= splitpath($ref);
     my $new_ref = catfile($output_dir, $ref_name);
-    copy $ref, $new_ref;
+    copy $ref, $new_ref
+        or PrintErrorMessage("Cannot copy file $ref to $new_ref: $!");;
     $par->newval('ALIGN', 'ref_index', $new_ref);
 
     my $bwa = $par->val('TOOLS', 'bwa');

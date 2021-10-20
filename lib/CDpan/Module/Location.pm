@@ -159,16 +159,17 @@ sub Location {
     system $cmd_join
         and PrintErrorMessage("Command \'$cmd_join\' failed to run normally: $?");
 
-    my $soot_dir = $par->val('RESULT', 'soot') // $par->val('LOCATION', 'soot_dir');
-    my $soot_dir_prefix = catfile($soot_dir, $idv_name, $idv_name);
+    my $vot_dir = $par->val('RESULT', 'soot') // $par->val('LOCATION', 'vot_dir');
+    my $vot_dir_prefix = catfile($vot_dir, $idv_name, $idv_name);
     my $minimap2 = $par->val('TOOLS', 'minimap2');
 
     my $cmd_minimap2 = "$minimap2 " .
                        "-x asm10 " .
-                       "$repeat_masker_dir/merge.fasta.fai " .
-                       "${soot_dir_prefix}.filtered.mmseqs.final.fa " .
-                       "> ${output_file_prefix}.aln.paf";
-    print "Start use cmd: \'$cmd_minimap2\'.\n";
+                       "$repeat_masker_dir/merge.fasta " .
+                       "${vot_dir_prefix}.filtered.mmseqs_rep_seq.fasta " .
+                       "> ${output_file_prefix}.aln.paf " .
+                       "2> ${output_file_prefix}.aln.paf.log";
+    # print "Start use cmd: \'$cmd_minimap2\'.\n";
     PrintProcessMessage('alignment to %%', "${output_file_prefix}.aln.paf");
     system $cmd_minimap2
         and PrintErrorMessage("Command \'$cmd_minimap2\' failed to run normally: $?");
@@ -326,7 +327,7 @@ sub Location {
         chomp;
         system "awk '{print \$6}' ./3/$_.link | sort - | uniq -c - | sed 's/^[ ]*//' - | sort -nrk 1 - | head -n 1 - > ./3/$_.chr"
             and PrintErrorMessage("Command failed to run normally: $?");
-        system "chrpart3=$(awk '{print \$2}' ./3/$_.chr); printf \"$_ \$chrpart3\\n\" >> ./1/3.name.re"
+        system "chrpart3=\$\(awk \'\{print \$2\}\' ./3/$_.chr\); printf \"$_ \$chrpart3\\n\" >> ./1/3.name.re"
             and PrintErrorMessage("Command failed to run normally: $?");
     }
 

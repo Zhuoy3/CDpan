@@ -12,9 +12,9 @@ Download from project homepage, <https://github.com/kimi-du-bio/CDpan>, or check
 
 CDpan require Perl version 5.16 or greater to run. Only Linux is supported (May or may not run under Perl for MacOS or Windows, etc).
 
-CDpan uses two Perl modules, ```Config::IniFiles``` and ```File::Slurp```, which may be not installed by default configuration of perl, you can install them as following:
+CDpan uses three Perl modules, ```Bio::SeqIO```, ```Config::IniFiles``` and ```File::Slurp```, which may be not installed by default configuration of perl, you can install them as following:
 
-    cpan -i Config::IniFiles File::Slurp
+    cpan -i Bio::SeqIO Config::IniFiles File::Slurp
 
 Using CDpan requires the following tools to be installed:
 
@@ -249,3 +249,4 @@ minmatch = 500      ##The minimum length of a single exact match
 [MERGE]
 
 [LOCATION]
+species = null

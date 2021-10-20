@@ -23,10 +23,8 @@ use CDpan::Module::Assembly;
 use CDpan::Module::Mope;
 use CDpan::Module::Vot;
 use CDpan::Module::Soot;
+use CDpan::Module::Merge;
 
-# use CDpan::DeRepeat;
-# use CDpan::Recode;
-# use CDpan::RepeatMasker;
 # use CDpan::Align;
 # use CDpan::Change;
 # use CDpan::Integration;
@@ -283,17 +281,80 @@ sub Soot {
     return 1;
 };
 
-sub Merge;
-sub Location;
+sub Merge {
+    (my $par) = @_;
+
+    PrintStartMessage("Start Module merge");
+
+    my $work_dir = catdir($par->val('CDPAN', 'work_dir'), 'merge');
+    mkdir $work_dir or PrintErrorMessage("Cannot create work direction $work_dir: $!");
+
+    my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
+
+    foreach my $idv_name (@input_idvs) {
+        print STDERR "Processing: $idv_name\n";
+        CDpan::Module::Merge::Merge($par, $idv_name) or PrintErrorMessage("Module merge exited abnormally for $idv_name");
+        print STDERR "\n";
+    }
+
+    if ($main::modules{ "merge" }){
+        my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'merge');
+        move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
+        $par->newval('RESULT', 'merge', $output_dir);
+
+        print STDERR "Since module merge is being used, program will end\n";
+    }
+    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+        $par->newval('RESULT', 'merge', $work_dir);
+        $par->setval('CDPAN', 'input_dir', $work_dir);
+
+        print STDERR "Since module $main::module is being used, continue to run module align\n";
+    }
+
+    PrintEndMessage("Finish Module merge");
+
+    return 1;
+};
+
+sub Location {
+    (my $par) = @_;
+
+    PrintStartMessage("Start Module location");
+
+    my $work_dir = catdir($par->val('CDPAN', 'work_dir'), 'location');
+    mkdir $work_dir or PrintErrorMessage("Cannot create work direction $work_dir: $!");
+
+    my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
+
+    foreach my $idv_name (@input_idvs) {
+        print STDERR "Processing: $idv_name\n";
+        CDpan::Module::Location::Location($par, $idv_name) or PrintErrorMessage("Module location exited abnormally for $idv_name");
+        print STDERR "\n";
+    }
+
+    if ($main::modules{ "location" }){
+        my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'location');
+        move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
+        $par->newval('RESULT', 'location', $output_dir);
+
+        print STDERR "Since module location is being used, program will end\n";
+    }
+    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+        $par->newval('RESULT', 'location', $work_dir);
+        $par->setval('CDPAN', 'input_dir', $work_dir);
+
+        print STDERR "Since module $main::module is being used, continue to run module align\n";
+    }
+
+    PrintEndMessage("Finish Module location");
+
+    return 1;
+};
+
 sub RunAll;
 sub RunDisplace;
 
-#     move "$idv_output_folder/$idv_name.filtered.mmseqs.final.fa", "$folder_process/$idv_name.fasta"
-#         or PrintErrorMessage("Couln't move $idv_output_folder/$idv_name.filtered.mmseqs.final.fa to $folder_process/$idv_name.fasta: $!.\n");
 
-
-# CDpan::Recode::recode($folder_process, \@idv_names)
-#     or PrintErrorMessage("Operation Recode is abnormal.\n");
 # CDpan::RepeatMasker::repeat_masker($par, $folder_process)#mask
 #     or PrintErrorMessage("Operation RepeatMasker is abnormal.\n");
 

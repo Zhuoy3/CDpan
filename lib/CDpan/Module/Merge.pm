@@ -4,39 +4,50 @@
 # Author: zhuoy
 # Date: 2021-08-11
 
-package CDpan::Recode;
+package CDpan::Module::Merge;
 
 use strict;
 use warnings;
 
-sub recode {
-    # $work_dir is a folder path which contain fasqa file
-    # $idv_names is a quotation of the list of the names of the individual
-    (my $work_dir, my $idv_names) = @_;
+use Config::IniFiles;
+use File::Spec::Functions qw /:ALL/;
 
-    my @idv_names = @$idv_names;
+use CDpan::Print qw / :PRINT /;
 
-    open my $OUTPUT , ">", "$work_dir/merge.fasta"#TODO merge
-        or PrintErrorMessage("Couldn't create output file $work_dir/all.fasta: $!.\n");
+sub Merge {
+    (my $par, my $idv_name) = @_;
 
-    my $index = 0;
-    foreach my $idv_name (@idv_names) {
-        open my $INPUT, "<", "$work_dir/$idv_name.fasta"
-            or PrintErrorMessage("Could not open individual file $work_dir/$idv_name.fasta: $!.\n");
+    my $output_dir = catdir($par->val('CDPAN', 'work_dir'),'merge');
 
-        while (<$INPUT>) {
-            if ( m/^>/ ){
-                $index += 1;
-                print $OUTPUT ">dsp$index\n";
-            }else{
-                print $OUTPUT $_;
-            }
+    my $input_file_prefix = catfile($par->val('CDPAN', 'input_dir'), $idv_name, $idv_name);
+    if ($main::modules{ "merge" }){
+        unless ( -e "${input_file_prefix}.filtered.mmseqs.final.fa"){
+            PrintErrorMessage("The input file ${input_file_prefix}.filtered.mmseqs.final.fa does not exist, whether the input direction is the output direction of Module soot");
         }
-
-        close $INPUT;
     }
 
+    PrintProcessMessage("merge $idv_name to %%", "$output_dir/merge.fasta");
+    open my $OUTPUT , ">>", "$output_dir/merge.fasta"
+        or PrintErrorMessage("Couldn't create output file $output_dir/all.fasta: $!.\n");
+
+    my $merge_index = $par->val('MERGE', 'merge_index') // 0;
+
+    open my $INPUT, "<", "${input_file_prefix}.filtered.mmseqs.final.fa"
+        or PrintErrorMessage("Could not open individual file ${input_file_prefix}.filtered.mmseqs.final.fa: $!.\n");
+
+    while (<$INPUT>) {
+        if ( m/^>/ ){
+            $merge_index += 1;
+            print $OUTPUT ">dsp$merge_index\n";
+        }else{
+            print $OUTPUT $_;
+        }
+    }
+
+    close $INPUT;
     close $OUTPUT;
+
+    $par->newval('MERGE', 'merge_index', $merge_index);
 
     return 1;
 }

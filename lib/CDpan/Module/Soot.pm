@@ -9,6 +9,7 @@ package CDpan::Module::Soot;
 use strict;
 use warnings;
 
+use Bio::SeqIO;
 use Config::IniFiles;
 use File::Spec::Functions qw /:ALL/;
 

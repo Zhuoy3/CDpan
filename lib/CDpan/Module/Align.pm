@@ -161,7 +161,7 @@ sub AlignRemoveIndex {
     elsif ($main::modules{ "align" }){
         my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'ref_index');
         move $index_dir, $output_dir or PrintErrorMessage("Couln't move $index_dir to $output_dir: $!");
-    }elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }) {
+    }elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }) {
         $par->newval('RESULT', 'ref_index', $index_dir);
     }
 

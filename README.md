@@ -52,7 +52,7 @@ Run CDpan from the command line like this:
             location
 
             RUN-ALL            Run all modules of CDpan
-            RUN-DISPLACE       Run all modules of CDpan except location
+            RUN-DIEM       Run all modules of CDpan except location
 
     Options: -i, --input             path of input file (Required)
              -c, --config            path of config file (Required)
@@ -93,7 +93,7 @@ This program produces a fasta file containing the sequences of the constructed d
 
 If you only interested in the DNA sequences absent in the reference genome but present within the species, you can use the following command:
 
-    CDpan RUN-DISPLACE -i input_file -c config_file
+    CDpan RUN-DIEM -i input_file -c config_file
 
 The output is only the fasta file containing the new DNA sequences.
 

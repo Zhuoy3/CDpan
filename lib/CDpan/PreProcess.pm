@@ -200,13 +200,13 @@ sub __CheckConfig__ {
     foreach my $section ( sort { $default_params{$a}{'sort'} <=> $default_params{$b}{'sort'} } keys %default_params ) {
         foreach my $param ( sort keys %{ $default_params{$section} } ) {
             next if ( $param eq 'sort');
-            if ( $section eq 'LOCATION' and $param eq 'extract_dir' and ( $main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" } ) ){
+            if ( $section eq 'LOCATION' and $param eq 'extract_dir' and ( $main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" } ) ){
                 next unless ( defined $par->val($section, $param ) );
                 PrintWarnMessage("[$section] => $param is not required by Module $main::module, ignore it and the result of Module $main::module will be used");
                 $par->delval($section, $param);
                 next;
             }
-            if ( $section eq 'LOCATION' and $param eq 'vot_dir' and ( $main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" } ) ){
+            if ( $section eq 'LOCATION' and $param eq 'vot_dir' and ( $main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" } ) ){
                 next unless ( defined $par->val($section, $param ) );
                 PrintWarnMessage("[$section] => $param is not required by Module $main::module, ignore it and the result of Module $main::module will be used");
                 $par->delval($section, $param);
@@ -227,7 +227,7 @@ sub __CheckConfig__ {
                     print  STDERR $par->val($section, $param);
                     print  STDERR " (Default)\n";
                 }
-                elsif ( $main::modules{ lc $section } or $main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" } ) {
+                elsif ( $main::modules{ lc $section } or $main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" } ) {
                     PrintErrorMessage("[$section] => $param is required by Module $main::module, please use config file to specify");
                 }
             }
@@ -247,7 +247,7 @@ sub __CheckFile__ {
     my @file_for_check = qw \ ref index taxid \;
     foreach my $file_for_check (@file_for_check) {
         unless ( defined $par->val('DATA', $file_for_check) ) {
-            if ( $main::modules{"RUN-ALL"} or $main::modules{"RUN-DISPLACE"} ){
+            if ( $main::modules{"RUN-ALL"} or $main::modules{"RUN-DIEM"} ){
                 PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
             }elsif ( $file_for_check eq 'ref' and  $main::modules{"align"} ){
                 PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");

@@ -91,7 +91,7 @@ sub RemovePreLocation {
     elsif ($main::modules{ "location" }){
         my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'pre_location');
         move $pre_location_dir, $output_dir or PrintErrorMessage("Couln't move $pre_location_dir to $output_dir: $!");
-    }elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }) {
+    }elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }) {
         $par->newval('RESULT', 'pre_location', $pre_location_dir);
     }
 

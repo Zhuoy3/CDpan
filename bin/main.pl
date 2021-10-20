@@ -52,7 +52,7 @@ our %modules = (
     "merge"             => 0,
     "location"          => 0,
     "RUN-ALL"           => 0,
-    "RUN-DISPLACE"      => 0,
+    "RUN-DIEM"      => 0,
 );
 
 if ( defined $modules{$module} ) {
@@ -183,7 +183,7 @@ elsif ( $modules{ "soot"         } ) { Soot(        $par ); }
 elsif ( $modules{ "merge"        } ) { Merge(       $par ); }
 elsif ( $modules{ "location"     } ) { Location(    $par ); }
 elsif ( $modules{ "RUN-ALL"      } ) { RunAll(      $par ); }
-elsif ( $modules{ "RUN-DISPLACE" } ) { RunDisplace( $par ); }
+elsif ( $modules{ "RUN-DIEM"     } ) { RunDiem(     $par ); }
 
 #TODO
 # rmtree $par->val('CDPAN', 'work_dir') or PrintErrorMessage("Cannot delete work direction: $!");
@@ -199,7 +199,7 @@ foreach my $search_res_module (@search_res) {
     }
 }
 
-print  STDERR "\n" if $main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" };
+print  STDERR "\n" if $main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" };
 
 if (defined $par->val('RESULT', 'dispensable_genome_fasta')){
     print STDERR "The result file is saved as: ";
@@ -248,7 +248,7 @@ Module: filter
         location
 
         RUN-ALL         Run all modules of CDpan
-        RUN-DISPLACE    Run all modules of CDpan except location
+        RUN-DIEM        Run all modules of CDpan except location
 
 Options: -i, --input         path of input directory          ( Mandatory )
          -c, --config        path of config file              ( Required by )

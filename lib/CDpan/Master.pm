@@ -50,7 +50,7 @@ sub Filter {
 
         print STDERR "Since module filter is being used, program will end\n";
     }
-    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'filter', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
@@ -91,7 +91,7 @@ sub Align {
 
         print STDERR "Since module align is being used, program will end\n";
     }
-    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'align', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
@@ -126,7 +126,7 @@ sub Extract {
 
         print STDERR "Since module extract is being used, program will end\n";
     }
-    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'extract', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
@@ -161,7 +161,7 @@ sub Assembly {
 
         print STDERR "Since module assembly is being used, program will end\n";
     }
-    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'assembly', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
@@ -196,7 +196,7 @@ sub Mope {
 
         print STDERR "Since module mope is being used, program will end\n";
     }
-    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'mope', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
@@ -232,7 +232,7 @@ sub Vot {
 
         print STDERR "Since module vot is being used, program will end\n";
     }
-    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'vot', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
@@ -267,7 +267,7 @@ sub Soot {
 
         print STDERR "Since module soot is being used, program will end\n";
     }
-    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'soot', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
@@ -302,7 +302,7 @@ sub Merge {
 
         print STDERR "Since module merge is being used, program will end\n";
     }
-    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'merge', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
@@ -357,7 +357,7 @@ sub Location {
 
         print STDERR "Since module location is being used, program will end\n";
     }
-    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }){
+    elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'location', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
@@ -369,10 +369,10 @@ sub Location {
     return 1;
 };
 
-sub RunDisplace {
+sub RunDiem {
     (my $par) = @_;
 
-    PrintStartMessage("Start Module RunDisplace");
+    PrintStartMessage("Start Module RunDiem");
     print STDERR "The following modules will be executed sequentially:";
     print STDERR "    filter align extract assembly mope vot soot merge\n";
 
@@ -391,16 +391,16 @@ sub RunDisplace {
         or PrintErrorMessage("Cannot copy file $result_file to $output_file: $!");
     $par->newval('RESULT', 'dispensable_genome.fasta', $output_file);
 
-    my @modules_by_rundisplace = qw \ filter align extract assembly mope vot soot merge \;
-    foreach my $module_by_rundisplace ( @modules_by_rundisplace) {
-        my $result_dir = $par->val('RESULT', $module_by_rundisplace);
+    my @modules_by_rundiem = qw \ filter align extract assembly mope vot soot merge \;
+    foreach my $module_by_rundiem ( @modules_by_rundiem) {
+        my $result_dir = $par->val('RESULT', $module_by_rundiem);
         if ( $par->val('CDPAN', 'output_level') == 0) {
-            $par->delval('RESULT', $module_by_rundisplace);
+            $par->delval('RESULT', $module_by_rundiem);
         }
         else {
-            my $output_dir = catdir($par->val('CDPAN', 'output_dir'), $module_by_rundisplace);
+            my $output_dir = catdir($par->val('CDPAN', 'output_dir'), $module_by_rundiem);
             move $result_dir, $output_dir or PrintErrorMessage("Couln't move $result_dir to $output_dir: $!");
-            $par->setval('RESULT', $module_by_rundisplace, $output_dir);
+            $par->setval('RESULT', $module_by_rundiem, $output_dir);
         }
     }
 
@@ -411,7 +411,7 @@ sub RunDisplace {
         $par->delval('RESULT', 'ref_index');
     }
 
-    PrintEndMessage("Finish Module RunDisplace");
+    PrintEndMessage("Finish Module RunDiem");
 
     return 1;
 };
@@ -419,7 +419,7 @@ sub RunDisplace {
 sub RunAll {
     (my $par) = @_;
 
-    PrintStartMessage("Start Module RunDisplace");
+    PrintStartMessage("Start Module RunDiem");
     print STDERR "The following modules will be executed sequentially:";
     print STDERR "    filter align extract assembly mope vot soot merge location\n\n";
 
@@ -445,16 +445,16 @@ sub RunAll {
         or PrintErrorMessage("Cannot copy file $result_file to $output_file: $!");
     $par->newval('RESULT', 'location.txt', $output_file);
 
-    my @modules_by_rundisplace = qw \ filter align extract assembly mope vot soot merge location \;
-    foreach my $module_by_rundisplace ( @modules_by_rundisplace) {
-        my $result_dir = $par->val('RESULT', $module_by_rundisplace);
+    my @modules_by_rundiem = qw \ filter align extract assembly mope vot soot merge location \;
+    foreach my $module_by_rundiem ( @modules_by_rundiem) {
+        my $result_dir = $par->val('RESULT', $module_by_rundiem);
         if ( $par->val('CDPAN', 'output_level') == 0) {
-            $par->delval('RESULT', $module_by_rundisplace);
+            $par->delval('RESULT', $module_by_rundiem);
         }
         else {
-            my $output_dir = catdir($par->val('CDPAN', 'output_dir'), $module_by_rundisplace);
+            my $output_dir = catdir($par->val('CDPAN', 'output_dir'), $module_by_rundiem);
             move $result_dir, $output_dir or PrintErrorMessage("Couln't move $result_dir to $output_dir: $!");
-            $par->setval('RESULT', $module_by_rundisplace, $output_dir);
+            $par->setval('RESULT', $module_by_rundiem, $output_dir);
         }
     }
 
@@ -470,7 +470,7 @@ sub RunAll {
         $par->delval('RESULT', 'pre_location');
     }
 
-    PrintEndMessage("Finish Module RunDisplace");
+    PrintEndMessage("Finish Module Rundiem");
 
     return 1;
 };

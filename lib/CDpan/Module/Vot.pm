@@ -53,7 +53,7 @@ sub Vot {
     # print "Start use cmd: \'$cmd_mmseqs\'.\n";
     PrintProcessMessage("cascaded clustering to %%*", "${output_file_prefix}.filtered.mmseqs");
     system $cmd_mmseqs
-        and PrintErrorMessage("Command \'$cmd_mmseqs\' failed to run normally: $?\n");
+        and PrintErrorMessage("Command \'$cmd_mmseqs\' failed to run normally: $?");
 
     if ( -e "$output_dir/mmseqs_tmp" ){
         rmtree "$output_dir/mmseqs_tmp" or PrintErrorMessage("Cannot delete direction $output_dir/mmseqs_tmp: $!");

@@ -78,7 +78,7 @@ sub Filter {
         # print "Start use cmd: $cmd_trim_galore\n";
         PrintProcessMessage('quality control for %% %%',$paired1,$paired2);
         system $cmd_trim_galore
-            and PrintErrorMessage("Command $cmd_trim_galore failed to run normally: $?\n");
+            and PrintErrorMessage("Command $cmd_trim_galore failed to run normally: $?");
     }
 
     # merge data
@@ -103,13 +103,13 @@ sub Filter {
     # print "Start use cmd: $cmd_merge_data_1\n";
     PrintProcessMessage('merge %%=> %%', \@result_files_1, "${output_file_prefix}_clean_1.fq.gz");
     system $cmd_merge_data_1
-        and PrintErrorMessage("Command $cmd_merge_data_1 failed to run normally: $?\n");
+        and PrintErrorMessage("Command $cmd_merge_data_1 failed to run normally: $?");
 
     my $cmd_merge_data_2 = "cat @result_files_2 > ${output_file_prefix}_clean_2.fq.gz";
     # print "Start use cmd: $cmd_merge_data_2\n";
     PrintProcessMessage('merge %%=> %%', \@result_files_2, "${output_file_prefix}_clean_2.fq.gz");
     system $cmd_merge_data_2
-        and PrintErrorMessage("Command $cmd_merge_data_2 failed to run normally: $?\n");
+        and PrintErrorMessage("Command $cmd_merge_data_2 failed to run normally: $?");
 
     if ( $par->val('CDPAN', 'output_level') < 2 ) {
         foreach (File::Slurp::read_dir($output_dir, prefix => 1)){

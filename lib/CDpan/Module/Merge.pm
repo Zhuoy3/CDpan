@@ -28,12 +28,12 @@ sub Merge {
 
     PrintProcessMessage("merge $idv_name to %%", "$output_dir/merge.fasta");
     open my $OUTPUT , ">>", "$output_dir/merge.fasta"
-        or PrintErrorMessage("Couldn't create output file $output_dir/all.fasta: $!.\n");
+        or PrintErrorMessage("Couldn't create output file $output_dir/all.fasta: $!.");
 
     my $merge_index = $par->val('MERGE', 'merge_index') // 0;
 
     open my $INPUT, "<", "${input_file_prefix}.filtered.mmseqs.final.fa"
-        or PrintErrorMessage("Could not open individual file ${input_file_prefix}.filtered.mmseqs.final.fa: $!.\n");
+        or PrintErrorMessage("Could not open individual file ${input_file_prefix}.filtered.mmseqs.final.fa: $!.");
 
     while (<$INPUT>) {
         if ( m/^>/ ){

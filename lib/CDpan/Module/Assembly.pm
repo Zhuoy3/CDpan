@@ -59,7 +59,7 @@ sub Assembly {
     "END\n";
 
     open CONFIG, '>', "${output_file_prefix}.masurca_config.txt"
-        or PrintErrorMessage("Couldn't create ${output_file_prefix}.masurca_config.txt: $!\n");
+        or PrintErrorMessage("Couldn't create ${output_file_prefix}.masurca_config.txt: $!");
     print CONFIG $config;
     close CONFIG;
 
@@ -71,18 +71,18 @@ sub Assembly {
     # print "Start use cmd: \'$cmd_masurca\'.\n";
     PrintProcessMessage('assembled to %%', "${output_file_prefix}.final.genome.scf.fasta");
     system $cmd_masurca
-        and PrintErrorMessage("Command \'$cmd_masurca\' failed to run normally: $?\n");
+        and PrintErrorMessage("Command \'$cmd_masurca\' failed to run normally: $?");
 
-    mkdir "$output_dir/assemble" or PrintErrorMessage("Couldn't create $output_dir/assemble: $!\n");
+    mkdir "$output_dir/assemble" or PrintErrorMessage("Couldn't create $output_dir/assemble: $!");
     chdir "$output_dir/assemble";
     system "../assemble.sh > ../assemble.log"
-        and PrintErrorMessage("Command ../assemble.sh: $?\n");
+        and PrintErrorMessage("Command ../assemble.sh: $?");
     if ( -e "./CA/final.genome.scf.fasta"){
         move("./CA/final.genome.scf.fasta", "${output_file_prefix}.final.genome.scf.fasta")
-            or PrintErrorMessage("Couldn't move file: /CA/final.genome.scf.fasta: $!\n");
+            or PrintErrorMessage("Couldn't move file: /CA/final.genome.scf.fasta: $!");
     }
     else{
-        PrintWarnMessage("Couldn't find file: /CA/final.genome.scf.fasta: $!\n");
+        PrintWarnMessage("Couldn't find file: /CA/final.genome.scf.fasta: $!");
     }
 
     chdir $output_dir;

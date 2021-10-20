@@ -51,7 +51,7 @@ sub Align {
     # print "Start use cmd: $cmd_bwa\n";
     PrintProcessMessage('aligning to the reference genome to %%', "${output_file_prefix}.sam");
     system $cmd_bwa
-        and PrintErrorMessage("Command $cmd_bwa failed to run normally: $?\n");
+        and PrintErrorMessage("Command $cmd_bwa failed to run normally: $?");
 
     # Read the software path
     my $gatk = $par->val('TOOLS', 'gatk');
@@ -67,7 +67,7 @@ sub Align {
     # print "Start use cmd: $cmd_reorder\n";
     PrintProcessMessage('reorder sam to %%', "${output_file_prefix}.reorder.sam");
     system $cmd_reorder
-        and PrintErrorMessage("Command $cmd_reorder failed to run normally: $?\n");
+        and PrintErrorMessage("Command $cmd_reorder failed to run normally: $?");
 
     # Read the software path
     my $samtools = $par->val('TOOLS', 'samtools');
@@ -80,7 +80,7 @@ sub Align {
     # print "Start use cmd: $cmd_sam2bam\n";
     PrintProcessMessage('sam to bam: %%', "${output_file_prefix}.reorder.bam");
     system $cmd_sam2bam
-        and PrintErrorMessage("Command $cmd_sam2bam failed to run normally: $?\n");
+        and PrintErrorMessage("Command $cmd_sam2bam failed to run normally: $?");
     unlink "${output_file_prefix}.reorder.sam";
 
     #sort bam
@@ -93,7 +93,7 @@ sub Align {
     # print "Start use cmd: $cmd_sort\n";
     PrintProcessMessage('sort bam to %%', "${output_file_prefix}.sort.bam");
     system $cmd_sort
-        and PrintErrorMessage("Command $cmd_sort failed to run normally: $?\n");
+        and PrintErrorMessage("Command $cmd_sort failed to run normally: $?");
 
     if ( $par->val('CDPAN', 'output_level') == 1 ) {
         foreach (File::Slurp::read_dir($output_dir, prefix => 1)){
@@ -145,7 +145,7 @@ sub AlignIndex {
     # print "Start use cmd: $cmd_gatk_dict\n";
     PrintProcessMessage('build dictionary for %%', $new_ref);
     system $cmd_gatk_dict
-        and PrintErrorMessage("Command $cmd_gatk_dict failed to run normally: $?\n");
+        and PrintErrorMessage("Command $cmd_gatk_dict failed to run normally: $?");
 
     return 1;
 }

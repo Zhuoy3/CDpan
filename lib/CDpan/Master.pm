@@ -25,7 +25,7 @@ use CDpan::Module::Vot;
 use CDpan::Module::Soot;
 use CDpan::Module::Merge;
 # use CDpan::Module::Location;
-use CDpan::Module::LocationSubModule;
+use CDpan::Module::Location;
 
 sub Filter {
     (my $par) = @_;
@@ -320,11 +320,11 @@ sub Location {
     PrintStartMessage("Start Module location");
 
     print STDERR "Processing: RepeatMasker\n";
-    CDpan::Module::LocationSubModule::RepeatMasker($par)
+    CDpan::Module::Location::RepeatMasker($par)
         or PrintErrorMessage("Module location exited abnormally when do RepeatMasker");
     print STDERR "\n";
 
-    my $work_dir = catdir($par->val('CDPAN', 'work_dir'), 'pre_location');
+    my $work_dir = catdir($par->val('CDPAN', 'work_dir'), 'location');
     mkdir $work_dir or PrintErrorMessage("Cannot create work direction $work_dir: $!");
 
     my $extract_dir = $par->val('RESULT', 'extract') // $par->val('LOCATION', 'extract_dir');
@@ -333,15 +333,13 @@ sub Location {
 
     foreach my $idv_name (@input_idvs) {
         print STDERR "Processing: $idv_name\n";
-        CDpan::Module::LocationSubModule::PreLocation($par, $idv_name)
+        CDpan::Module::Location::Location($par, $idv_name)
             or PrintErrorMessage("Module location exited abnormally when do RepeatMasker");
-
-        # CDpan::Module::Location::Location($par, $idv_name) or PrintErrorMessage("Module location exited abnormally for $idv_name");
         print STDERR "\n";
     }
 
     if ($main::modules{ "location" }){
-        my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'pre_location');
+        my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'location');
         move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
         $par->newval('RESULT', 'location', $output_dir);
 
@@ -364,7 +362,7 @@ sub RunDisplace;
 
 
 #     CDpan::Integration::integration($par, $idv_name, $idv_output_folder, $folder_process)
-#         or PrintErrorMessage("Operation Integration is abnormal.\n");
+#         or PrintErrorMessage("Operation Integration is abnormal.");
 #     #location
 #     system "python3 $FindBin::Bin/ex.py"
 

@@ -37,9 +37,9 @@ sub Mope {
 
     # Screen more than 1k sequences
     open FASTA, '<', "${input_file_prefix}.final.genome.scf.fasta"
-        or PrintErrorMessage("Couldn't open file ${input_file_prefix}.final.genome.scf.fasta: $!\n");
+        or PrintErrorMessage("Couldn't open file ${input_file_prefix}.final.genome.scf.fasta: $!");
     open LARGE, '>', "${output_file_prefix}.final.genome.scf.large.fasta"
-        or PrintErrorMessage("Couldn't create file ${output_file_prefix}.final.genome.scf.large.fasta: $!\n");
+        or PrintErrorMessage("Couldn't create file ${output_file_prefix}.final.genome.scf.large.fasta: $!");
 
     my @fasta_new = ();
     my $fasta_length = 0;
@@ -80,7 +80,7 @@ sub Mope {
     # print "Start use cmd: \'$cmd_centrifuge\'.\n";
     PrintProcessMessage("classifier to %%", "${output_file_prefix}.centrifuge.output");
     system $cmd_centrifuge
-        and PrintErrorMessage("Command \'$cmd_centrifuge\' failed to run normally: $?\n");
+        and PrintErrorMessage("Command \'$cmd_centrifuge\' failed to run normally: $?");
 
     # my $cmd_centrifuge_kreport = "$centrifuge_kreport " .
 	#                      "-x $index " .
@@ -92,17 +92,17 @@ sub Mope {
     # # print "Start use cmd: \'$cmd_centrifuge_kreport\'.\n";
     # PrintProcessMessage("make a Kraken-style report to %%", "${output_file_prefix}.centrifuge.krakenOut");
     # system $cmd_centrifuge_kreport
-    #     and PrintErrorMessage("Command \'$cmd_centrifuge_kreport\' failed to run normally: $?\n");
+    #     and PrintErrorMessage("Command \'$cmd_centrifuge_kreport\' failed to run normally: $?");
 
     my $taxid = $par->val('DATA', 'taxid');
 
     PrintProcessMessage("extract sequence by taxid to %%", "${output_file_prefix}.filtered.fa");
     open TAXID, '<', $taxid
-        or PrintErrorMessage("Couldn't open file $taxid: $!\n");
+        or PrintErrorMessage("Couldn't open file $taxid: $!");
     my %id_taxid = map {chomp; $_, 1} (<TAXID>);
 
     open INPUT, "<", "${output_file_prefix}.centrifuge.output"
-        or PrintErrorMessage("Couldn't open file ${output_file_prefix}.centrifuge.output: $!\n");
+        or PrintErrorMessage("Couldn't open file ${output_file_prefix}.centrifuge.output: $!");
     my %id_centrifuge;
     while(<INPUT>) {
         next if m/^readID/;
@@ -115,9 +115,9 @@ sub Mope {
     close INPUT;
 
     open my $INPUT, "<", "${output_file_prefix}.final.genome.scf.large.fasta"
-        or PrintErrorMessage("Couldn't open file ${output_file_prefix}.final.genome.scf.large.fasta: $!\n");
+        or PrintErrorMessage("Couldn't open file ${output_file_prefix}.final.genome.scf.large.fasta: $!");
     open my $OUTPUT, ">", "${output_file_prefix}.filtered.fa"
-        or PrintErrorMessage("Couldn't create file ${output_file_prefix}.filtered.fa: $!\n");
+        or PrintErrorMessage("Couldn't create file ${output_file_prefix}.filtered.fa: $!");
 
     my $seq_input = Bio::SeqIO->new(-fh     => $INPUT,
                                     -format => 'Fasta');

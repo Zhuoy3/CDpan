@@ -170,6 +170,7 @@ sub __CheckConfig__ {
         "LOCATION" => {
             'species' => undef,
             'extract_dir' => undef,
+            'soot_dir' => undef,
             'sort' => 9,
         },
     );
@@ -199,6 +200,12 @@ sub __CheckConfig__ {
         foreach my $param ( sort keys %{ $default_params{$section} } ) {
             next if ( $param eq 'sort');
             if ( $section eq 'LOCATION' and $param eq 'extract_dir' and ( $main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" } ) ){
+                next unless ( defined $par->val($section, $param ) );
+                PrintWarnMessage("[$section] => $param is not required by Module $main::module, ignore it and the result of Module $main::module will be used");
+                $par->delval($section, $param);
+                next;
+            }
+            if ( $section eq 'LOCATION' and $param eq 'soot_dir' and ( $main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" } ) ){
                 next unless ( defined $par->val($section, $param ) );
                 PrintWarnMessage("[$section] => $param is not required by Module $main::module, ignore it and the result of Module $main::module will be used");
                 $par->delval($section, $param);

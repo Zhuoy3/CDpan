@@ -52,7 +52,7 @@ sub Soot {
     # print "Start use cmd: \'$cmd_nucmer\'.\n";
     PrintProcessMessage("precise align to %%", "${output_file_prefix}.filtered.mmseqs.delta");
     system $cmd_nucmer
-        and PrintErrorMessage("Command \'$cmd_nucmer\' failed to run normally: $?\n");
+        and PrintErrorMessage("Command \'$cmd_nucmer\' failed to run normally: $?");
 
     my $show_coords = $par->val('TOOLS', 'show-coords');
 
@@ -63,7 +63,7 @@ sub Soot {
     # print "Start use cmd: \'$cmd_show_coords\'.\n";
     PrintProcessMessage("show coords of alignments to %%", "${output_file_prefix}.filtered.mmseqs.delta.coords");
     system $cmd_show_coords
-        and PrintErrorMessage("Command \'$cmd_show_coords\' failed to run normally: $?\n");
+        and PrintErrorMessage("Command \'$cmd_show_coords\' failed to run normally: $?");
 
     PrintProcessMessage("precise delete to %%", "${output_file_prefix}.filtered.mmseqs.final.fa");
     if ( -s "${output_file_prefix}.filtered.mmseqs.delta.coords" ) {
@@ -73,16 +73,16 @@ sub Soot {
                         "> ${output_file_prefix}.repeat.names";
         # print "Start use cmd: \'$cmd_repeat\'.\n";
         system $cmd_repeat
-            and PrintErrorMessage("Command \'$cmd_repeat\' failed to run normally: $?\n");
+            and PrintErrorMessage("Command \'$cmd_repeat\' failed to run normally: $?");
 
         open my $REPEAT, "<", "${output_file_prefix}.repeat.names"
-            or PrintErrorMessage("Couldn't open file ${output_file_prefix}.repeat.names: $!\n");
+            or PrintErrorMessage("Couldn't open file ${output_file_prefix}.repeat.names: $!");
         my %id_repeat = map {chomp; $_, 1} (<$REPEAT>);
 
         open my $INPUT, "<", "${input_file_prefix}.filtered.mmseqs_rep_seq.fasta"
-            or PrintErrorMessage("Couldn't open file ${input_file_prefix}.filtered.mmseqs_rep_seq.fasta: $!\n");
+            or PrintErrorMessage("Couldn't open file ${input_file_prefix}.filtered.mmseqs_rep_seq.fasta: $!");
         open my $OUTPUT, ">", "${output_file_prefix}.filtered.mmseqs.final.fa"
-            or PrintErrorMessage("Couldn't create file ${output_file_prefix}.filtered.mmseqs.final.fa: $!\n");
+            or PrintErrorMessage("Couldn't create file ${output_file_prefix}.filtered.mmseqs.final.fa: $!");
 
         my $seq_input = Bio::SeqIO->new(-fh     => $INPUT,
                                         -format => 'Fasta');
@@ -96,7 +96,7 @@ sub Soot {
     }
     else{
         copy("${input_file_prefix}.filtered.mmseqs_rep_seq.fasta", "${output_file_prefix}.filtered.mmseqs.final.fa")
-             or PrintErrorMessage("Copy file \'${input_file_prefix}.filtered.mmseqs_rep_seq.fasta\' to \'${output_file_prefix}.filtered.mmseqs.final.fa\' failed: $!\n");
+             or PrintErrorMessage("Copy file \'${input_file_prefix}.filtered.mmseqs_rep_seq.fasta\' to \'${output_file_prefix}.filtered.mmseqs.final.fa\' failed: $!");
     }
 
     if ( $par->val('CDPAN', 'output_level') < 2 ) {

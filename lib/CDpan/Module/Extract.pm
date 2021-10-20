@@ -42,7 +42,7 @@ sub Extract {
     # print "Start use cmd: \'$cmd_fastq1\'.\n";
     PrintProcessMessage('extract to %% %%', "${output_file_prefix}.mateUnmapped_R1.fq", "${output_file_prefix}.mateUnmapped_R2.fq");
     system $cmd_fastq1
-        and PrintErrorMessage("Command \'$cmd_fastq1\' failed to run normally: $?\n");
+        and PrintErrorMessage("Command \'$cmd_fastq1\' failed to run normally: $?");
 
     my $cmd_fastq2 = "$samtools fastq -\@ $thread " .
                      "-f 68 -F 8 ${input_file_prefix}.sort.bam " .
@@ -51,7 +51,7 @@ sub Extract {
     # print "Start use cmd: \'$cmd_fastq2\'.\n";
     PrintProcessMessage('extract to %%', "${output_file_prefix}.R1_mateMapped.fq");
     system $cmd_fastq2
-        and PrintErrorMessage("Command \'$cmd_fastq2\' failed to run normally: $?\n");
+        and PrintErrorMessage("Command \'$cmd_fastq2\' failed to run normally: $?");
 
     my $cmd_fastq3 = "$samtools fastq -\@ $thread " .
                      "-f 132 -F 8 ${input_file_prefix}.sort.bam " .
@@ -60,7 +60,7 @@ sub Extract {
     # print "Start use cmd: \'$cmd_fastq3\'.\n";
     PrintProcessMessage('extract to %%', "${output_file_prefix}.R2_mateMapped.fq");
     system $cmd_fastq3
-        and PrintErrorMessage("Command \'$cmd_fastq3\' failed to run normally: $?\n");
+        and PrintErrorMessage("Command \'$cmd_fastq3\' failed to run normally: $?");
 
     my $cmd_view = "$samtools view -\@ $thread " .
                    "-f 8 -F 4 -b -h ${input_file_prefix}.sort.bam " .
@@ -68,7 +68,7 @@ sub Extract {
     # print "Start use cmd: \'$cmd_view\'.\n";
     PrintProcessMessage('extract to %%', "${output_file_prefix}.Sus_11_1_Links.bam");
     system $cmd_view
-        and PrintErrorMessage("Command \'$cmd_view\' failed to run normally: $?\n");
+        and PrintErrorMessage("Command \'$cmd_view\' failed to run normally: $?");
 
     my $cmd_fastq4 = "$samtools fastq -\@ $thread " .
                      "-f 4 ${input_file_prefix}.sort.bam " .
@@ -78,7 +78,7 @@ sub Extract {
     # print "Start use cmd: \'$cmd_fastq4\'.\n";
     PrintProcessMessage('extract to %% %%', "${output_file_prefix}.singleUnmapped_R1.fq", "${output_file_prefix}.singleUnmapped_R2.fq");
     system $cmd_fastq4
-        and PrintErrorMessage("Command \'$cmd_fastq4\' failed to run normally: $?\n");
+        and PrintErrorMessage("Command \'$cmd_fastq4\' failed to run normally: $?");
 
 
     if ( $par->val('CDPAN', 'output_level')  < 3) {

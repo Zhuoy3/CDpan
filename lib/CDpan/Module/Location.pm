@@ -12,15 +12,15 @@ use warnings;
 use Config::IniFiles;
 use File::Spec::Functions qw /:ALL/;
 use File::Copy qw / copy move /;
+use File::Path qw / mkpath rmtree /;
 use List::Util qw / max min /;
-use File::Path qw / mkpath /;
 
 use CDpan::Print qw / :PRINT /;
 
-sub RepeatMasker {
+sub PreLocation {
     (my $par) = @_;
 
-    my $output_dir = catdir($par->val('CDPAN', 'work_dir'), 'repeat_masker');
+    my $output_dir = catdir($par->val('CDPAN', 'work_dir'), 'pre_location');
     mkdir $output_dir or PrintErrorMessage("Cannot create work direction $output_dir: $!");
 
     my $input_file = catfile($par->val('CDPAN', 'input_dir'), 'merge.fasta');
@@ -61,6 +61,8 @@ sub RepeatMasker {
     system $cmd_samtools
         and PrintErrorMessage("Command \'$cmd_samtools\' failed to run normally: $?");
 
+    system "awk '{print \$1,\$2}' $output_dir/merge.fasta.fai > $output_dir/merge.fasta.length";
+
     # Read the software path
     my $bowtie2_build = $par->val('TOOLS', 'bowtie2-build');
     my $cmd_bowtie2_build = "$bowtie2_build " .
@@ -73,7 +75,25 @@ sub RepeatMasker {
     system $cmd_bowtie2_build
         and PrintErrorMessage("Command \'$cmd_bowtie2_build\' failed to run normally: $?");
 
-    $par->newval('RESULT', 'repeat_masker', $output_dir);
+    $par->newval('RESULT', 'pre_location', $output_dir);
+
+    return 1;
+}
+
+sub RemovePreLocation {
+    (my $par) = @_;
+
+    my $pre_location_dir = catdir($par->val('CDPAN', 'work_dir'), 'pre_location');
+
+    if ( $par->val('CDPAN', 'output_level') < 2 ) {
+        rmtree $pre_location_dir or PrintErrorMessage("Cannot delete direction $pre_location_dir: $!");
+    }
+    elsif ($main::modules{ "location" }){
+        my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'pre_location');
+        move $pre_location_dir, $output_dir or PrintErrorMessage("Couln't move $pre_location_dir to $output_dir: $!");
+    }elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }) {
+        $par->newval('RESULT', 'pre_location', $pre_location_dir);
+    }
 
     return 1;
 }
@@ -86,7 +106,7 @@ sub Location {
 
     my $output_file_prefix = catfile($output_dir, $idv_name);
 
-    my $repeat_masker_dir = $par->val('RESULT', 'repeat_masker');
+    my $pre_location_dir = $par->val('RESULT', 'pre_location');
 
     my $input_file_prefix = catfile($par->val('CDPAN', 'input_dir'), $idv_name, $idv_name);
     if ($main::modules{ "location" }){
@@ -100,7 +120,7 @@ sub Location {
     my $thread  = $par->val('CDPAN',  'thread');
 
     my $cmd_align = "$bowtie2 " .
-                    "-x $repeat_masker_dir/index " .
+                    "-x $pre_location_dir/index " .
                     "-U ${input_file_prefix}.singleUnmapped_R2.fq,${input_file_prefix}.singleUnmapped_R2.fq " .
                     "-S ${output_file_prefix}.readContigAlignment.final.sam " .
                     "-p $thread " .
@@ -165,7 +185,7 @@ sub Location {
 
     my $cmd_minimap2 = "$minimap2 " .
                        "-x asm10 " .
-                       "$repeat_masker_dir/merge.fasta " .
+                       "$pre_location_dir/merge.fasta " .
                        "${vot_dir_prefix}.filtered.mmseqs_rep_seq.fasta " .
                        "> ${output_file_prefix}.aln.paf " .
                        "2> ${output_file_prefix}.aln.paf.log";
@@ -186,7 +206,7 @@ sub Location {
 	mkdir "./4";
 
     # archive the contig name and length
-    system "awk '{print \$1,\$2}' $repeat_masker_dir/merge.fasta.fai > ./contig.name"
+    system "awk '{print \$1,\$2}' $pre_location_dir/merge.fasta.fai > ./contig.name"
         and PrintErrorMessage("Command failed to run normally: $?");
 
     open my $CONTIG, '<', "${output_file_prefix}.mateLinks.txt"
@@ -347,6 +367,31 @@ sub Location {
     system "rm -rf ./4";
     mkdir "./4";
 
+    chdir $main::cwd or PrintErrorMessage("Cannot chdir to $main::cwd: $!");
+
+    system "cp $output_dir/link_new/1/* $output_dir";
+
+    if ( $par->val('CDPAN', 'output_level') < 2 ) {
+        rmtree "$output_dir/link_new" or PrintErrorMessage("Cannot delete direction $output_dir/link_new: $!");
+        unlink "${output_file_prefix}.readContigAlignment.txt" or PrintErrorMessage("Cannot delete file: ${output_file_prefix}.readContigAlignment.txt: $!");
+        unlink "${output_file_prefix}.readContigAlignment.final.sam" or PrintErrorMessage("Cannot delete file: ${output_file_prefix}.readContigAlignment.final.sam: $!");
+    }
+
+    if ( $par->val('CDPAN', 'output_level') == 0) {
+        foreach (File::Slurp::read_dir($output_dir, prefix => 1)){
+            if ( $_ ne "$output_dir/1.name" and
+                $_ ne "$output_dir/2a.name" and
+                $_ ne "$output_dir/2bleft.name" and
+                $_ ne "$output_dir/2bright.name" and
+                $_ ne "$output_dir/3.name" and
+                $_ ne "$output_dir/4.name" and
+                $_ ne "$output_dir/5.name" and
+                $_ ne "${output_file_prefix}.aln.paf"){
+                unlink $_ or PrintErrorMessage("Cannot delete file: $_: $!");
+            }
+        }
+    }
+
     return 1;
 
     sub do3 {
@@ -489,6 +534,18 @@ sub Location {
 
         return 1;
     }
+}
+
+sub Compare {
+    (my $par) = @_;
+
+    my $pre_location_dir = $par->val('RESULT', 'pre_location');
+    my $location_dir = catdir($par->val('CDPAN', 'work_dir'), 'location');
+
+    system "$main::FindBin::Bin/compare.py $pre_location_dir/merge.fasta.length $location_dir"
+        and PrintErrorMessage("compare exited abnormally");
+
+    return 1;
 }
 
 1;

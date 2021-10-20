@@ -293,8 +293,7 @@ sub __CheckFile__ {
     if ( -e $main::work_dir) {
         my @dir_files = File::Slurp::read_dir($main::work_dir, prefix => 1);
         if ( @dir_files ) {
-            #TODO PrintErrorMessage("Working direction $main::work_dir exists and has file");
-            PrintWarnMessage("Working direction $main::work_dir exists and has file");
+            PrintErrorMessage("Working direction $main::work_dir exists and has file");
         }
         else {
             PrintWarnMessage("Working direction $main::work_dir exists but is empty");

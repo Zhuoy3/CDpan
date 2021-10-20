@@ -1,17 +1,6 @@
-#!/bin/python3
-'''
-Description:
-Author: zhuoy
-Date: 2021-06-09 15:02:54
-LastEditors: zhuoy
-LastEditTime: 2021-10-09 15:28:27
-Calls:
-Called By:
-FilePath: \CDpan\bin\ex.py
-'''
-#
+#!/usr/bin/env python3
+
 import copy
-import re
 import os
 import sys
 
@@ -114,32 +103,11 @@ def Arrange(paf_file, seq_list, location_dict, threshold):
     return seq_list
 
 
-# def Aexist(coverage_file, seq_list, location_dict):
-#     coverage = {}
-#     with open(coverage_file) as f:
-#         for line in f:
-#             if re.match("^#", line):
-#                 continue
-
-#             line = line.rstrip('\n').split('\t')
-#             if float(line[5]) > 95:
-#                 coverage[line[0]] = 1
-
-#     for i in range(len(seq_list)):
-#         status = location_dict.get(seq_list[i][0], '')
-#         com = coverage.get(seq_list[i][0], 0)
-#         seq_list[i].append(f'{com}{status}')
-
-#     return seq_list
-
-
-def Location(file_path_paf_string, file_path_location_string):
-    breed_individual = re.search(
-        '[^/]+\/[^/]+\.all\.paf', file_path_paf_string).group().replace('.all.paf', '')
-    file_location = f'{file_path_location_string}{breed_individual}'
+def Location(idv_name, location_dir):
+    file_location = os.path.join(location_dir, idv_name)
     location = {}
 
-    with open(f'{file_location}/2a.name') as f:
+    with open(os.path.join(file_location, '2a.name')) as f:
         for line in f:
             seq = line.rstrip('\n').split(' ')
 
@@ -160,7 +128,7 @@ def Location(file_path_paf_string, file_path_location_string):
 
             location[contig] = f':{status}:{chr}:{left}:{right}'
 
-    with open(f'{file_location}/2bleft.name') as f:
+    with open(os.path.join(file_location, '2bleft.name')) as f:
         for line in f:
             seq = line.rstrip('\n').split(' ')
 
@@ -172,7 +140,7 @@ def Location(file_path_paf_string, file_path_location_string):
 
             location[contig] = f':{status}:{chr}:{left}:{right}'
 
-    with open(f'{file_location}/2bright.name') as f:
+    with open(os.path.join(file_location, '2bright.name')) as f:
         for line in f:
             seq = line.rstrip('\n').split(' ')
 
@@ -184,7 +152,7 @@ def Location(file_path_paf_string, file_path_location_string):
 
             location[contig] = f':{status}:{chr}:{left}:{right}'
 
-    with open(f'{file_location}/3.name') as f:
+    with open(os.path.join(file_location, '3.name')) as f:
         for line in f:
             seq = line.rstrip('\n').split(' ')
 
@@ -196,7 +164,7 @@ def Location(file_path_paf_string, file_path_location_string):
 
             location[contig] = f':{status}:{chr}:{left}:{right}'
 
-    with open(f'{file_location}/4.name') as f:
+    with open(os.path.join(file_location, '4.name')) as f:
         for line in f:
             seq = line.rstrip('\n').split(' ')
 
@@ -208,7 +176,7 @@ def Location(file_path_paf_string, file_path_location_string):
 
             location[contig] = f':{status}:{chr}:{left}:{right}'
 
-    with open(f'{file_location}/5.name') as f:
+    with open(os.path.join(file_location, '5.name')) as f:
         for line in f:
             seq = line.rstrip('\n').split(' ')
 
@@ -224,32 +192,22 @@ def Location(file_path_paf_string, file_path_location_string):
 
 
 threshold = 0.8
-
-
-if len(sys.argv) != 5:
-    print('Error: Number of wrong parameters.')
-    sys.exit(1)
-# fasta, arrange, location, output = sys.argv[1:5]
-fasta, minimap, location, output = sys.argv[1:5]
+fasta, input_dir = sys.argv[1:3]
 
 seq = []
 with open(fasta) as f:
     for line in f:
-        seq.append([line.rstrip('\n').split('\t')[0]])
+        seq.append([line.rstrip('\n').split(' ')[0]])
 
-header = ['Contig']
-os.chdir(minimap)
-file_list = os.popen('find')
-for file_string in file_list:
-    file = re.search('[^/]+\.all\.paf', file_string)
-    if file:
-        file = file.group()
-        loc = Location(file_string.rstrip('\n'), location)
-        seq = Arrange(file_string.rstrip('\n'), seq, loc, threshold)
-        # seq = Aexist(file_string.rstrip('\n'), seq, loc)
-        header.append(file.replace('.all.paf', ''))
+header = ['#Contig']
+for idv_name in os.listdir(input_dir):
+    loc = Location(idv_name, input_dir)
+    seq = Arrange(os.path.join(input_dir, idv_name,
+                  f'{idv_name}.aln.paf'), seq, loc, threshold)
+    header.append(idv_name)
 
-f = open(f"{output}_{threshold}.txt", 'w+')
+f = open(os.path.join(input_dir, 'compare.txt'), 'w+')
+f.write('####################\n')
 f.write(' '.join(header) + '\n')
 for line in seq:
     f.write(' '.join(line) + '\n')

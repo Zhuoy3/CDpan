@@ -319,9 +319,9 @@ sub Location {
 
     PrintStartMessage("Start Module location");
 
-    print STDERR "Processing: RepeatMasker\n";
-    CDpan::Module::Location::RepeatMasker($par)
-        or PrintErrorMessage("Module location exited abnormally when do RepeatMasker");
+    print STDERR "Processing: PreLocation\n";
+    CDpan::Module::Location::PreLocation($par)
+        or PrintErrorMessage("Module location exited abnormally when do PreLocation");
     print STDERR "\n";
 
     my $work_dir = catdir($par->val('CDPAN', 'work_dir'), 'location');
@@ -333,9 +333,21 @@ sub Location {
 
     foreach my $idv_name (@input_idvs) {
         print STDERR "Processing: $idv_name\n";
-        CDpan::Module::Location::Location($par, $idv_name)
-            or PrintErrorMessage("Module location exited abnormally when do RepeatMasker");
+        CDpan::Module::Location::Location($par, $idv_name) or PrintErrorMessage("Module location exited abnormally for $idv_name");
         print STDERR "\n";
+    }
+
+    CDpan::Module::Location::Compare($par)
+         or PrintErrorMessage("Module location exited abnormally when do compare");
+
+    CDpan::Module::Location::RemovePreLocation($par)
+        or PrintErrorMessage("Module location exited abnormally when remove PreLocation");
+
+    if ( $par->val('CDPAN', 'output_level') == 0 ) {
+        foreach my $idv_name (@input_idvs) {
+            my $idv_output_dir = catdir($par->val('CDPAN', 'work_dir'),'location', $idv_name);
+            rmtree $idv_output_dir or PrintErrorMessage("Cannot delete direction $idv_output_dir: $!");
+        }
     }
 
     if ($main::modules{ "location" }){
@@ -362,7 +374,7 @@ sub RunDisplace {
 
     PrintStartMessage("Start Module RunDisplace");
     print STDERR "The following modules will be executed sequentially:";
-    print STDERR "    filter align extract assembly mope vot soot merge";
+    print STDERR "    filter align extract assembly mope vot soot merge\n";
 
     Filter   ( $par );
     Align    ( $par );
@@ -374,15 +386,15 @@ sub RunDisplace {
     Merge    ( $par );
 
     my $result_file = catfile($par->val('RESULT', 'merge'), 'merge.fasta');
-    my $output_file = catfile($par->val('RESULT', 'output_dir'), 'dispensable_genome.fasta');
+    my $output_file = catfile($par->val('CDPAN', 'output_dir'), "$main::output_prefix.dispensable_genome.fasta");
     copy $result_file,$output_file
         or PrintErrorMessage("Cannot copy file $result_file to $output_file: $!");
+    $par->newval('RESULT', 'dispensable_genome.fasta', $output_file);
 
     my @modules_by_rundisplace = qw \ filter align extract assembly mope vot soot merge \;
     foreach my $module_by_rundisplace ( @modules_by_rundisplace) {
         my $result_dir = $par->val('RESULT', $module_by_rundisplace);
         if ( $par->val('CDPAN', 'output_level') == 0) {
-            rmtree $result_dir or PrintErrorMessage("Cannot delete direction $result_dir: $!");
             $par->delval('RESULT', $module_by_rundisplace);
         }
         else {
@@ -390,6 +402,13 @@ sub RunDisplace {
             move $result_dir, $output_dir or PrintErrorMessage("Couln't move $result_dir to $output_dir: $!");
             $par->setval('RESULT', $module_by_rundisplace, $output_dir);
         }
+    }
+
+    unless ( $par->val('CDPAN', 'output_level') == 0) {
+        my $index_dir = $par->val('RESULT', 'ref_index');
+        my $index_output_dir = catdir($par->val('CDPAN', 'output_dir'), 'ref_index');
+        move $index_dir, $index_output_dir or PrintErrorMessage("Couln't move $index_dir to $index_output_dir: $!");
+        $par->delval('RESULT', 'ref_index');
     }
 
     PrintEndMessage("Finish Module RunDisplace");
@@ -402,7 +421,7 @@ sub RunAll {
 
     PrintStartMessage("Start Module RunDisplace");
     print STDERR "The following modules will be executed sequentially:";
-    print STDERR "    filter align extract assembly mope vot soot merge location";
+    print STDERR "    filter align extract assembly mope vot soot merge location\n\n";
 
     Filter   ( $par );
     Align    ( $par );
@@ -415,15 +434,21 @@ sub RunAll {
     Location ( $par );
 
     my $result_file = catfile($par->val('RESULT', 'merge'), 'merge.fasta');
-    my $output_file = catfile($par->val('RESULT', 'output_dir'), 'dispensable_genome.fasta');
+    my $output_file = catfile($par->val('CDPAN', 'output_dir'), "$main::output_prefix.dispensable_genome.fasta");
     copy $result_file,$output_file
         or PrintErrorMessage("Cannot copy file $result_file to $output_file: $!");
+    $par->newval('RESULT', 'dispensable_genome.fasta', $output_file);
+
+    my $result_file = catfile($par->val('RESULT', 'location'), 'compare.txt');
+    my $output_file = catfile($par->val('CDPAN', 'output_dir'), "$main::output_prefix.location.txt");
+    copy $result_file,$output_file
+        or PrintErrorMessage("Cannot copy file $result_file to $output_file: $!");
+    $par->newval('RESULT', 'location.txt', $output_file);
 
     my @modules_by_rundisplace = qw \ filter align extract assembly mope vot soot merge location \;
     foreach my $module_by_rundisplace ( @modules_by_rundisplace) {
         my $result_dir = $par->val('RESULT', $module_by_rundisplace);
         if ( $par->val('CDPAN', 'output_level') == 0) {
-            rmtree $result_dir or PrintErrorMessage("Cannot delete direction $result_dir: $!");
             $par->delval('RESULT', $module_by_rundisplace);
         }
         else {
@@ -433,19 +458,22 @@ sub RunAll {
         }
     }
 
+    unless ( $par->val('CDPAN', 'output_level') == 0) {
+        my $index_dir = $par->val('RESULT', 'ref_index');
+        my $index_output_dir = catdir($par->val('CDPAN', 'output_dir'), 'ref_index');
+        move $index_dir, $index_output_dir or PrintErrorMessage("Couln't move $index_dir to $index_output_dir: $!");
+        $par->delval('RESULT', 'ref_index');
+
+        my $pre_location_dir = $par->val('RESULT', 'pre_location');
+        my $pre_location_output_dir = catdir($par->val('CDPAN', 'output_dir'), 'pre_location');
+        move $pre_location_dir, $pre_location_output_dir or PrintErrorMessage("Couln't move $pre_location_dir to $pre_location_output_dir: $!");
+        $par->delval('RESULT', 'pre_location');
+    }
+
     PrintEndMessage("Finish Module RunDisplace");
 
     return 1;
 };
-
-#     system "python3 $FindBin::Bin/ex.py"
-
-
-
-
-
-
-
 
 1;
 

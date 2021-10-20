@@ -99,7 +99,7 @@ sub Assembly {
         }
     }
 
-    chdir $main::cwd;
+    chdir $main::cwd or PrintErrorMessage("Cannot chdir to $main::cwd: $!");
 
     return 1;
 }

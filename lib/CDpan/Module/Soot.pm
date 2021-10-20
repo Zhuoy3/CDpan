@@ -98,6 +98,10 @@ sub Soot {
              or PrintErrorMessage("Copy file \'${input_file_prefix}.filtered.mmseqs_rep_seq.fasta\' to \'${output_file_prefix}.filtered.mmseqs.final.fa\' failed: $!\n");
     }
 
+    if ( $par->val('CDPAN', 'output_level') < 2 ) {
+        unlink "${output_file_prefix}.repeat.names" or PrintErrorMessage("Cannot delete file: ${output_file_prefix}.repeat.names: $!");
+    }
+
     if ( $par->val('CDPAN', 'output_level') == 0 ) {
         foreach (File::Slurp::read_dir($output_dir, prefix => 1)){
             if ( $_ ne "${output_file_prefix}.filtered.mmseqs.final.fa"){

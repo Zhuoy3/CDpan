@@ -16,7 +16,7 @@ sub recode {
 
     my @idv_names = @$idv_names;
 
-    open my $OUTPUT , ">", "$work_dir/all.fasta"#TODO merge
+    open my $OUTPUT , ">", "$work_dir/merge.fasta"#TODO merge
         or PrintErrorMessage("Couldn't create output file $work_dir/all.fasta: $!.\n");
 
     my $index = 0;
@@ -27,7 +27,7 @@ sub recode {
         while (<$INPUT>) {
             if ( m/^>/ ){
                 $index += 1;
-                print $OUTPUT ">cdpan$index\n";
+                print $OUTPUT ">dsp$index\n";
             }else{
                 print $OUTPUT $_;
             }

@@ -274,8 +274,6 @@ sub __CheckFile__ {
         }
     }
 
-    print STDERR "\n";
-
     if ( -e $main::work_dir) {
         my @dir_files = File::Slurp::read_dir($main::work_dir, prefix => 1);
         if ( @dir_files ) {

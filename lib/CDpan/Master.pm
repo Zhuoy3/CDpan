@@ -24,10 +24,8 @@ use CDpan::Module::Mope;
 use CDpan::Module::Vot;
 use CDpan::Module::Soot;
 use CDpan::Module::Merge;
-
-# use CDpan::Align;
-# use CDpan::Change;
-# use CDpan::Integration;
+use CDpan::Module::Location;
+use CDpan::Module::LocationSubModule;
 
 sub Filter {
     (my $par) = @_;
@@ -320,6 +318,15 @@ sub Location {
     (my $par) = @_;
 
     PrintStartMessage("Start Module location");
+
+    CDpan::Module::LocationSubModule::RepeatMasker($par)
+        or PrintErrorMessage("Module location exited abnormally when do RepeatMasker");
+
+
+
+
+
+
 
     my $work_dir = catdir($par->val('CDPAN', 'work_dir'), 'location');
     mkdir $work_dir or PrintErrorMessage("Cannot create work direction $work_dir: $!");

@@ -154,16 +154,8 @@ sub AlignRemoveIndex {
     (my $par) = @_;
 
     my $index_dir = catdir($par->val('CDPAN', 'work_dir'), 'ref_index');
-    if ( $par->val('CDPAN', 'output_level') < 2 ) {
-        rmtree $index_dir or PrintErrorMessage("Cannot delete direction $index_dir: $!");
-    }
-    elsif ($main::modules{ "align" }){
-        my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'ref_index');
-        move $index_dir, $output_dir or PrintErrorMessage("Couln't move $index_dir to $output_dir: $!");
-    }elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }) {
-        $par->newval('RESULT', 'ref_index', $index_dir);
-    }
-#TODO delete?
+    rmtree $index_dir or PrintErrorMessage("Cannot delete direction $index_dir: $!");
+
     return 1;
 }
 

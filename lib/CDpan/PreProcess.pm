@@ -168,6 +168,7 @@ sub __CheckConfig__ {
             'sort' => 8,
         },
         "LOCATION" => {
+            'species' => undef,
             'sort' => 9,
         },
     );

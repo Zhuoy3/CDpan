@@ -6,11 +6,9 @@
 
 use strict;
 use warnings;
-use feature qw\ say \;
 
 use FindBin;
 use lib "$FindBin::Bin/../lib";
-use lib "$FindBin::Bin/../tools/Perl/lib/";
 
 use Cwd;
 # use File::Copy qw / copy move /;
@@ -52,6 +50,7 @@ our %modules = (
     "vot"               => 0,
     "soot"              => 0,
     "merge"             => 0,
+    "location"          => 0,
     "RUN-ALL"           => 0,
     "RUN-DISPLACE"      => 0,
 );

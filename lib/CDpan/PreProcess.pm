@@ -59,7 +59,7 @@ sub __CheckTools__ {
                             bowtie2
                             bowtie2-build \;
 
-    print STDERR "Tools needed: @tools_needed\n";
+    print STDERR "Tools required: @tools_needed\n";
     print STDERR "\n";
 
     my @tools_specify = $par->Parameters('TOOLS');
@@ -70,7 +70,7 @@ sub __CheckTools__ {
     print STDERR "\n";
     foreach my $tools (@tools_specify) {
         unless (grep { $_ eq $tools } @tools_needed) {
-            PrintWarnMessage("$tools is not needed, ignore it");
+            PrintWarnMessage("$tools is not required, ignore it");
             $par->delval('TOOLS', $tools);
             next;
         }
@@ -169,6 +169,7 @@ sub __CheckConfig__ {
         },
         "LOCATION" => {
             'species' => undef,
+            'extract_dir' => undef,
             'sort' => 9,
         },
     );
@@ -178,7 +179,7 @@ sub __CheckConfig__ {
     foreach my $section (@par_sections) {
         next if (grep { $_ eq $section } qw \ TOOLS DATA \ );
         unless (grep { $_ eq $section } ( keys %default_params )) {
-            PrintWarnMessage("[$section] => ... is not needed, ignore it");
+            PrintWarnMessage("[$section] => ... is not required, ignore it");
             $par->DeleteSection($section);
             next;
         }
@@ -186,7 +187,7 @@ sub __CheckConfig__ {
         my @par_parameters = sort $par->Parameters($section);
         foreach my $param (@par_parameters) {
             unless (grep { $_ eq $param } ( keys %{ $default_params{$section} } )){
-                PrintWarnMessage("[$section] => $param is not needed, ignore it");
+                PrintWarnMessage("[$section] => $param is not required, ignore it");
                 $par->delval($section, $param);
             }
         }
@@ -197,6 +198,12 @@ sub __CheckConfig__ {
     foreach my $section ( sort { $default_params{$a}{'sort'} <=> $default_params{$b}{'sort'} } keys %default_params ) {
         foreach my $param ( sort keys %{ $default_params{$section} } ) {
             next if ( $param eq 'sort');
+            if ( $section eq 'LOCATION' and $param eq 'extract_dir' and ( $main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" } ) ){
+                next unless ( defined $par->val($section, $param ) );
+                PrintWarnMessage("[$section] => $param is not required by Module $main::module, ignore it and the result of Module $main::module will be used");
+                $par->delval($section, $param);
+                next;
+            }
             if ( defined $par->val($section, $param)) {
                 printf STDERR "%-10s", "[$section]";
                 printf STDERR "%-25s", " => $param:";

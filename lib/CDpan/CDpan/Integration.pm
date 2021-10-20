@@ -202,146 +202,146 @@ sub integration {
     system "rm -rf ./4";
     mkdir "./4";
 
-    return 1;
-}
+    sub do3 {
+        ( my $opt_n, my $opt_i, my $opt_l, my $opt_c) = @_;
 
-sub do3 {
-    ( my $opt_n, my $opt_i, my $opt_l, my $opt_c) = @_;
-
-    open IN,"<$opt_i";
-    open OUT1,">$opt_i.left";
-    open OUT2,">$opt_i.right";
-    while(<IN>) {
-        chomp $_;
-        my @a = split /\s+/, $_;
-        my $ed = $opt_l - 500;
-        if( ($a[4] <= 500) && ($a[3] <= 500) && $a[5] eq $opt_c) {
-            print OUT1 "$_\n"; ##output the left end results
-        } elsif(($a[4] >= $ed) && ($a[3] >= $ed) && $a[5] eq $opt_c) {
-            print OUT2 "$_\n"; ##output the right end results
-        }
-    }
-    close IN;
-    close OUT1;
-    close OUT2;
-
-    my $left = 0;
-    my $right = 0;
-    my %hash;  # chromosome alignment results
-
-    # left end place
-    foreach my $file_suffix ( qw \ left right\ ){
-        if ( -s "$opt_i.$file_suffix" ) {
-            open IN,"<$opt_i.$file_suffix";
-            my @st;
-            my @ed;
-            while(<IN>) {
-                my @cc=split/\s+/,$_;
-                ($cc[7] , $cc[8]) = ($cc[8] , $cc[7]) if ( $cc[7] > $cc[8] );
-                push @st, $cc[7];
-                push @ed, $cc[8];
-            }
-            close IN;
-
-            if( max( @ed ) - min( @st ) <= 2000 ) {
-                $left  = 1 if $file_suffix eq "left";   # left  ensure
-                $right = 1 if $file_suffix eq "right";  # right ensure
-                my $stmid = int(mid(@st));
-                my $edmid = int(mid(@ed));
-                $hash{$opt_n}{$file_suffix}="$opt_n $stmid $edmid";  ##left end on chromosome
+        open IN,"<$opt_i";
+        open OUT1,">$opt_i.left";
+        open OUT2,">$opt_i.right";
+        while(<IN>) {
+            chomp $_;
+            my @a = split /\s+/, $_;
+            my $ed = $opt_l - 500;
+            if( ($a[4] <= 500) && ($a[3] <= 500) && $a[5] eq $opt_c) {
+                print OUT1 "$_\n"; ##output the left end results
+            } elsif(($a[4] >= $ed) && ($a[3] >= $ed) && $a[5] eq $opt_c) {
+                print OUT2 "$_\n"; ##output the right end results
             }
         }
-    }
+        close IN;
+        close OUT1;
+        close OUT2;
 
-    open OUT1,">>./1/2bleft.name";
-    open OUT2,">>./1/2bright.name";
-    open OUT3,">>./1/2a.name";
+        my $left = 0;
+        my $right = 0;
+        my %hash;  # chromosome alignment results
 
-    if($left==0 && $right==0) {
-        unlink "$opt_i","$opt_i.right","$opt_i.left";
-    }
-    elsif($left != 0 && $right==0) {
-        my @a=split/\s+/,$hash{$opt_n}{"left"};
-        print OUT1 "$opt_n $opt_l $opt_c $a[1] $a[2]\n";
-        system "mv ./3/$opt_n.link ./2/2b/left";
-        unlink "$opt_i","$opt_i.right","$opt_i.left";
-    }
-    elsif($left == 0 && $right != 0) {
-        my @a=split/\s+/,$hash{$opt_n}{"right"};
-        print OUT2 "$opt_n $opt_l $opt_c $a[1] $a[2]\n";
-        system"mv ./3/$opt_n.link ./2/2b/right";
-        unlink "$opt_i","$opt_i.right","$opt_i.left";
-    }
-    elsif($left != 0 && $right != 0) {
-        my @a=split/\s+/,$hash{$opt_n}{"left"};
-        my @b=split/\s+/,$hash{$opt_n}{"right"};
-        print OUT3 "$opt_n $opt_l $opt_c $a[1] $a[2] $b[1] $b[2]\n";
-        system"mv ./3/$opt_n.link ./2/2a";
-        unlink "$opt_i","$opt_i.right","$opt_i.left";
-    }
+        # left end place
+        foreach my $file_suffix ( qw \ left right\ ){
+            if ( -s "$opt_i.$file_suffix" ) {
+                open IN,"<$opt_i.$file_suffix";
+                my @st;
+                my @ed;
+                while(<IN>) {
+                    my @cc=split/\s+/,$_;
+                    ($cc[7] , $cc[8]) = ($cc[8] , $cc[7]) if ( $cc[7] > $cc[8] );
+                    push @st, $cc[7];
+                    push @ed, $cc[8];
+                }
+                close IN;
 
-    sub mid{
-        my @list = sort{$a<=>$b} @_;
-        my $count = @list;
-        return undef if( $count == 0 );
-
-        if( ($count%2) == 1 ){
-            return $list[int(($count-1)/2)];
-        } elsif ( ($count%2)==0 ) {
-            return ($list[int(($count-1)/2)]+$list[int(($count)/2)])/2;
-        }
-    }
-
-    return 1;
-}
-
-sub do4 {
-    ( my $opt_n, my $opt_i, my $opt_l) = @_;
-
-    open IN,"<$opt_i";
-    open OUT1,">$opt_i.left";
-    open OUT2,">$opt_i.right";
-    while(<IN>) {
-        chomp;
-        my @a=split/\s+/,$_;
-        my $ed=$opt_l-500;
-        if(($a[4] <= 500) && ($a[3] <= 500)) {
-            print OUT1 "$_\n"; # output the left end results
-        } elsif(($a[4] >= $ed) && ($a[3] >= $ed)) {
-            print OUT2 "$_\n"; ##output the right end results
-        }
-    }
-    close IN;
-    close OUT1;
-    close OUT2;
-
-    ##left end place
-    PLACE:foreach my $file_suffix ( qw \ left right\ ){
-        system"awk '{print \$6}' $opt_i.$file_suffix | sort - | uniq -c - | sed 's/^[ ]*//' > $opt_i.$file_suffix.chr";
-        if ( -s "$opt_i.$file_suffix.chr") {
-            open IN,"<$opt_i.$file_suffix.chr";
-            my $sum=0;
-            my @b;
-            my @chr;
-            while(<IN>) {
-                chomp;
-                my @a = split /\s+/, $_;
-                push @b, $a[0];
-                push @chr, $a[1];
-                $sum += $a[0];
-            }
-            close IN;
-            foreach my $b_em ( @b ) {
-                if( $b_em/$sum >=0.95) {
-                    move "$opt_i", "./3";
-                    unlink "$opt_i.$file_suffix", "$opt_i.$file_suffix.chr";
-                    last PLACE;
+                if( max( @ed ) - min( @st ) <= 2000 ) {
+                    $left  = 1 if $file_suffix eq "left";   # left  ensure
+                    $right = 1 if $file_suffix eq "right";  # right ensure
+                    my $stmid = int(mid(@st));
+                    my $edmid = int(mid(@ed));
+                    $hash{$opt_n}{$file_suffix}="$opt_n $stmid $edmid";  ##left end on chromosome
                 }
             }
         }
-        unlink "$opt_i.$file_suffix", "$opt_i.$file_suffix.chr";
+
+        open OUT1,">>./1/2bleft.name";
+        open OUT2,">>./1/2bright.name";
+        open OUT3,">>./1/2a.name";
+
+        if($left==0 && $right==0) {
+            unlink "$opt_i","$opt_i.right","$opt_i.left";
+        }
+        elsif($left != 0 && $right==0) {
+            my @a=split/\s+/,$hash{$opt_n}{"left"};
+            print OUT1 "$opt_n $opt_l $opt_c $a[1] $a[2]\n";
+            system "mv ./3/$opt_n.link ./2/2b/left";
+            unlink "$opt_i","$opt_i.right","$opt_i.left";
+        }
+        elsif($left == 0 && $right != 0) {
+            my @a=split/\s+/,$hash{$opt_n}{"right"};
+            print OUT2 "$opt_n $opt_l $opt_c $a[1] $a[2]\n";
+            system"mv ./3/$opt_n.link ./2/2b/right";
+            unlink "$opt_i","$opt_i.right","$opt_i.left";
+        }
+        elsif($left != 0 && $right != 0) {
+            my @a=split/\s+/,$hash{$opt_n}{"left"};
+            my @b=split/\s+/,$hash{$opt_n}{"right"};
+            print OUT3 "$opt_n $opt_l $opt_c $a[1] $a[2] $b[1] $b[2]\n";
+            system"mv ./3/$opt_n.link ./2/2a";
+            unlink "$opt_i","$opt_i.right","$opt_i.left";
+        }
+
+        sub mid{
+            my @list = sort{$a<=>$b} @_;
+            my $count = @list;
+            return undef if( $count == 0 );
+
+            if( ($count%2) == 1 ){
+                return $list[int(($count-1)/2)];
+            } elsif ( ($count%2)==0 ) {
+                return ($list[int(($count-1)/2)]+$list[int(($count)/2)])/2;
+            }
+        }
+
+        return 1;
     }
-    unlink "$opt_i.right" if ( -e "$opt_i.right" );
+
+    sub do4 {
+        ( my $opt_n, my $opt_i, my $opt_l) = @_;
+
+        open IN,"<$opt_i";
+        open OUT1,">$opt_i.left";
+        open OUT2,">$opt_i.right";
+        while(<IN>) {
+            chomp;
+            my @a=split/\s+/,$_;
+            my $ed=$opt_l-500;
+            if(($a[4] <= 500) && ($a[3] <= 500)) {
+                print OUT1 "$_\n"; # output the left end results
+            } elsif(($a[4] >= $ed) && ($a[3] >= $ed)) {
+                print OUT2 "$_\n"; ##output the right end results
+            }
+        }
+        close IN;
+        close OUT1;
+        close OUT2;
+
+        ##left end place
+        PLACE:foreach my $file_suffix ( qw \ left right\ ){
+            system"awk '{print \$6}' $opt_i.$file_suffix | sort - | uniq -c - | sed 's/^[ ]*//' > $opt_i.$file_suffix.chr";
+            if ( -s "$opt_i.$file_suffix.chr") {
+                open IN,"<$opt_i.$file_suffix.chr";
+                my $sum=0;
+                my @b;
+                my @chr;
+                while(<IN>) {
+                    chomp;
+                    my @a = split /\s+/, $_;
+                    push @b, $a[0];
+                    push @chr, $a[1];
+                    $sum += $a[0];
+                }
+                close IN;
+                foreach my $b_em ( @b ) {
+                    if( $b_em/$sum >=0.95) {
+                        move "$opt_i", "./3";
+                        unlink "$opt_i.$file_suffix", "$opt_i.$file_suffix.chr";
+                        last PLACE;
+                    }
+                }
+            }
+            unlink "$opt_i.$file_suffix", "$opt_i.$file_suffix.chr";
+        }
+        unlink "$opt_i.right" if ( -e "$opt_i.right" );
+
+        return 1;
+    }
 
     return 1;
 }

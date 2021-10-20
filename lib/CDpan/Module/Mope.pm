@@ -62,7 +62,7 @@ sub Mope {
     close FASTA;
     close LARGE;
 
-    # Read the software path and set it to the default value
+    # Read the software path
     my $centrifuge = $par->val('TOOLS', 'centrifuge');
     my $centrifuge_kreport = $par->val('TOOLS', 'centrifuge-kreport');
 

@@ -30,7 +30,7 @@ sub Soot {
         }
     }
 
-    # Read the software path and set it to the default value
+    # Read the software path
     my $nucmer = $par->val('TOOLS', 'nucmer');
 
     my $thread = $par->val('CDPAN', 'thread');

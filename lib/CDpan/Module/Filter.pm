@@ -56,7 +56,7 @@ sub Filter {
     my $error_rate  = $par->val('FILTER', 'error-rate');
     my $thread      = $par->val('CDPAN',  'thread');
 
-    # Read the software path and set it to the default value
+    # Read the software path
     my $trim_galore = $par->val('TOOLS', 'trim_galore');
     my $cutadapt    = $par->val('TOOLS', 'cutadapt');
     my $fastqc      = $par->val('TOOLS', 'fastqc');

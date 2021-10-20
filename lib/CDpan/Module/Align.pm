@@ -38,7 +38,7 @@ sub Align {
     my $ref     = $par->val('ALIGN', 'ref_index');
     my $library = $par->val('ALIGN', 'library');
 
-    # Read the software path and set it to the default value
+    # Read the software path
     my $bwa = $par->val('TOOLS', 'bwa');
 
     my $cmd_bwa = "$bwa mem -t $thread -M " .
@@ -53,7 +53,7 @@ sub Align {
     system $cmd_bwa
         and PrintErrorMessage("Command $cmd_bwa failed to run normally: $?\n");
 
-    # Read the software path and set it to the default value
+    # Read the software path
     my $gatk = $par->val('TOOLS', 'gatk');
 
     #reorder sam
@@ -69,7 +69,7 @@ sub Align {
     system $cmd_reorder
         and PrintErrorMessage("Command $cmd_reorder failed to run normally: $?\n");
 
-    # Read the software path and set it to the default value
+    # Read the software path
     my $samtools = $par->val('TOOLS', 'samtools');
 
     #sam to bam
@@ -154,7 +154,15 @@ sub AlignRemoveIndex {
     (my $par) = @_;
 
     my $index_dir = catdir($par->val('CDPAN', 'work_dir'), 'ref_index');
-    rmtree $index_dir or PrintErrorMessage("Cannot delete direction $index_dir: $!");
+    if ( $par->val('CDPAN', 'output_level') < 2 ) {
+        rmtree $index_dir or PrintErrorMessage("Cannot delete direction $index_dir: $!");
+    }
+    elsif ($main::modules{ "align" }){
+        my $output_dir = catdir($par->val('CDPAN', 'output_dir'), 'ref_index');
+        move $index_dir, $output_dir or PrintErrorMessage("Couln't move $index_dir to $output_dir: $!");
+    }elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DISPLACE" }) {
+        $par->newval('RESULT', 'ref_index', $index_dir);
+    }
 
     return 1;
 }

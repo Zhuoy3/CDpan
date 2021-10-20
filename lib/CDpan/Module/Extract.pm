@@ -31,7 +31,7 @@ sub Extract {
 
     my $thread  = $par->val('CDPAN', 'thread');
 
-    # Read the software path and set it to the default value
+    # Read the software path
     my $samtools = $par->val('TOOLS', 'samtools');
 
     my $cmd_fastq1 = "$samtools fastq -\@ $thread " .

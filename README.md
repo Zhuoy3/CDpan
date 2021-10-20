@@ -250,3 +250,12 @@ minmatch = 500      ##The minimum length of a single exact match
 
 [LOCATION]
 species = null
+
+<!--
+Features to be added
+1.Use perl language to rewrite ex.py
+2.Log
+3.Almost all parameters could be imported using the parameter card
+4.Safer file path handling
+5.Allows to import reference genomes that already have dictionary and index
+-->

@@ -10,252 +10,345 @@ Download from project homepage, <https://github.com/kimi-du-bio/CDpan>, or check
 
 ### Dependencies
 
-CDpan require Perl version 5.16 or greater to run. Only Linux is supported (May or may not run under Perl for MacOS or Windows, etc).
+CDpan require Perl version 5.16 or greater and Python version 3.6 or greater to run. Only Linux is supported (May or may not run under Perl for MacOS or Windows, etc).
 
 CDpan uses three Perl modules, ```Bio::SeqIO```, ```Config::IniFiles``` and ```File::Slurp```, which may be not installed by default configuration of perl, you can install them as following:
 
-    cpan -i Bio::SeqIO Config::IniFiles File::Slurp
+```Bash
+cpan -i Bio::SeqIO Config::IniFiles File::Slurp
+```
 
 Using CDpan requires the following tools to be installed:
 
 - [TrimGalore](https://github.com/FelixKrueger/TrimGalore)
 - [Cutadapt](https://github.com/marcelm/cutadapt)
 - [FastQC](https://github.com/s-andrews/FastQC)
-- [BWA]()
-- [GATK]()
-- [samtools]()
-- [MaSuRCA 3.x]() (Not compatible with MaSuRCA 4.0 or greater)
-- [centrifuge]()
-- [MMseqs2]()
-- [mummer]()
-- [RepeatMasker]()
-- [Bowtie2]()
-- [bedtools]()
-- [minimap2]()
+- [BWA](https://github.com/lh3/bwa)
+- [GATK](https://github.com/broadinstitute/gatk)
+- [samtools](https://github.com/samtools/samtools)
+- [MaSuRCA 3.x](https://github.com/alekseyzimin/masurca) (Not compatible with MaSuRCA 4.0 or greater)
+- [centrifuge](https://github.com/DaehwanKimLab/centrifuge)
+- [MMseqs2](https://github.com/soedinglab/MMseqs2)
+- [mummer](https://github.com/mummer4/mummer)
+- [RepeatMasker](https://github.com/rmhubley/RepeatMasker)
+- [Bowtie2](https://github.com/BenLangmead/bowtie2)
+- [bedtools](https://github.com/arq5x/bedtools2)
+- [minimap2](https://github.com/lh3/minimap2)
 
-CDpan has been tested on the following environment: ```Perl v5.34, TrimGalore v0.6.7, Cutadapt v3.4, FastQC v0.11.9, BWA v0.7.17, GATK v4.2.1.0, samtools v1.13, MaSuRCA v3.4.2, centrifuge v1.0.4, MMseqs2 v13, mummer v4.0.0, RepeatMasker v4.1.2, Bowtie2 v2.4.4, bedtools v2.30.0, minimap2 v2.22```. It may run on any other version of most tools except the MaSuRCA 4.0 or greater.
+CDpan has been tested on the following environment: `Perl v5.34`, `Python 3.9.6`, `TrimGalore v0.6.7`, `Cutadapt v3.4`, `FastQC v0.11.9`, `BWA v0.7.17`, `GATK v4.2.1.0`, `samtools v1.13`, `MaSuRCA v3.4.2`, `centrifuge v1.0.4`, `MMseqs2 v13`, `mummer v4.0.0`, `RepeatMasker v4.1.2`, `Bowtie2 v2.4.4`, `bedtools v2.30.0`, `minimap2 v2.22`. It may run on any other version of most tools except the MaSuRCA 4.0 or greater.
 
-Building the latest version from the repository
-Quick Start Guide
-Running CDpan
+### Quick Start Guide
+
+<!--TODO: Complete download link-->
+
+CDpan is out of the box. You can acquire the latest version from the [release page](https://github.com/kimi-du-bio/CDpan/releases) with:
+
+```Bash
+curl -fsSL https://github.com/kimi-du-bio/CDpan/xxx -o cdpan.tar.gz
+tar xvzf cdpan.tar.gz
+./cdpan/bin/cdpan -v
+```
+
+If you see the version message, the program has been installed successfully.
+
+For convenient use, you can add `./cdpan/bin/` to the `PATH`, or establish a soft connection of `./cdpan/bin/cdpan` in the `PATH`. For example:
+
+```Bash
+echo 'export PATH=$HOME/cdpan/bin/:$PATH' >> ~/.bashrc
+# or
+ln -s $HOME/cdpan/bin/cdpan ~/.local/bin/cdpan
+```
+
+### Running CDpan
+
 Run CDpan from the command line like this:
 
-    CDpan <module> -i input_path -c config_file [options]
-    Module: filter
-            align
-            extract
-            assembly
-            mope
-            vot
-            soot
-            merge
-            location
+**Usage:** ```cdpan <module> -i input_dir [options]```
 
-            RUN-ALL            Run all modules of CDpan
-            RUN-DIEM       Run all modules of CDpan except location
+The main input of the program is a directory of the fastq file with paired-end sequencing reads.
 
-    Options: -i, --input             path of input file (Required)
-             -c, --config            path of config file (Required)
-             -w, --work_dir          path of work directory ( Default is directory \'./cdpan_tmp\' )
-             -p, --process           whether to keep process files (Default is False)
-             -o, --output                prefix of the output file (Default is prefix of input file)
-             -O, --output_dir        output directory (Default is the current directory)
-                 --no-qc             no quality control (Default is False)
-             -v, --version           print version message
-             -h, --help              print help message
-
-The main input of the program is the fastq file with paired-end sequencing reads.
 The main output of the program is a fasta file containing the sequences of the constructed dispensable genome and the predicted inserted location of the new sequences relative to the reference genome.
-To use CDpan, you need to specify a module and support the "input_path". Please refer to the "Usage" section to get the detailed information of the module contained in the CDpan. The introduction of "input_path" please refer to the following "Usage" section.
 
-3.Usage
-3.1 CDpan quick usage
+To use CDpan, you need to specify a module and support the `input_dir`. Please refer to the [Usage](#usage) section to get the detailed information of the module contained in the CDpan. The introduction of `input_dir` please refer to the following [Usage](#usage) section.
 
-    CDpan RUN-ALL -i input_file -c config_file
+## Usage
 
-Input_path
-The "input_path" is the directory which you archive your sequencing data. The sequencing data must be the paired-end reads, the directory format should be like this:
+### General usage
+
+```Bash
+cdpan RUN-ALL -i input_dir -c config_file
+```
+
+#### input directory
+
+The `input_dir` is a directory which you archive your sequencing data. Each sub-directory of the input directory should be named by the id of a separate sample and this sub-directory should include all the sequencing data of the sample. The sequencing data must be the paired-end reads. The directory format may be like this:
+
+```sh
 Data
 |
 |---sample1---|---*_1.fastq (fq, fastq.gz, fq.gz)
               |---*_2.fastq (fq, fastq.gz, fq.gz)
 |---sample2---|---*_1.fastq (fq, fastq.gz, fq.gz)
               |---*_2.fastq (fq, fastq.gz, fq.gz)
-……
+...
 |---sampleN---|---*_1.fastq (fq, fastq.gz, fq.gz)
               |---*_2.fastq (fq, fastq.gz, fq.gz)
+```
 
-config_file
-The "config_file" can be found in the XXX folder, and change this file to suit your practical circumstance. The detailed described of the "config_file", please refer to the "Config file" section.
+#### config file
 
-Output
+The `config_file` is a variant of .ini-style config file and a config file example can be found in the [example.ini](examples/example.ini). You can change this file to suit your practical circumstance. The detailed described of config file, please refer to the [Config file](#config-file) section.
+
+#### output
+
 This program produces a fasta file containing the sequences of the constructed dispensable genome and the txt file for the predicted inserted location.
+
+#### only sequences
 
 If you only interested in the DNA sequences absent in the reference genome but present within the species, you can use the following command:
 
-    CDpan RUN-DIEM -i input_file -c config_file
+```Bash
+cdpan RUN-DIEM -i input_dir -c config_file
+```
 
 The output is only the fasta file containing the new DNA sequences.
 
-3.2 CDpan (traditional) usage
+## Full list of options for CDpan
+
 Flexible and customizable new DNA sequences detection for advanced users.
 
-Usage:
-    CDpan <module> -i input_path -c config_file [options]
-    Module: filter
-            align
-            extract
-            assembly
-            mope
-            vot
-            soot
-            merge
-            location
+**Usage:** ```cdpan <module> -i input_dir [options]```
 
-    Options: -i, --input         path of input file (Required)
-             -c, --config        path of config file (Required)
-             -w, --work_dir      path of work directory ( Default is directory \'./cdpan_tmp\' )
-             -p, --process       whether to keep process files (Default is False)
-             -o, --output        prefix of the output file (Default is prefix of input file)
-             -O, --output_dir    output directory (Default is the current directory)
-                 --no-qc         no quality control (Default is False)
-             -v, --version       print version message
-             -h, --help          print help message
+**Note:** Before running the following module, we recommend to first set the `config_file`. The every module use the same `config_file`. The detailed information of the `config_file` can be found in the [Config file](#config-file) section.
 
-Note:Before running the follwong steps, we recommend to first set the "config_file". The following steps use the same "config_file".The detailed information of the "config_file" can be found in the "Config file" section.
+### General Options
 
-##Pre-processing
+Command line parameters are consistent for all modules. General options include:
 
-    CDpan filter -i input_path -c config_file
+- -h, --help
+  - Print help message and exits.
+- -v, --version
+  - Print version message and exits.
+- -i, --input
+  - Path of input directory. Each sub-directory of the input directory should be named by the id of a separate sample and this sub-directory should include all the sequencing data of the sample. The sequencing data must be the paired-end reads.
+  - Mandatory
+- -c, --config
+  - Path of config file, which is a variant of .ini-style config file. The detailed described of config file, please refer to the [Config file](#config-file) section.
+  - Required by module align, mope, soot, location, RUN-DIEM and RUN-ALL.
+- -o, --output
+  - Prefix of the output file
+  - Default: name of input directory
+- -O, --output_dir
+  - Output directory
+  - Default: current directory
+- -w, --work_dir
+  - Path of work directory. Work directory is used to store process files, the directory should not exist or be empty.
+  - Default: ${output_dir}/cdpan_tmp
+- -l, --output-level [012]
+  - Level of detail of the output. Optional values include 0, 1, and 2. When output-level is set to 0, only the result file will be output. When it is set to 1, the result file, key process files and partial process logs will be saved. When it is set to 2, the result file and all process files will be saved.
+  - **Warning:** When output-level is set to 2, a very large number of process files may be generated and occupy a large amount of hard disk space. We recommend using it during debugging.
+  - Default: 0
+- --no-qc [01]
+  - no quality control. You can do the quality control using other software.
+  - Bool. 0 is False and 1 is True.
+  - Default: False
 
-The "input_path" is the same format as the quick usage. This module is used to filter the low quality reads. You can do the quality control using other software and run the following processes.
+### Specific Module
 
-##Alignment
+#### RUN-ALL
 
-    CDpan align -i input_path -c config_file
+Module `RUN-ALL` executes `module`, `filter`, `align`, `extract`, `assembly`, `mope`, `vot`, `soot`, `merge` and `location` sequentially.
 
-The "input_path" is the same format as the quick usage. If you use the CDpan to do the pre-processing procedure, the "input_path" is the output directory of the pre-processing. Of course, you can use the clean data which processed by yourself, just provide the data deposited directory to the "input_path". This module is used to align the sequencing reads to the reference genome.
+#### RUN-DIEM
 
-##Extract the unmapped reads
+Module `RUN-DIEM` executes `module`, `filter`, `align`, `extract`, `assembly`, `mope`, `vot`, `soot` and `merge` sequentially.
 
-    CDpan extract -i input_path -c config_file
+#### Pre-processing
 
-The "input_path" is the output directory of the alignment process. This step is used to extract the ummaped reads from the aligned results.
+```bash
+cdpan filter -i input_dir -c config_file
+```
 
-##Assembly
+The input directory is the same format as the [General usage](#general-usage). This module is used to filter the low quality reads. You can do the quality control using other software and run the following processes.
 
-    CDpan assembly -i input_path -c config_file
+#### Alignment
 
-The "input_path" is the output directory of the previous process. This step is used to assemble the unmmaped reads of each individual.
+```bash
+cdpan align -i input_dir -c config_file
+```
 
-##Remove the contaminants
+The input directory is the same format as the [General usage](#general-usage). If you use the CDpan to do the pre-processing procedure, the input directory is the output directory of the pre-processing.
 
-    CDpan mope -i input_path -c config_file
+Of course, you can use the clean data which processed by yourself, just provide the data deposited directory to the input directory. If you do that, the input directory should be like:
 
-The "input_path" is the output directory of the assembly process. This step is used to remove the contaminants sequences in the assembled results.
+```sh
+Data
+|
+|---sample1---|---sample1_clean_1.fq.gz
+              |---sample1_clean_2.fq.gz
+|---sample2---|---sample2_clean_1.fq.gz
+              |---sample2_clean_2.fq.gz
+...
+|---sampleN---|---sampleN_clean_1.fq.gz
+              |---sampleN_clean_2.fq.gz
+```
 
-##Remove the redundants
+This module is used to align the sequencing reads to the reference genome.
 
-    CDpan vot -i input_path -c config_file
+#### Extract the unmapped reads
 
-The "input_path" is the output directory after the "mpope" module running. This step is used to remove the redundants sequences in the assembled results.
+```bash
+cdpan extract -i input_dir -c config_file
+```
 
-##Retained the new DNA sequences
+The input directory is the output directory of the alignment process. This step is used to extract the ummaped reads from the aligned results.
 
-    CDpan soot -i input_path -c config_file
+#### Assembly
 
-The "input_path" is the output directory of the "vot" process. This step is used to keep the absent sequences of the reference genome in the assembled results.
+```bash
+cdpan assembly -i input_dir -c config_file
+```
 
-##Final dispensable genome
+The input directory is the output directory of the previous process. This step is used to assemble the unmmaped reads of each individual.
 
-    CDpan merge -i input_path -c config_file
+#### Remove the contaminants
 
-The "input_path" is the output directory of the "soot" process. This step is used to integrated the new DNA sequences of all individuals and construct the final dispensable genome. The output is a fasta file.
+```bash
+cdpan mope -i input_dir -c config_file
+```
 
-##Location
+The input directory is the output directory of the assembly process. This step is used to remove the contaminants sequences in the assembled results.
 
-    CDpan location -i input_path -c config_file
+#### Remove the redundants
 
-The "input_path" is XXXX. This step is used to determine the genomic positions of new DNA sequences relative to the reference genome. The output of this step is a txt file.
+```bash
+cdpan vot -i input_dir -c config_file
+```
 
-4.Config file
-The follwing is a example of the "config_file", you can also find this file in the XXX folder:
+The input directory is the output directory after the module "mpope" running. This step is used to remove the redundants sequences in the assembled results.
 
-# This part definites the threads used in the pipeline
+#### Retained the new DNA sequences
+
+```bash
+cdpan soot -i input_dir -c config_file
+```
+
+The input directory is the output directory of the "vot" process. This step is used to keep the absent sequences of the reference genome in the assembled results.
+
+#### Final dispensable genome
+
+```bash
+cdpan merge -i input_dir -c config_file
+```
+
+The input directory is the output directory of the "soot" process. This step is used to integrated the new DNA sequences of all individuals and construct the final dispensable genome. The output is a fasta file.
+
+#### Location
+
+```bash
+cdpan location -i input_dir -c config_file
+```
+
+The input directory is the output directory of the "merge" process. This step is used to determine the genomic positions of new DNA sequences relative to the reference genome. The output of this step is a txt file.
+
+If you wish to run the module `location` separately, you should also supply the output directory of the "extract" and "vot" process.
+
+## Config file
+
+Config file is a variant of .ini-style config file and the only difference is that CDpan only accepts the comment guided by '#' but not ';'.
+
+The following is a example of the config file, you can also find this file in the [example.ini](examples/example.ini):
+
+```ini
+# This part definite the threads used in the pipeline
 
 [CDPAN]
 thread = 1
 
-##This part definites the path of the dependency software
+# This part definite the path of the dependency software
 [TOOLS]
-trim_galore = null
-cutadapt = null
-fastqc = null
-bwa = null
-gatk = null
-samtools = null
-masurca = null
-centrifuge = null
-centrifuge-kreport = null
-mmseqs = null
-nucmer = null
-show-coords = null
-RepeatMasker = null
-bowtie2 = null
-bedtools = null
-bowtie2-build = null
+trim_galore        = /usr/bin/trim_galore
+cutadapt           = /usr/bin/cutadapt
+fastqc             = /usr/bin/fastqc
+bwa                = /usr/bin/bwa
+gatk               = /usr/bin/gatk
+samtools           = /usr/bin/samtools
+masurca            = /usr/bin/masurca
+centrifuge         = /usr/bin/centrifuge
+centrifuge-kreport = /usr/bin/centrifuge-kreport
+mmseqs             = /usr/bin/mmseqs
+nucmer             = /usr/bin/nucmer
+show-coords        = /usr/bin/show-coords
+RepeatMasker       = /usr/bin/RepeatMasker
+bowtie2            = /usr/bin/bowtie2
+bedrooms           = /usr/bin/bedrooms
+bowtie2-build      = /usr/bin/bowtie2-build
 
-##This section definites the required file
+# This section definites the required file
 [DATA]
-ref = *.fasta       ##The reference genome file, must be .fasta or .fa format
-nt_index =          ##The NCBI nucleotide non-redundant index, download from https://genome-idx.s3.amazonaws.com/centrifuge/nt_2018_3_3.tar.gz
-taxid =             ##The file contained the NCBI taxid which you want to keep, just one colunm. We supply a example file contained all chordate taxid in the XXX.
+## The reference genome file, must be .fasta or .fa format
+ref = *.fasta
+## The NCBI nucleotide non-redundant index, download from <https://genome-idx.s3.amazonaws.com/centrifuge/nt_2018_3_3.tar.gz>
+nt_index =
+## The file contained the NCBI taxid which you want to keep, just one colunm. We supply a example file contained all chordate taxid in the <https://github.com/kimi-du-bio/CDpan/examples/Chordata.taxid>.
+taxid =
 
-##The parameter of pre-processing.
+# The parameter of pre-processing.
 [FILTER]
-quality  = 20       ##The minimum Phred score
-length = 20         ##The minimum length of reads after quality and adapter trimming
-error-rate = 0.1    ##Maximum allowed error rate
+## The minimum Phred score
+quality = 20
+## The minimum length of reads after quality and adapter trimming
+length = 20
+## Maximum allowed error rate
+error-rate = 0.1
 
-
-[ALIGN]
-
-[EXTRACT]
-
-##The parameter of assembly.
+# The parameter of assembly.
 [ASSEMBLY]
-fragment-mean=300   ##The fragment mean of paired-end reads
-fragment-stdev=50   ##The fragment standard deviation of paired-end reads
-JF_SIZE=jellyfish hash size, set this to about 10x the genome size.
+## The fragment mean of paired-end reads
+fragment-mean = 300
+## The fragment standard deviation of paired-end reads
+fragment-stdev=50
+## jellyfish hash size, set this to about 10x the genome size
+JF_SIZE = 2000000000
 
-##The parameter of mope module.
+# The parameter of mope module.
 [MOPE]
-host-taxids = null  ##The NCBI taxid of your research species
-min-length = 1000   ##The minmum length of new DNA sequences
+## The NCBI taxid of your research species
+host-taxids =
+## The minmum length of new DNA sequences
+min-length = 1000
 
-##The parameter of vot module (we recommend to only just change the "min-seq-id" parameter).
+# The parameter of vot module (we recommend to only just change the "min-seq-id" parameter).
 [VOT]
 cov-mode = 1
 coverage = 0.9
-min-seq-id = 0.9    ##The ratio of length overlap fortwo sequences
+## The ratio of length overlap fortwo sequences
+min-seq-id = 0.9
 cluster-mode = 2
 
-##The parameter of soot module
+# The parameter of soot module
 [SOOT]
-maxgap = 1000       ##The maximum gap between two adjacent matches in a cluster
-mincluster = 90     ##The minimum length of a cluster of matches
-minmatch = 500      ##The minimum length of a single exact match
-
-[MERGE]
+## The maximum gap between two adjacent matches in a cluster
+maxgap = 1000
+## The minimum length of a cluster of matches
+mincluster = 90
+## The minimum length of a single exact match
+minmatch = 500
 
 [LOCATION]
-species = null
+## Specify the species or clade of the input sequence. The species name must be a valid NCBI Taxonomy Database species name.
+species =
+```
+
+## Output file
 
 <!--
-Features to be added
-1.Use perl language to rewrite ex.py
-2.Log
-3.Almost all parameters could be imported using the parameter card
-4.Safer file path handling
-5.Allows to import reference genomes that already have dictionary and index
+## Features to be added
+
+- [ ] Use perl language to rewrite compare.py
+- [ ] Log
+- [ ] Almost all parameters could be imported using the parameter card
+- [ ] Safer file path handling
+- [ ] Allows to import reference genomes that already have dictionary and index
+- [x] no quality control
 -->

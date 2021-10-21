@@ -266,7 +266,7 @@ sub __CheckFile__ {
             unless (file_name_is_absolute($par->val('DATA', $file_for_check))){
                 $par->setval('DATA', $file_for_check,rel2abs($par->val('DATA', $file_for_check)));
             }
-            printf STDERR "%-25s", "['DATA'] => $file_for_check:";
+            printf STDERR "%-25s", "[DATA] => $file_for_check:";
             print  STDERR $par->val('DATA', $file_for_check);
             print  STDERR "\n";
         }
@@ -279,7 +279,7 @@ sub __CheckFile__ {
                     unless (file_name_is_absolute($par->val('DATA', $file_for_check))){
                         $par->setval('DATA', $file_for_check,rel2abs($par->val('DATA', $file_for_check)));
                     }
-                    printf STDERR "%-25s", "['DATA'] => $file_for_check:";
+                    printf STDERR "%-25s", "[DATA] => $file_for_check:";
                     print  STDERR $par->val('DATA', $file_for_check);
                     print  STDERR "\n";
                     next;

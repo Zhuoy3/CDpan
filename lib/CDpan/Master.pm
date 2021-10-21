@@ -11,6 +11,7 @@ use warnings;
 
 use File::Spec::Functions qw /:ALL/;
 use File::Copy qw / copy move /;
+use File::Path qw / rmtree /;
 use Config::IniFiles;
 use File::Slurp;
 
@@ -24,7 +25,6 @@ use CDpan::Module::Mope;
 use CDpan::Module::Vot;
 use CDpan::Module::Soot;
 use CDpan::Module::Merge;
-# use CDpan::Module::Location;
 use CDpan::Module::Location;
 
 sub Filter {
@@ -376,7 +376,7 @@ sub RunDiem {
     print STDERR "The following modules will be executed sequentially:";
     print STDERR "    filter align extract assembly mope vot soot merge\n";
 
-    Filter   ( $par );
+    Filter   ( $par ) unless ($main::no_quality_control);
     Align    ( $par );
     Extract  ( $par );
     Assembly ( $par );
@@ -423,7 +423,7 @@ sub RunAll {
     print STDERR "The following modules will be executed sequentially:";
     print STDERR "    filter align extract assembly mope vot soot merge location\n\n";
 
-    Filter   ( $par );
+    Filter   ( $par ) unless ($main::no_quality_control);
     Align    ( $par );
     Extract  ( $par );
     Assembly ( $par );
@@ -439,8 +439,8 @@ sub RunAll {
         or PrintErrorMessage("Cannot copy file $result_file to $output_file: $!");
     $par->newval('RESULT', 'dispensable_genome.fasta', $output_file);
 
-    my $result_file = catfile($par->val('RESULT', 'location'), 'compare.txt');
-    my $output_file = catfile($par->val('CDPAN', 'output_dir'), "$main::output_prefix.location.txt");
+    $result_file = catfile($par->val('RESULT', 'location'), 'compare.txt');
+    $output_file = catfile($par->val('CDPAN', 'output_dir'), "$main::output_prefix.location.txt");
     copy $result_file,$output_file
         or PrintErrorMessage("Cannot copy file $result_file to $output_file: $!");
     $par->newval('RESULT', 'location.txt', $output_file);

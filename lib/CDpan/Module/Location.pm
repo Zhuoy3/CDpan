@@ -179,7 +179,7 @@ sub Location {
     system $cmd_join
         and PrintErrorMessage("Command \'$cmd_join\' failed to run normally: $?");
 
-    my $vot_dir = $par->val('RESULT', 'soot') // $par->val('LOCATION', 'vot_dir');
+    my $vot_dir = $par->val('RESULT', 'vot') // $par->val('LOCATION', 'vot_dir');
     my $vot_dir_prefix = catfile($vot_dir, $idv_name, $idv_name);
     my $minimap2 = $par->val('TOOLS', 'minimap2');
 

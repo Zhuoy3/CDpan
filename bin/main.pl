@@ -230,7 +230,7 @@ print STDERR "
 Program: CDpan
 Version: $version
 
-Usage: CDpan <module> -i input_dir [options]
+Usage: cdpan <module> -i input_dir [options]
 
 Note: To use CDpan, you need to specify a module and a directory of input file. Each sub-directory
       of the input directory should be a separate individual and contain file which will be used

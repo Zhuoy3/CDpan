@@ -21,8 +21,8 @@ use CDpan qw / :ALL /;
 #-------------------------------------------------------------------------------
 #------------------------------------ START ------------------------------------
 #-------------------------------------------------------------------------------
-our $version = "0.2.2";
-our $date = "Oct 8 2021";
+our $version = "0.3.0";
+our $date = "Oct 22 2021";
 
 Usage() if @ARGV == 0;
 
@@ -185,8 +185,8 @@ elsif ( $modules{ "location"     } ) { Location(    $par ); }
 elsif ( $modules{ "RUN-ALL"      } ) { RunAll(      $par ); }
 elsif ( $modules{ "RUN-DIEM"     } ) { RunDiem(     $par ); }
 
-#TODO
-# rmtree $par->val('CDPAN', 'work_dir') or PrintErrorMessage("Cannot delete work direction: $!");
+
+rmtree $par->val('CDPAN', 'work_dir') or PrintErrorMessage("Cannot delete work direction: $!");
 
 PrintStartMessage("Output file:");
 
@@ -203,7 +203,7 @@ print  STDERR "\n" if $main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" 
 
 if (defined $par->val('RESULT', 'dispensable_genome_fasta')){
     print STDERR "The result file is saved as: ";
-    print STDERR $par->val('RESULT', 'dispensable_genome.fasta');
+    print STDERR $par->val('RESULT', 'dispensable_genome_fasta');
     print STDERR "\n";
 }
 
@@ -261,6 +261,6 @@ Options: -i, --input         path of input directory          ( Mandatory )
          -h, --help          print help message
 
 ";
-#TODO
+
 exit(-1);
 }

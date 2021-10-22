@@ -437,13 +437,13 @@ sub RunAll {
     my $output_file = catfile($par->val('CDPAN', 'output_dir'), "$main::output_prefix.dispensable_genome.fasta");
     copy $result_file,$output_file
         or PrintErrorMessage("Cannot copy file $result_file to $output_file: $!");
-    $par->newval('RESULT', 'dispensable_genome.fasta', $output_file);
+    $par->newval('RESULT', 'dispensable_genome_fasta', $output_file);
 
     $result_file = catfile($par->val('RESULT', 'location'), 'compare.txt');
     $output_file = catfile($par->val('CDPAN', 'output_dir'), "$main::output_prefix.location.txt");
     copy $result_file,$output_file
         or PrintErrorMessage("Cannot copy file $result_file to $output_file: $!");
-    $par->newval('RESULT', 'location.txt', $output_file);
+    $par->newval('RESULT', 'location_txt', $output_file);
 
     my @modules_by_rundiem = qw \ filter align extract assembly mope vot soot merge location \;
     foreach my $module_by_rundiem ( @modules_by_rundiem) {

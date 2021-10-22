@@ -205,6 +205,20 @@ sub Location {
 	mkdir "./3";
 	mkdir "./4";
 
+    system ':> ./3.contig.name';
+    system ':> ./3.contig.name.length';
+    system ':> ./4.contig.name';
+    system ':> ./4.contig.name.length';
+    system ':> ./contig.name';
+
+    system ':> ./1/1.name';
+    system ':> ./1/2a.name';
+    system ':> ./1/2bleft.name';
+    system ':> ./1/2bright.name';
+    system ':> ./1/3.name';
+    system ':> ./1/4.name';
+    system ':> ./1/5.name';
+
     # archive the contig name and length
     system "awk '{print \$1,\$2}' $pre_location_dir/merge.fasta.fai > ./contig.name"
         and PrintErrorMessage("Command failed to run normally: $?");

@@ -197,9 +197,9 @@ fasta, input_dir = sys.argv[1:3]
 seq = []
 with open(fasta) as f:
     for line in f:
-        seq.append([line.rstrip('\n').split(' ')[0]])
+        seq.append([line.rstrip('\n').split(' ')[0], 'PAS:LOCH:CHR:WEST:WEED'])
 
-header = ['#Contig']
+header = ['#Contig', 'FORMAT']
 for idv_name in os.listdir(input_dir):
     loc = Location(idv_name, input_dir)
     seq = Arrange(os.path.join(input_dir, idv_name,
@@ -207,8 +207,21 @@ for idv_name in os.listdir(input_dir):
     header.append(idv_name)
 
 f = open(os.path.join(input_dir, 'compare.txt'), 'w+')
-f.write('####################\n')
-f.write(' '.join(header) + '\n')
+f.write('''##fileformat=CDpan,v3.0
+##FORMAT=<ID=PAS,Type=Boolean,Description="Presence or absence of contig on sample">
+##FORMAT=<ID=PAS,Value=1,Explanation="Contig is presence on sample">
+##FORMAT=<ID=PAS,Value=0,Explanation="Contig is absence on sample">
+##FORMAT=<ID=LOCH,Type=char,Description="The location of contig on chromosome">
+##FORMAT=<ID=LOCH,Value=A,Explanation="Contig is known on which chromosome, where to start and where to end">
+##FORMAT=<ID=LOCH,Value=L,Explanation="Contig is known on which chromosome and where to start">
+##FORMAT=<ID=LOCH,Value=R,Explanation="Contig is known on which chromosome and where to end">
+##FORMAT=<ID=LOCH,Value=U,Explanation="Contig is only known on which chromosome">
+##FORMAT=<ID=LOCH,Value=N,Explanation="Any location information of Contig is unknown">
+##FORMAT=<ID=CHR,Type=String,Description="Which chromosome contig is location, null for unknown">
+##FORMAT=<ID=WEST,Type=Integer,Description="Where to start contig is, null for unknown">
+##FORMAT=<ID=WEED,Type=Integer,Description="Where to end contig is, null for unknown">
+''')
+f.write('\t'.join(header) + '\n')
 for line in seq:
-    f.write(' '.join(line) + '\n')
+    f.write('\t'.join(line) + '\n')
 f.close()

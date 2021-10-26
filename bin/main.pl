@@ -11,7 +11,6 @@ use FindBin;
 use lib "$FindBin::Bin/../lib";
 
 use Cwd;
-# use File::Copy qw / copy move /;
 use File::Path qw / rmtree /;
 use File::Spec::Functions  qw /:ALL/;
 use Config::IniFiles;
@@ -52,7 +51,7 @@ our %modules = (
     "merge"             => 0,
     "location"          => 0,
     "RUN-ALL"           => 0,
-    "RUN-DIEM"      => 0,
+    "RUN-DIEM"          => 0,
 );
 
 if ( defined $modules{$module} ) {
@@ -75,6 +74,7 @@ while (@ARGV) {
     if    ( $option eq '-i' or $option eq '--input') {
         $input_dir = shift;
         PrintExitMessage("Command \'$option\' is missing parameters\n") if ( ($input_dir // '-' )=~ /^-/ );
+        $input_dir =~ s/\/$//;
         $input_dir = rel2abs($input_dir) unless file_name_is_absolute($input_dir);
     }
     elsif ( $option eq '-c' or $option eq '--config') {
@@ -85,6 +85,7 @@ while (@ARGV) {
     elsif ( $option eq '-w' or $option eq '--work_dir') {
         $work_dir = shift;
         PrintExitMessage("Command \'$option\' is missing parameters\n") if ( ($work_dir // '-' )=~ /^-/ );
+        $work_dir =~ s/\/$//;
         $work_dir = rel2abs($work_dir) unless file_name_is_absolute($work_dir);
     }
     elsif ( $option eq '-o' or $option eq '--output') {
@@ -94,6 +95,7 @@ while (@ARGV) {
     elsif ( $option eq '-O' or $option eq '--output_dir') {
         $output_dir  = shift;
         PrintExitMessage("Command \'$option\' is missing parameters\n") if ( ($output_dir // '-' )=~ /^-/ );
+        $output_dir =~ s/\/$//;
         $output_dir = rel2abs($output_dir) unless file_name_is_absolute($output_dir);
     }
     elsif ( $option eq '-l' or $option eq '--output-level') {
@@ -106,7 +108,7 @@ while (@ARGV) {
         $no_quality_control = 1;
     }
     elsif ( $option eq '-v' or $option eq '--version') {
-        print STDERR "CDpan $version $date\n";
+        PrintMessage("CDpan $version $date\n");
         PrintExitMessage();
     }
     elsif ( $option eq '-h' or $option eq '--help') {
@@ -121,6 +123,7 @@ unless ( defined $input_dir ) {
     PrintExitMessage("Parameter \'input_dir\' is required");
 }
 $config_file = '' unless defined $config_file;
+
 unless ( defined $output_prefix ) {
     ( undef, undef, $output_prefix ) = splitpath($input_dir);
 }
@@ -128,10 +131,12 @@ unless ( defined $output_prefix ) {
 #-------------------------------------------------------------------------------
 #------------------------------------ MAIN -------------------------------------
 #-------------------------------------------------------------------------------
+our $log_file = catfile($output_dir, "$output_prefix.log");
+open our $LOG, '>', $log_file or PrintErrorMessage("Couldn't create $log_file: $!");
 
 my $main_no_quality_control = $no_quality_control?"True":"False";
 
-print STDERR "
+PrintMessage("
                      _____  ______
                     /  __ \\ |  _  \\
                     | /  \\/ | | | |  _ __     __ _   _ __
@@ -157,7 +162,9 @@ Prefix of output file:   $output_prefix
 output level:            $output_level
 No quality control:      $main_no_quality_control
 
-";
+log:                     $log_file
+
+");
 
 #-------------------------------------------------------------------------------
 #----------------------------------- CHECK -------------------------------------
@@ -185,7 +192,6 @@ elsif ( $modules{ "location"     } ) { Location(    $par ); }
 elsif ( $modules{ "RUN-ALL"      } ) { RunAll(      $par ); }
 elsif ( $modules{ "RUN-DIEM"     } ) { RunDiem(     $par ); }
 
-
 rmtree $par->val('CDPAN', 'work_dir') or PrintErrorMessage("Cannot delete work direction: $!");
 
 PrintStartMessage("Output file:");
@@ -193,31 +199,33 @@ PrintStartMessage("Output file:");
 my @search_res = qw \ filter align extract assembly mope vot soot merge location \;
 foreach my $search_res_module (@search_res) {
     if (defined $par->val('RESULT', $search_res_module)){
-        printf STDERR "%-20s", "Module $search_res_module:";
-        print  STDERR $par->val('RESULT', $search_res_module);
-        print  STDERR "\n";
+        PrintfMessage("%-20s", "Module $search_res_module:");
+        PrintMessage($par->val('RESULT', $search_res_module));
+        PrintMessage("\n");
     }
 }
 
-print  STDERR "\n" if $main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" };
+PrintMessage("\n") if (($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }) and $output_level > 0);
 
 if (defined $par->val('RESULT', 'dispensable_genome_fasta')){
-    print STDERR "The result file is saved as: ";
-    print STDERR $par->val('RESULT', 'dispensable_genome_fasta');
-    print STDERR "\n";
+    PrintMessage("The result file is saved as: ");
+    PrintMessage($par->val('RESULT', 'dispensable_genome_fasta'));
+    PrintMessage("\n");
 }
 
 if (defined $par->val('RESULT', 'location_txt')){
-    print STDERR "The result file is saved as: ";
-    print STDERR $par->val('RESULT', 'location_txt');
-    print STDERR "\n";
+    PrintMessage("The result file is saved as: ");
+    PrintMessage($par->val('RESULT', 'location_txt'));
+    PrintMessage("\n");
 }
+
+PrintMessage("\n");
+PrintMessage("The log file is saved as: $log_file\n");
 
 PrintEndMessage("END of CDpan");
 
+close $LOG;
 exit 0;
-
-
 
 
 #-------------------------------------------------------------------------------

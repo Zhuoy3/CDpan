@@ -38,9 +38,9 @@ sub Filter {
     my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
 
     foreach my $idv_name (@input_idvs) {
-        print STDERR "Processing: $idv_name\n";
+        PrintMessage("Processing: $idv_name\n");
         CDpan::Module::Filter::Filter($par, $idv_name) or PrintErrorMessage("Module filter exited abnormally for $idv_name");
-        print STDERR "\n";
+        PrintMessage("\n");
     }
 
     if ($main::modules{ "filter" }){
@@ -48,13 +48,13 @@ sub Filter {
         move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
         $par->newval('RESULT', 'filter', $output_dir);
 
-        print STDERR "Since module filter is being used, program will end\n";
+        PrintMessage("Since module filter is being used, program will end\n");
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'filter', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
-        print STDERR "Since module $main::module is being used, continue to run module align\n";
+        PrintMessage("Since module $main::module is being used, continue to run module align\n");
     }
 
     PrintEndMessage("Finish Module filter");
@@ -72,14 +72,14 @@ sub Align {
 
     my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
 
-    print STDERR "Index\n";
+    PrintMessage("Index\n");
     CDpan::Module::Align::AlignIndex($par) or PrintErrorMessage("Module align exited abnormally when build index");
-    print STDERR "\n";
+    PrintMessage("\n");
 
     foreach my $idv_name (@input_idvs) {
-        print STDERR "Processing: $idv_name\n";
+        PrintMessage("Processing: $idv_name\n");
         CDpan::Module::Align::Align($par, $idv_name) or PrintErrorMessage("Module align exited abnormally for $idv_name");
-        print STDERR "\n";
+        PrintMessage("\n");
     }
 
     CDpan::Module::Align::AlignRemoveIndex($par) or PrintErrorMessage("Module align exited abnormally when remove index");
@@ -89,13 +89,13 @@ sub Align {
         move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
         $par->newval('RESULT', 'align', $output_dir);
 
-        print STDERR "Since module align is being used, program will end\n";
+        PrintMessage("Since module align is being used, program will end\n");
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'align', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
-        print STDERR "Since module $main::module is being used, continue to run module align\n";
+        PrintMessage("Since module $main::module is being used, continue to run module extract\n");
     }
 
     PrintEndMessage("Finish Module align");
@@ -114,9 +114,9 @@ sub Extract {
     my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
 
     foreach my $idv_name (@input_idvs) {
-        print STDERR "Processing: $idv_name\n";
+        PrintMessage("Processing: $idv_name\n");
         CDpan::Module::Extract::Extract($par, $idv_name) or PrintErrorMessage("Module extract exited abnormally for $idv_name");
-        print STDERR "\n";
+        PrintMessage("\n");
     }
 
     if ($main::modules{ "extract" }){
@@ -124,13 +124,13 @@ sub Extract {
         move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
         $par->newval('RESULT', 'extract', $output_dir);
 
-        print STDERR "Since module extract is being used, program will end\n";
+        PrintMessage("Since module extract is being used, program will end\n");
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'extract', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
-        print STDERR "Since module $main::module is being used, continue to run module align\n";
+        PrintMessage("Since module $main::module is being used, continue to run module assembly\n");
     }
 
     PrintEndMessage("Finish Module extract");
@@ -149,9 +149,9 @@ sub Assembly {
     my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
 
     foreach my $idv_name (@input_idvs) {
-        print STDERR "Processing: $idv_name\n";
+        PrintMessage("Processing: $idv_name\n");
         CDpan::Module::Assembly::Assembly($par, $idv_name) or PrintErrorMessage("Module assembly exited abnormally for $idv_name");
-        print STDERR "\n";
+        PrintMessage("\n");
     }
 
     if ($main::modules{ "assembly" }){
@@ -159,13 +159,13 @@ sub Assembly {
         move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
         $par->newval('RESULT', 'assembly', $output_dir);
 
-        print STDERR "Since module assembly is being used, program will end\n";
+        PrintMessage("Since module assembly is being used, program will end\n");
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'assembly', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
-        print STDERR "Since module $main::module is being used, continue to run module align\n";
+        PrintMessage("Since module $main::module is being used, continue to run module mope\n");
     }
 
     PrintEndMessage("Finish Module assembly");
@@ -184,9 +184,9 @@ sub Mope {
     my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
 
     foreach my $idv_name (@input_idvs) {
-        print STDERR "Processing: $idv_name\n";
+        PrintMessage("Processing: $idv_name\n");
         CDpan::Module::Mope::Mope($par, $idv_name) or PrintErrorMessage("Module mope exited abnormally for $idv_name");
-        print STDERR "\n";
+        PrintMessage("\n");
     }
 
     if ($main::modules{ "mope" }){
@@ -194,13 +194,13 @@ sub Mope {
         move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
         $par->newval('RESULT', 'mope', $output_dir);
 
-        print STDERR "Since module mope is being used, program will end\n";
+        PrintMessage("Since module mope is being used, program will end\n");
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'mope', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
-        print STDERR "Since module $main::module is being used, continue to run module align\n";
+        PrintMessage("Since module $main::module is being used, continue to run module vot\n");
     }
 
     PrintEndMessage("Finish Module mope");
@@ -220,9 +220,9 @@ sub Vot {
     my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
 
     foreach my $idv_name (@input_idvs) {
-        print STDERR "Processing: $idv_name\n";
+        PrintMessage("Processing: $idv_name\n");
         CDpan::Module::Vot::Vot($par, $idv_name) or PrintErrorMessage("Module vot exited abnormally for $idv_name");
-        print STDERR "\n";
+        PrintMessage("\n");
     }
 
     if ($main::modules{ "vot" }){
@@ -230,13 +230,13 @@ sub Vot {
         move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
         $par->newval('RESULT', 'vot', $output_dir);
 
-        print STDERR "Since module vot is being used, program will end\n";
+        PrintMessage("Since module vot is being used, program will end\n");
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'vot', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
-        print STDERR "Since module $main::module is being used, continue to run module align\n";
+        PrintMessage("Since module $main::module is being used, continue to run module soot\n");
     }
 
     PrintEndMessage("Finish Module vot");
@@ -255,9 +255,9 @@ sub Soot {
     my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
 
     foreach my $idv_name (@input_idvs) {
-        print STDERR "Processing: $idv_name\n";
+        PrintMessage("Processing: $idv_name\n");
         CDpan::Module::Soot::Soot($par, $idv_name) or PrintErrorMessage("Module soot exited abnormally for $idv_name");
-        print STDERR "\n";
+        PrintMessage("\n");
     }
 
     if ($main::modules{ "soot" }){
@@ -265,13 +265,13 @@ sub Soot {
         move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
         $par->newval('RESULT', 'soot', $output_dir);
 
-        print STDERR "Since module soot is being used, program will end\n";
+        PrintMessage("Since module soot is being used, program will end\n");
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'soot', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
-        print STDERR "Since module $main::module is being used, continue to run module align\n";
+        PrintMessage("Since module $main::module is being used, continue to run module merge\n");
     }
 
     PrintEndMessage("Finish Module soot");
@@ -290,9 +290,9 @@ sub Merge {
     my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
 
     foreach my $idv_name (@input_idvs) {
-        print STDERR "Processing: $idv_name\n";
+        PrintMessage("Processing: $idv_name\n");
         CDpan::Module::Merge::Merge($par, $idv_name) or PrintErrorMessage("Module merge exited abnormally for $idv_name");
-        print STDERR "\n";
+        PrintMessage("\n");
     }
 
     if ($main::modules{ "merge" }){
@@ -300,13 +300,13 @@ sub Merge {
         move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
         $par->newval('RESULT', 'merge', $output_dir);
 
-        print STDERR "Since module merge is being used, program will end\n";
+        PrintMessage("Since module merge is being used, program will end\n");
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'merge', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
-        print STDERR "Since module $main::module is being used, continue to run module align\n";
+        PrintMessage("Since module $main::module is being used, continue to run module location\n");
     }
 
     PrintEndMessage("Finish Module merge");
@@ -319,10 +319,10 @@ sub Location {
 
     PrintStartMessage("Start Module location");
 
-    print STDERR "Processing: PreLocation\n";
+    PrintMessage("PreLocation\n");
     CDpan::Module::Location::PreLocation($par)
         or PrintErrorMessage("Module location exited abnormally when do PreLocation");
-    print STDERR "\n";
+    PrintMessage("\n");
 
     my $work_dir = catdir($par->val('CDPAN', 'work_dir'), 'location');
     mkdir $work_dir or PrintErrorMessage("Cannot create work direction $work_dir: $!");
@@ -332,9 +332,9 @@ sub Location {
     my @input_idvs = sort ( File::Slurp::read_dir( $par->val('CDPAN', 'input_dir')) );
 
     foreach my $idv_name (@input_idvs) {
-        print STDERR "Processing: $idv_name\n";
+        PrintMessage("Processing: $idv_name\n");
         CDpan::Module::Location::Location($par, $idv_name) or PrintErrorMessage("Module location exited abnormally for $idv_name");
-        print STDERR "\n";
+        PrintMessage("\n");
     }
 
     CDpan::Module::Location::Compare($par)
@@ -355,13 +355,13 @@ sub Location {
         move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
         $par->newval('RESULT', 'location', $output_dir);
 
-        print STDERR "Since module location is being used, program will end\n";
+        PrintMessage("Since module location is being used, program will end\n");
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'location', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
-        print STDERR "Since module $main::module is being used, continue to run module align\n";
+        PrintMessage("Since module $main::module is being used, program will end\n");
     }
 
     PrintEndMessage("Finish Module location");
@@ -372,9 +372,9 @@ sub Location {
 sub RunDiem {
     (my $par) = @_;
 
-    PrintStartMessage("Start Module RunDiem");
-    print STDERR "The following modules will be executed sequentially:";
-    print STDERR "    filter align extract assembly mope vot soot merge\n";
+    PrintStartMessage("Start Module RUN-DIEM");
+    PrintMessage("The following modules will be executed sequentially:\n");
+    PrintMessage("    filter align extract assembly mope vot soot merge\n\n");
 
     Filter   ( $par ) unless ($main::no_quality_control);
     Align    ( $par );
@@ -411,7 +411,9 @@ sub RunDiem {
         $par->delval('RESULT', 'ref_index');
     }
 
-    PrintEndMessage("Finish Module RunDiem");
+    PrintStartMessage("All modules have been executed for Module RUN-DIEM");
+
+    PrintEndMessage("Finish Module RUN-DIEM");
 
     return 1;
 };
@@ -419,9 +421,9 @@ sub RunDiem {
 sub RunAll {
     (my $par) = @_;
 
-    PrintStartMessage("Start Module RunDiem");
-    print STDERR "The following modules will be executed sequentially:";
-    print STDERR "    filter align extract assembly mope vot soot merge location\n\n";
+    PrintStartMessage("Start Module RUN-ALL");
+    PrintMessage("The following modules will be executed sequentially:\n");
+    PrintMessage("    filter align extract assembly mope vot soot merge location\n\n");
 
     Filter   ( $par ) unless ($main::no_quality_control);
     Align    ( $par );
@@ -470,7 +472,9 @@ sub RunAll {
         $par->delval('RESULT', 'pre_location');
     }
 
-    PrintEndMessage("Finish Module Rundiem");
+    PrintStartMessage("All modules have been executed for Module RUN-ALL");
+
+    PrintEndMessage("Finish Module RUN-ALL");
 
     return 1;
 };

@@ -60,15 +60,33 @@ sub __CheckTools__ {
                             bowtie2-build
                             minimap2 \;
 
-    print STDERR "Tools required: @tools_needed\n";
-    print STDERR "\n";
+    PrintMessage("Tools required: ");
+    my $tools_count = 16;
+    foreach my $tool (@tools_needed) {
+        if ( $tools_count >= 80){
+            PrintMessage("\n                ");
+            $tools_count = 16;
+        }
+        PrintMessage("$tool ");
+        $tools_count += (length($tool) + 1);
+    }
+    PrintMessage("\n\n");
 
     my @tools_specify = $par->Parameters('TOOLS');
-    print STDERR "Tools specified: @tools_specify\n";
-    print STDERR "\n";
+    PrintMessage("Tools specified: ");
+    $tools_count = 17;
+    foreach my $tool (@tools_specify) {
+        if ( $tools_count >= 80){
+            PrintMessage("\n                 ");
+            $tools_count = 17;
+        }
+        PrintMessage("$tool ");
+        $tools_count += (length($tool) + 1);
+    }
+    PrintMessage("\n\n");
 
-    print STDERR "Specified:\n";
-    print STDERR "\n";
+    PrintMessage("Specified:\n");
+    PrintMessage("\n");
     foreach my $tools (@tools_specify) {
         unless (grep { $_ eq $tools } @tools_needed) {
             PrintWarnMessage("$tools is not required, ignore it");
@@ -78,8 +96,8 @@ sub __CheckTools__ {
 
         my $tools_path = $par->val('TOOLS', $tools);
         $tools_path = rel2abs($tools_path) unless file_name_is_absolute($tools_path);
-        printf STDERR "%-22s", "$tools:";
-        print  STDERR "$tools_path\n";
+        PrintfMessage("%-22s", "$tools:");
+        PrintMessage("$tools_path\n");
 
         if ( -e -x $tools_path ) {
             $par->setval('TOOLS', $tools, $tools_path);
@@ -90,9 +108,9 @@ sub __CheckTools__ {
         }
     }
 
-    print STDERR "\n";
-    print STDERR "Search from PATH:\n";
-    print STDERR "\n";
+    PrintMessage("\n");
+    PrintMessage("Search from PATH:\n");
+    PrintMessage("\n");
     foreach my $tools (@tools_needed) {
         unless ( defined $par->val('TOOLS', $tools) ) {
             my $cmd_findtool = "command -v ${tools}";
@@ -104,8 +122,8 @@ sub __CheckTools__ {
                 $exit_tools = 1;
             }
             else{
-                printf STDERR "%-22s", "$tools:";
-                print  STDERR "$new_tools_path\n";
+                PrintfMessage("%-22s", "$tools:");
+                PrintMessage("$new_tools_path\n");
                 $par->newval('TOOLS', $tools, $new_tools_path);
             }
         }
@@ -195,7 +213,7 @@ sub __CheckConfig__ {
         }
     }
 
-    print STDERR "\n";
+    PrintMessage("\n");
 
     foreach my $section ( sort { $default_params{$a}{'sort'} <=> $default_params{$b}{'sort'} } keys %default_params ) {
         foreach my $param ( sort keys %{ $default_params{$section} } ) {
@@ -213,19 +231,19 @@ sub __CheckConfig__ {
                 next;
             }
             if ( defined $par->val($section, $param)) {
-                printf STDERR "%-10s", "[$section]";
-                printf STDERR "%-25s", " => $param:";
-                print  STDERR $par->val($section, $param);
-                print  STDERR "\n";
+                PrintfMessage("%-10s", "[$section]");
+                PrintfMessage("%-25s", " => $param:");
+                PrintMessage($par->val($section, $param));
+                PrintMessage("\n");
             }
             else{
                 if ( $default_params{$section}{$param} ) {
                     $par->delval($section, $param);
                     $par->newval($section, $param, $default_params{$section}{$param});
-                    printf STDERR "%-10s", "[$section]";
-                    printf STDERR "%-25s", " => $param:";
-                    print  STDERR $par->val($section, $param);
-                    print  STDERR " (Default)\n";
+                    PrintfMessage("%-10s", "[$section]");
+                    PrintfMessage("%-25s", " => $param:");
+                    PrintMessage($par->val($section, $param));
+                    PrintMessage(" (Default)\n");
                 }
                 elsif ( $main::modules{ lc $section } or $main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" } ) {
                     PrintErrorMessage("[$section] => $param is required by Module $main::module, please use config file to specify");
@@ -266,9 +284,9 @@ sub __CheckFile__ {
             unless (file_name_is_absolute($par->val('DATA', $file_for_check))){
                 $par->setval('DATA', $file_for_check,rel2abs($par->val('DATA', $file_for_check)));
             }
-            printf STDERR "%-25s", "[DATA] => $file_for_check:";
-            print  STDERR $par->val('DATA', $file_for_check);
-            print  STDERR "\n";
+            PrintfMessage("%-25s", "[DATA] => $file_for_check:");
+            PrintMessage($par->val('DATA', $file_for_check));
+            PrintMessage("\n");
         }
         else{
             if ( $file_for_check eq 'index' ){
@@ -279,9 +297,9 @@ sub __CheckFile__ {
                     unless (file_name_is_absolute($par->val('DATA', $file_for_check))){
                         $par->setval('DATA', $file_for_check,rel2abs($par->val('DATA', $file_for_check)));
                     }
-                    printf STDERR "%-25s", "[DATA] => $file_for_check:";
-                    print  STDERR $par->val('DATA', $file_for_check);
-                    print  STDERR "\n";
+                    PrintfMessage("%-25s", "[DATA] => $file_for_check:");
+                    PrintMessage($par->val('DATA', $file_for_check));
+                    PrintMessage("\n");
                     next;
                 }
             }
@@ -313,7 +331,7 @@ sub __CheckFile__ {
         if ( -e $output_file_name ) {
             rename $output_file_name => "$output_file_name.old"
                 or PrintErrorMessage("Cannot change the name of file $output_file_name: $!");
-            PrintWarnMessage("Output file $output_file_name exists and has been renamed");
+            PrintWarnMessage("Output file $output_file_name exists and has been renamed to $output_file_name.old");
         }
     }
 

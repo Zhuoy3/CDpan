@@ -33,7 +33,7 @@ sub Mope {
     my $min_length = $par->val('MOPE', 'min-length');
     $min_length += 0;
 
-    PrintProcessMessage("screen sequences more than $min_length");
+    PrintProcessMessage("filtered out the sequences shorter than $min_length bp");
 
     # Screen more than 1k sequences
     open FASTA, '<', "${input_file_prefix}.final.genome.scf.fasta"
@@ -66,7 +66,7 @@ sub Mope {
     my $centrifuge = $par->val('TOOLS', 'centrifuge');
     my $centrifuge_kreport = $par->val('TOOLS', 'centrifuge-kreport');
 
-    my $index = $par->val('DATA', 'index');
+    my $index = $par->val('DATA', 'nt_index');
     my $host_taxids = $par->val('MOPE', 'host-taxids');
 
     my $cmd_centrifuge = "$centrifuge " .

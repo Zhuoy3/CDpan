@@ -319,7 +319,7 @@ sub Location {
 
     PrintStartMessage("Start Module location");
 
-    PrintMessage("PreLocation\n");
+    PrintMessage("Index\n");
     CDpan::Module::Location::PreLocation($par)
         or PrintErrorMessage("Module location exited abnormally when do PreLocation");
     PrintMessage("\n");
@@ -355,14 +355,18 @@ sub Location {
         move $work_dir, $output_dir or PrintErrorMessage("Couln't move $work_dir to $output_dir: $!");
         $par->newval('RESULT', 'location', $output_dir);
 
+        PrintMessage("ALL individuals' previous results were integrated into $output_dir.compare.txt\n");
         PrintMessage("Since module location is being used, program will end\n");
     }
     elsif ($main::modules{ "RUN-ALL" } or $main::modules{ "RUN-DIEM" }){
         $par->newval('RESULT', 'location', $work_dir);
         $par->setval('CDPAN', 'input_dir', $work_dir);
 
+        PrintMessage("ALL individuals' previous results were integrated into $main::output_prefix.location.txt\n");
         PrintMessage("Since module $main::module is being used, program will end\n");
     }
+
+
 
     PrintEndMessage("Finish Module location");
 

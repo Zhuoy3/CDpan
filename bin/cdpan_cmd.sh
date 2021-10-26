@@ -4,6 +4,16 @@
 # @Author: zhuoy
 # @Date: 2021-10-22 17:44:24
 # @LastEditors: zhuoy
+# @LastEditTime: 2021-10-26 18:01:29
+# @Calls:
+# @Called By:
+# @FilePath: \CDpan\bin\cdpan_cmd.sh
+###
+###
+# @Description:
+# @Author: zhuoy
+# @Date: 2021-10-22 17:44:24
+# @LastEditors: zhuoy
 # @LastEditTime: 2021-10-22 18:13:25
 # @Calls:
 # @Called By:

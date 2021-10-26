@@ -26,7 +26,7 @@ sub Merge {
         }
     }
 
-    PrintProcessMessage("merge $idv_name to %%", "$output_dir/merge.fasta");
+    PrintProcessMessage("Merge the new DNA sequences from all individuals and remove the redundancy contigs, the results were written into %%", "$output_dir/merge.fasta");
     open my $OUTPUT , ">>", "$output_dir/merge.fasta"
         or PrintErrorMessage("Couldn't create output file $output_dir/all.fasta: $!.");
 

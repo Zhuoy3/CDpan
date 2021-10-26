@@ -262,7 +262,7 @@ sub __CheckFile__ {
 
     PrintStartMessage("Start checking files");
 
-    my @file_for_check = qw \ ref index taxid \;
+    my @file_for_check = qw \ ref nt_index taxid \;
     foreach my $file_for_check (@file_for_check) {
         unless ( defined $par->val('DATA', $file_for_check) ) {
             if ( $main::modules{"RUN-ALL"} or $main::modules{"RUN-DIEM"} ){
@@ -271,7 +271,7 @@ sub __CheckFile__ {
                 PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
             }elsif ( $file_for_check eq 'ref' and  $main::modules{"soot"} ){
                 PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
-            }elsif ( $file_for_check eq 'index' and  $main::modules{"mope"} ){
+            }elsif ( $file_for_check eq 'nt_index' and  $main::modules{"mope"} ){
                 PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
             }elsif ( $file_for_check eq 'taxid' and  $main::modules{"mope"} ){
                 PrintErrorMessage("[DATA] => $file_for_check is required by Module $main::module");
@@ -289,7 +289,7 @@ sub __CheckFile__ {
             PrintMessage("\n");
         }
         else{
-            if ( $file_for_check eq 'index' ){
+            if ( $file_for_check eq 'nt_index' ){
                 my $file_for_check_path = $par->val('DATA', $file_for_check);
                 $file_for_check_path = "ls $file_for_check_path*";
                 my @file_for_check_path = `$file_for_check_path`;

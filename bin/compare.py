@@ -212,14 +212,14 @@ f.write('''##fileformat=CDpan,v3.0
 ##FORMAT=<ID=PAS,Value=1,Explanation="Contig is presence on sample">
 ##FORMAT=<ID=PAS,Value=0,Explanation="Contig is absence on sample">
 ##FORMAT=<ID=LOCH,Type=char,Description="The location of contig on chromosome">
-##FORMAT=<ID=LOCH,Value=A,Explanation="Contig is known on which chromosome, where to start and where to end">
-##FORMAT=<ID=LOCH,Value=L,Explanation="Contig is known on which chromosome and where to start">
-##FORMAT=<ID=LOCH,Value=R,Explanation="Contig is known on which chromosome and where to end">
-##FORMAT=<ID=LOCH,Value=U,Explanation="Contig is only known on which chromosome">
-##FORMAT=<ID=LOCH,Value=N,Explanation="Any location information of Contig is unknown">
+##FORMAT=<ID=LOCH,Value=A,Explanation="The positions of a contig's two-ends that relative to the reference genome could be located">
+##FORMAT=<ID=LOCH,Value=L,Explanation="The position of a contig's left-end that relative to the reference genome could be located">
+##FORMAT=<ID=LOCH,Value=R,Explanation="The position of a contig's right-end that relative to the reference genome could be located">
+##FORMAT=<ID=LOCH,Value=U,Explanation="The contig just could located in the chromosome relative to the reference genome">
+##FORMAT=<ID=LOCH,Value=N,Explanation="The contig could not located the positions relative to the reference genome">
 ##FORMAT=<ID=CHR,Type=String,Description="Which chromosome contig is location, null for unknown">
-##FORMAT=<ID=WEST,Type=Integer,Description="Where to start contig is, null for unknown">
-##FORMAT=<ID=WEED,Type=Integer,Description="Where to end contig is, null for unknown">
+##FORMAT=<ID=WEST,Type=Integer,Description="The position of a contig's left-end located, null for unknown">
+##FORMAT=<ID=WEED,Type=Integer,Description="The position of a contig's right-end located, null for unknown">
 ''')
 f.write('\t'.join(header) + '\n')
 for line in seq:

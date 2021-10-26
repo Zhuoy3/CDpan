@@ -12,6 +12,7 @@ use lib "$FindBin::Bin/../lib";
 
 use Cwd;
 use File::Path qw / rmtree /;
+use File::Copy qw / move /;
 use File::Spec::Functions  qw /:ALL/;
 use Config::IniFiles;
 
@@ -21,7 +22,7 @@ use CDpan qw / :ALL /;
 #------------------------------------ START ------------------------------------
 #-------------------------------------------------------------------------------
 our $version = "0.3.0";
-our $date = "Oct 22 2021";
+our $date = "Oct 26 2021";
 
 Usage() if @ARGV == 0;
 
@@ -132,7 +133,7 @@ unless ( defined $output_prefix ) {
 #------------------------------------ MAIN -------------------------------------
 #-------------------------------------------------------------------------------
 our $log_file = catfile($output_dir, "$output_prefix.log");
-open our $LOG, '>', $log_file or PrintErrorMessage("Couldn't create $log_file: $!");
+open our $LOG, '>', "$cwd/$output_prefix.log" or PrintErrorMessage("Couldn't create $cwd/$output_prefix.log: $!");
 
 my $main_no_quality_control = $no_quality_control?"True":"False";
 
@@ -220,6 +221,8 @@ if (defined $par->val('RESULT', 'location_txt')){
 }
 
 PrintMessage("\n");
+
+move "$cwd/$output_prefix.log", $log_file or PrintErrorMessage("Couln't move $cwd/$output_prefix.log to $log_file: $!");
 PrintMessage("The log file is saved as: $log_file\n");
 
 PrintEndMessage("END of CDpan");

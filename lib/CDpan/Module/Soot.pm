@@ -50,7 +50,7 @@ sub Soot {
                      "-l $minmatch " .
                      "-t $thread";
     # print "Start use cmd: \'$cmd_nucmer\'.\n";
-    PrintProcessMessage("precise align to %%", "${output_file_prefix}.filtered.mmseqs.delta");
+    PrintProcessMessage("Remove the contigs which could align to the reference genome, the results were written into %%", "${output_file_prefix}.filtered.mmseqs.delta");
     system $cmd_nucmer
         and PrintErrorMessage("Command \'$cmd_nucmer\' failed to run normally: $?");
 

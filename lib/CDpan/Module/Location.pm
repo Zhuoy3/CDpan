@@ -126,7 +126,7 @@ sub Location {
                     "-p $thread " .
                     "2> ${output_file_prefix}.bowtie2.log";
     # print "Start use cmd: \'$cmd_align\'.\n";
-    PrintProcessMessage('aligning sequencing to %%*', "${output_file_prefix}.readContigAlignment.final.sam");
+    PrintProcessMessage('alignment:the results were writtein to %%', "${output_file_prefix}.readContigAlignment.final.sam");
     system $cmd_align
         and PrintErrorMessage("Command \'$cmd_align\' failed to run normally: $?");
 
@@ -142,7 +142,7 @@ sub Location {
                         "| awk \'{OFS=\"\\t\"}{print \$4,\$1,\$6,\$2,\$3}\' " .
                         "| sort > ${output_file_prefix}.readContigAlignment.txt";
     # print "Start use cmd: \'$cmd_samtools1\'.\n";
-    PrintProcessMessage('change to %%', "${output_file_prefix}.readContigAlignment.txt");
+    PrintProcessMessage('extract the alignment to %%', "${output_file_prefix}.readContigAlignment.txt");
     system $cmd_samtools1
         and PrintErrorMessage("Command \'$cmd_samtools1\' failed to run normally: $?");
 
@@ -158,7 +158,7 @@ sub Location {
                         "| sed -e \'s/\\/[1-2]//g\' " .
                         "| sort > ${output_file_prefix}.matchedMates.txt";
     # print "Start use cmd: \'$cmd_samtools2\'.\n";
-    PrintProcessMessage('change to %%', "${output_file_prefix}.matchedMates.txt");
+    PrintProcessMessage('extract the alignment results of hangning reads to %%', "${output_file_prefix}.matchedMates.txt");
 
     open my $TMP, '>', "${output_file_prefix}.tmp.sh";
     print $TMP $cmd_samtools2;
@@ -175,7 +175,7 @@ sub Location {
                    "${output_file_prefix}.matchedMates.txt " .
                    "> ${output_file_prefix}.mateLinks.txt";
     # print "Start use cmd: \'$cmd_join\'.\n";
-    PrintProcessMessage('join to %%', "${output_file_prefix}.mateLinks.txt");
+    PrintProcessMessage('integrated the previous alignment results into %%', "${output_file_prefix}.mateLinks.txt");
     system $cmd_join
         and PrintErrorMessage("Command \'$cmd_join\' failed to run normally: $?");
 
@@ -190,7 +190,7 @@ sub Location {
                        "> ${output_file_prefix}.aln.paf " .
                        "2> ${output_file_prefix}.aln.paf.log";
     # print "Start use cmd: \'$cmd_minimap2\'.\n";
-    PrintProcessMessage('alignment to %%', "${output_file_prefix}.aln.paf");
+    PrintProcessMessage('the PAV identification of the new DNA sequences, the results were written into %%', "${output_file_prefix}.aln.paf");
     system $cmd_minimap2
         and PrintErrorMessage("Command \'$cmd_minimap2\' failed to run normally: $?");
 

@@ -51,7 +51,7 @@ sub Vot {
                      "--cluster-mode $cluster_mode " .
                      "> ${output_file_prefix}.filtered.mmseqs.log";
     # print "Start use cmd: \'$cmd_mmseqs\'.\n";
-    PrintProcessMessage("cascaded clustering to %%*", "${output_file_prefix}.filtered.mmseqs");
+    PrintProcessMessage("Remove the repetitive contigs and write the results into %%", "${output_file_prefix}.filtered.mmseqs_rep_seq.fasta");
     system $cmd_mmseqs
         and PrintErrorMessage("Command \'$cmd_mmseqs\' failed to run normally: $?");
 
